@@ -21,28 +21,18 @@ function drawCog(cog) {
 
     ctx.rotate(cog.a);
 
-    const dx1 = (cog.r + 2) * Math.cos(0.8 * cog.da / 2);
-    const dy1 = (cog.r + 2) * Math.sin(0.8 * cog.da / 2);
-
     const dx2 = (cog.r + 5) * Math.cos(cog.da / 2);
     const dy2 = (cog.r + 5) * Math.sin(cog.da / 2);
 
     ctx.beginPath();
-    ctx.moveTo(cog.r, 3);
-    // ctx.lineTo(dx1, dy1);
-    ctx.lineTo(dx2, dy2);
-    ctx.stroke();
-    ctx.closePath();
+    ctx.moveTo(dx2, dy2);
+    ctx.bezierCurveTo(dx2, dy2 - 1, cog.r + 2, 3, cog.r, 3)
 
-    ctx.beginPath();
     ctx.arc(cog.r, 0, 3, Math.PI / 2, - Math.PI / 2, false);
-    ctx.stroke();
-    ctx.closePath();
-   
-    ctx.beginPath();
+
     ctx.moveTo(cog.r, -3);
-    // ctx.lineTo(dx1, -dy1);
-    ctx.lineTo(dx2, -dy2);
+    ctx.bezierCurveTo(cog.r + 2, -3, dx2, - dy2 + 1, dx2, -dy2)
+
     ctx.stroke();
     ctx.closePath();
 
@@ -50,19 +40,8 @@ function drawCog(cog) {
 }
 
 function drawCogs(cogs) {
-    console.log("cogs: " + cogs.c);
     da = 2.0 * Math.PI / cogs.c; // angle between two cogs
-    console.log("da: " + da);
     r = (halfLink / 2) / Math.sin(da / 2.0); // radius to rivet
-    console.log("r: " + r);
-
-    // ctx.beginPath();
-
-    // ctx.arc(0, 0, r - 2, 0, 2 * Math.PI);
-    // ctx.stroke();
-
-    // ctx.closePath();
-
     for (let i = 0; i < cogs.c; i++) {
         drawCog({ r: r, a: cogs.a + i * da, da: da });
     }
