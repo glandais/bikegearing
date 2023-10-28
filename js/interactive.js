@@ -1,11 +1,14 @@
 let cameraOffset = { x: 100, y: 300 };
 let cameraZoom = 2;
-let MAX_ZOOM = 20;
-let MIN_ZOOM = 0.2;
+let MAX_ZOOM = 50;
+let MIN_ZOOM = 0.5;
 let SCROLL_SENSITIVITY = 0.005;
 
-function getEventLocation(e) {
-  return { x: e.clientX, y: e.clientY };
+function getWorldPosition(e) {
+  return {
+    x: (e.clientX - cameraOffset.x) / cameraZoom,
+    y: (e.clientY - cameraOffset.y) / cameraZoom,
+  };
 }
 
 let isDragging = false;
@@ -16,7 +19,7 @@ let previousCameraOffset;
 function onPointerDown(e) {
   isDragging = true;
   previousCameraOffset = { x: cameraOffset.x, y: cameraOffset.y };
-  dragStart = getEventLocation(e);
+  dragStart = { x: e.clientX, y: e.clientY };
 }
 
 function onPointerUp(e) {
@@ -24,22 +27,31 @@ function onPointerUp(e) {
 }
 
 function onPointerMove(e) {
+  console.log(getWorldPosition(e));
   if (isDragging) {
-    const dragEnd = getEventLocation(e);
     const diff = {
-      x: (dragEnd.x - dragStart.x),
-      y: (dragEnd.y - dragStart.y),
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y,
     };
     cameraOffset.x = previousCameraOffset.x + diff.x;
     cameraOffset.y = previousCameraOffset.y + diff.y;
   }
 }
 
-function adjustZoom(zoomAmount) {
+function adjustZoom(e) {
   if (!isDragging) {
+    const deltaY = e.deltaY;
+    zoomAmount = -deltaY * SCROLL_SENSITIVITY;
+    const worldPosition = getWorldPosition(e);
     cameraZoom += zoomAmount;
     cameraZoom = Math.min(cameraZoom, MAX_ZOOM);
     cameraZoom = Math.max(cameraZoom, MIN_ZOOM);
+
+    // worldPosition.x = (e.clientX - cameraOffset.x) / cameraZoom
+    // worldPosition.x * cameraZoom = e.clientX - cameraOffset.x
+    // worldPosition.x * cameraZoom + cameraOffset.x = e.clientX
+    cameraOffset.x = e.clientX - worldPosition.x * cameraZoom
+    cameraOffset.y = e.clientY - worldPosition.y * cameraZoom
   }
 }
 
@@ -53,7 +65,5 @@ function initInteractive() {
   canvas.addEventListener("mousedown", onPointerDown);
   canvas.addEventListener("mouseup", onPointerUp);
   canvas.addEventListener("mousemove", onPointerMove);
-  canvas.addEventListener("wheel", (e) =>
-    adjustZoom(-e.deltaY * SCROLL_SENSITIVITY)
-  );
+  canvas.addEventListener("wheel", adjustZoom);
 }

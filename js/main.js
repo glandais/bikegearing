@@ -21,4 +21,8 @@ function init() {
     canvas.height = window.innerHeight;
     initInteractive();
     draw();
+    setInterval(() => {
+        state.af = state.af + 0.001;
+        state.ar = state.ar + 0.001 * (state.f / state.r);
+    }, 10);
 }
