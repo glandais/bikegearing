@@ -1,17 +1,17 @@
 
 var state = {
-    f: 50,
-    r: 15,
-    cs: 410,
-    cl: 50,
-    af: 0,
-    ar: 0,
-    fu: 18,
-    cfu: 18,
-    ru: 4,
-    cru: 48,
-    clf: 36,
-    clr: 8
+    f: 50, // teeth front
+    r: 15, // teeth rear
+    cs: 410, // chainstay (mm)
+    cl: 50, // chain length (mm -> cl * 2.54)
+    af: 0, // angle front
+    ar: 0, // angle rear
+    fu: 18, // cog hole number where chain is leaving front
+    cfu: 18, // rivet number on fu
+    ru: 4, // cog hole number where chain is arriving on rear
+    cru: 48, // rivet number on ru
+    clf: 36, // rivets on front
+    clr: 8 // rivets on rear
 };
 
 function init() {
@@ -22,7 +22,7 @@ function init() {
     initInteractive();
     draw();
     setInterval(() => {
-        state.af = state.af + 0.001;
-        state.ar = state.ar + 0.001 * (state.f / state.r);
+        // state.af = state.af + 0.001;
+        // state.ar = state.ar + 0.001 * (state.f / state.r);
     }, 10);
 }

@@ -27,7 +27,6 @@ function onPointerUp(e) {
 }
 
 function onPointerMove(e) {
-  console.log(getWorldPosition(e));
   if (isDragging) {
     const diff = {
       x: e.clientX - dragStart.x,
