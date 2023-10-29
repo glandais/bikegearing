@@ -12,8 +12,8 @@ var state = {
     cfu: 18, // rivet number on fu
     ru: 4, // cog hole number where chain is arriving on rear
     cru: 48, // rivet number on ru
-    clf: 27, // rivets on front
-    clr: 6 // rivets on rear
+    clf: 28, // rivets on front
+    clr: 8 // rivets on rear
 };
 
 let cfu = state.cfu;
@@ -27,6 +27,7 @@ function init() {
     initInteractive();
     draw();
     setInterval(() => {
+        /*
         state.af = state.af + 0.001;
         cfu = cfu + state.f * 0.001 / (2 * Math.PI);
         state.cfu = Math.round(cfu);
@@ -37,5 +38,6 @@ function init() {
         cru = cru + state.r * dar / (2 * Math.PI);
         state.cru = Math.round(cru);
         state.ru = Math.round(4 + state.r * state.ar / (2 * Math.PI));
+        */
     }, 10);
 }
