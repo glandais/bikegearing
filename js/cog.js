@@ -20,7 +20,18 @@ function drawCog(cog) {
   const a = cog.da / 2;
 
   if (debug) {
+    ctx.save();
+    ctx.fillStyle = "#055"
+    ctx.strokeStyle = "#055"
+    ctx.lineWidth = 0.1;
     ctx.fillText("" + cog.i, cog.r + 10, 0);
+    ctx.beginPath();
+    ctx.lineTo(cog.r, 0);
+    const cog2 = getArcEnd(cog.r, cog.da);
+    ctx.lineTo(cog2.x, cog2.y);
+    ctx.stroke();
+    ctx.closePath();
+    ctx.restore();
   }
 
   ctx.beginPath();
@@ -36,7 +47,6 @@ function drawCog(cog) {
 function drawCogs(state) {
   ctx.save();
   ctx.translate(state.cs, 0);
-
   for (let i = 0; i < state.f; i++) {
     drawCog({ r: state.rf, i: i, a: state.af - i * state.daf, da: state.daf });
   }

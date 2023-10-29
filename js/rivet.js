@@ -1,4 +1,5 @@
-function drawRawRivet(dist) {
+function drawRawRivet() {
+  const dist = halfLink;
   let r = 5;
   let dcx1 = dist / 8;
   let dcx2 = dist / 4;
@@ -38,43 +39,62 @@ function drawRivet(rivet) {
   const dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 
   ctx.save();
-  ctx.fillStyle = "#ddd";
   ctx.translate(p1.x, p1.y);
   const a = getAngle(p1, p2);
   ctx.rotate(a);
-
-  ctx.beginPath();
-  drawRawRivet(dist);
-  ctx.fill();
-  drawRawRivet(dist);
-  ctx.stroke();
-  ctx.closePath();
-
-  if (rivet.rn % 2 == 1) {
-    ctx.fillStyle = "#ccc";
-    ctx.beginPath();
-    ctx.arc(0, 0, 2, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.arc(0, 0, 2, 0, 2 * Math.PI);
-    ctx.stroke();
-    ctx.closePath();
-    ctx.beginPath();
-    ctx.arc(dist, 0, 2, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.arc(dist, 0, 2, 0, 2 * Math.PI);
-    ctx.stroke();
-    ctx.closePath();
-  }
-  if (rivet.rn % 10 == 1) {
-    ctx.font = "3.5px serif";
-    ctx.strokeStyle = "#000";
-    ctx.strokeText("GLA", dist / 2, 0.4);
-  }
-
   if (debug) {
+    ctx.lineWidth = 0.1;
     ctx.fillStyle = "#000";
-    ctx.fillText(rn + "", 0, 0);
-    ctx.fillText(rn + 1 + "", dist, 0);
+    ctx.fillText(rn + "", 0, 5);
+    ctx.beginPath();
+    ctx.arc(0, 0, 1, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.closePath();
+    ctx.beginPath();
+    let dy = 0;
+    if (rivet.rn % 2 == 1) {
+      dy = 1;
+    } else {
+      dy = -1;
+    }
+    ctx.moveTo((dist - halfLink) / 2, dy);
+    ctx.lineTo((dist - halfLink) / 2, 0);
+    ctx.lineTo(dist - (dist - halfLink) / 2, 0);
+    ctx.lineTo(dist - (dist - halfLink) / 2, dy);
+    ctx.stroke();
+    ctx.closePath();
+  } else {
+    ctx.fillStyle = "#ddd";
+
+    ctx.beginPath();
+    drawRawRivet(dist);
+    ctx.fill();
+    drawRawRivet(dist);
+    ctx.stroke();
+    ctx.closePath();
+
+    if (rivet.rn % 2 == 1) {
+      ctx.fillStyle = "#ccc";
+      ctx.beginPath();
+      ctx.arc(0, 0, 2, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.arc(0, 0, 2, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.closePath();
+      ctx.beginPath();
+      ctx.arc(dist, 0, 2, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.arc(dist, 0, 2, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.closePath();
+    }
+    if (rivet.rn % 10 == 1) {
+      ctx.save();
+      ctx.font = "3.5px serif";
+      ctx.strokeStyle = "#000";
+      ctx.strokeText("GLA", dist / 2, 0.4);
+      ctx.restore();
+    }
   }
   ctx.restore();
 }
@@ -113,9 +133,6 @@ function drawRivetsRear(state, rivets) {
     const cog = i + state.ru;
     const p1 = getRivetPoint(0, state.rr, state.ar - cog * state.dar);
     const p2 = getRivetPoint(0, state.rr, state.ar - (cog + 1) * state.dar);
-    // rn = i + drn
-    // cfu = fu + drn -> drn = cfu - fu
-    // rn = i + cfu - fu
     const rn = getRn(state.cru + i, state.cl);
     rivets.push({ p1, p2, rn });
   }

@@ -20,6 +20,24 @@
         overflow: hidden;
       }
 
+      #toolbar {
+        height: 100%;
+        width: 20%;
+        margin: 0;
+        padding: 0px;
+        overflow: hidden;
+        float: left;
+      }
+
+      #drawing {
+        height: 100%;
+        width: 80%;
+        margin: 0;
+        padding: 0px;
+        overflow: hidden;
+        float: right;
+      }
+
       #canvas {
         width: 100%;
         height: 100%;
@@ -28,6 +46,31 @@
     </style>
   </head>
   <body onload="init()">
-    <canvas id="canvas"></canvas>
+    <div id="toolbar">
+      <button onclick="switchDebug()">Switch debug</button>
+      <br />
+      dt :
+      <input
+        type="range"
+        min="0"
+        max="50"
+        value="0"
+        oninput="setDt(this.value / 1000)"
+      />
+      <!--
+      <br />
+      af :
+      <input
+        type="range"
+        min="0"
+        max="100"
+        value="0"
+        oninput="setAf((this.value - 50) / 500)"
+      />
+      -->
+    </div>
+    <div id="drawing">
+      <canvas id="canvas"></canvas>
+    </div>
   </body>
 </html>
