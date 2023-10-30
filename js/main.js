@@ -1,7 +1,12 @@
-var debug = true;
-let dt = 0.000;
-//var debug = false;
-//let dt = 0.005;
+let canvas;
+let ctx;
+
+// testCatenary();
+
+//var debug = true;
+//let dt = 0.000;
+var debug = false;
+let dt = 0.005;
 
 const halfLink = 25.4 / 2.0;
 let halfLinkChain = 25.4 / 2.0;
@@ -60,7 +65,7 @@ function simpleProgress() {
   state.rcu = Math.round(4 + (state.r * state.ra) / (2 * Math.PI)) % state.r;
 }
 
-function initState() {
+function initStateV1() {
   state.daf = (2.0 * Math.PI) / state.f; // angle between two cogs
   state.fradius = halfLink / 2 / Math.sin(state.daf / 2.0); // radius to rivet - drawing1.jpg
 
@@ -77,6 +82,13 @@ function initState() {
   state.rcu = 0;
   state.rru = Math.round((state.cs * Math.cos(alpha)) / halfLink);
   state.rr = Math.round(state.r / 2.0);
+
+  const initialDt = dt;
+  dt = 0.001;
+  for (let i = 0; i < 1000; i++) {
+    progressV1();
+  }
+  dt = initialDt;
 }
 
 function getRivet(rivets, rn) {
@@ -168,6 +180,17 @@ function progressV1() {
   state.rcu = state.rcu % state.r;
   state.fru = state.fru % state.cl;
   state.rru = state.rru % state.cl;
+  return onceModified;
+}
+
+function reset() {
+  //simpleInit()
+  initStateV1();
+}
+
+function progress() {
+  //simpleProgress()
+  progressV1();
 }
 
 function init() {
@@ -176,8 +199,7 @@ function init() {
   resize();
   initInteractive();
   draw();
-  //simpleInit()
+  reset();
   //setInterval(simpleProgress, 25);
-  initState();
-  setInterval(progressV1, 25);
+  setInterval(progress, 25);
 }

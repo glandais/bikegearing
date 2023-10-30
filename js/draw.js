@@ -1,6 +1,3 @@
-let canvas;
-let ctx;
-
 function printStateValues(values) {
   for (let i = 0; i < values.length; i++) {
     ctx.fillText(values[i], 10, 20 + 16 * i);

@@ -55,13 +55,13 @@ function adjustZoom(e) {
 }
 
 function resize() {
-//  drawing = document.getElementById("drawing");
-//  canvas.width = drawing.width;
-//  canvas.height = drawing.height;
-  canvas.style.width ='100%';
-  canvas.style.height='100%';
+  //  drawing = document.getElementById("drawing");
+  //  canvas.width = drawing.width;
+  //  canvas.height = drawing.height;
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
   // ...then set the internal size to match
-  canvas.width  = canvas.offsetWidth;
+  canvas.width = canvas.offsetWidth;
   canvas.height = canvas.offsetHeight;
 }
 

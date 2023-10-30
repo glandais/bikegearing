@@ -43,7 +43,7 @@ function drawRivet(rivet) {
 
     ctx.save();
     const h = 120 - Math.max(-120, Math.min(120, Math.round(120 * stretch / 0.05)));
-    ctx.strokeStyle = "hsla("+h+", 100%, 50%, 1)";
+    ctx.strokeStyle = "hsla(" + h + ", 100%, 50%, 1)";
 
     ctx.beginPath();
     let dy = 0;

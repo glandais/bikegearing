@@ -48,16 +48,6 @@ function drawCogs(state) {
   ctx.save();
   ctx.translate(state.cs, 0);
 
-  if (false && debug) {
-    ctx.save();
-    ctx.lineWidth = 0.1;
-    ctx.beginPath();
-    ctx.arc(0, 0, state.fradius, 0, 2 * Math.PI);
-    ctx.stroke();
-    ctx.closePath();
-    ctx.restore();
-  }
-
   for (let i = 0; i < state.f; i++) {
     drawCog({
       r: state.fradius,
@@ -67,17 +57,6 @@ function drawCogs(state) {
     });
   }
   ctx.restore();
-
-  if (false && debug) {
-    ctx.save();
-    ctx.lineWidth = 0.1;
-    ctx.beginPath();
-    ctx.arc(0, 0, state.rradius, 0, 2 * Math.PI);
-    ctx.stroke();
-    ctx.closePath();
-    ctx.restore();
-  }
-
   for (let i = 0; i < state.r; i++) {
     drawCog({
       r: state.rradius,
