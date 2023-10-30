@@ -8,6 +8,8 @@ var debug = false;
 let speed = 1.0;
 let paused = false;
 
+let followRivet = false;
+
 const halfLink = 25.4 / 2.0;
 let halfLinkChain = 25.4 / 2.0;
 

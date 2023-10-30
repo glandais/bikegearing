@@ -49,6 +49,14 @@ function printHumanState(state) {
   ctx.restore();
 }
 
+function getRivet(rivets, rn) {
+  for (let i = 0; i < rivets.length; i++) {
+    if (rivets[i].rn === rn) {
+      return rivets[i];
+    }
+  }
+}
+
 function draw() {
   const start = performance.now();
   ctx.save();
@@ -66,8 +74,34 @@ function draw() {
   ctx.translate(cameraOffset.x, cameraOffset.y);
   ctx.scale(cameraZoom, cameraZoom);
 
+  const rivets = getRivets(state);
+  let rivet;
+  if (followRivet) {
+    rivet = getRivet(rivets, 0);
+    if (rivet) {
+      let rivetAngle = getAngle(rivet.p1, rivet.p2);
+      ctx.rotate(Math.PI-rivetAngle);
+      ctx.translate(-rivet.p1.x, -rivet.p1.y);
+    }
+  }
+
   drawCogs(state);
-  drawRivets(state);
+  drawRivets(rivets);
+
+  if (followRivet) {
+    if (rivet) {
+      ctx.beginPath();
+      ctx.lineTo(rivet.p1.x - 5, rivet.p1.y);
+      ctx.lineTo(rivet.p1.x + 5, rivet.p1.y);
+      ctx.stroke();
+      ctx.closePath();
+      ctx.beginPath();
+      ctx.lineTo(rivet.p1.x, rivet.p1.y + 5);
+      ctx.lineTo(rivet.p1.x, rivet.p1.y - 5);
+      ctx.stroke();
+      ctx.closePath();
+    }
+  }
 
   ctx.restore();
 

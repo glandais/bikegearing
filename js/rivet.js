@@ -214,8 +214,7 @@ function getRivets(state) {
   return rivets;
 }
 
-function drawRivets(state) {
-  const rivets = getRivets(state);
+function drawRivets(rivets) {
   rivets.forEach((rivet) => {
     if (rivet.rn % 2 == 0) {
       drawRivet(rivet);
