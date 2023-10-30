@@ -34,6 +34,7 @@ function onPointerMove(e) {
     };
     cameraOffset.x = previousCameraOffset.x + diff.x;
     cameraOffset.y = previousCameraOffset.y + diff.y;
+    drawIfPaused();
   }
 }
 
@@ -51,6 +52,8 @@ function adjustZoom(e) {
     // worldPosition.x * cameraZoom + cameraOffset.x = e.clientX
     cameraOffset.x = e.clientX - worldPosition.x * cameraZoom
     cameraOffset.y = e.clientY - worldPosition.y * cameraZoom
+
+    drawIfPaused();
   }
 }
 
@@ -63,6 +66,7 @@ function resize() {
   // ...then set the internal size to match
   canvas.width = canvas.offsetWidth;
   canvas.height = canvas.offsetHeight;
+  drawIfPaused();
 }
 
 function initInteractive() {

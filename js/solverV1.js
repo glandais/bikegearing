@@ -27,9 +27,9 @@ function debugAngles(label, a1, a2) {
     }
 }
 
-function progressV1() {
-    const da = dt;
-    state.t += dt;
+function progressV1(dchrono) {
+    const da = speed * (1/60);
+    state.t += speed * (1/60);
     state.fa = state.fa + da;
     let modified = false;
     let modification = 0;
@@ -66,10 +66,12 @@ function progressV1() {
             }
             const newRa = getAngle({ x: 0, y: 0 }, pinter);
             const currentRa = state.ra - state.rcu * state.rda;
-            state.ra = state.ra + (newRa - currentRa);
-            rivets = getRivets(state);
-            modified = true;
-            rearMoved = true;
+            if (Math.abs(newRa - currentRa) > 0.00001) {
+                state.ra = state.ra + (newRa - currentRa);
+                rivets = getRivets(state);
+                modified = true;
+                rearMoved = true;
+            }
         }
         fsr = getRivet(rivets, state.fru);
         rsr = getRivet(rivets, state.rru);

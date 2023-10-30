@@ -16,7 +16,7 @@ function getCatenary(p1, p2, l) {
     }
     const dx = x2 - x1;
     const dy = y2 - y1;
-    if (Math.sqrt(l * l) < (Math.sqrt(dx * dx + dy * dy) + 0.1)) {
+    if (Math.sqrt(l * l) < (Math.sqrt(dx * dx + dy * dy) + 0.001)) {
         return [
             p1, p2
         ];

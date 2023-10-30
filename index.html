@@ -60,7 +60,7 @@
     <br />
     Speed :
     <br />
-    <input type="range" min="0" max="0.02" step="any" value="10" oninput="dt = 1.0 * this.value" id="dt" />
+    <input type="range" min="0" max="2.00" step="0.02" value="10" oninput="speed = 1.0 * this.value" id="speed" />
     <br />
     Chainring cogs :
     <br />
@@ -70,9 +70,13 @@
     <br />
     <input type="range" min="10" max="20" value="15" oninput="state.r = 1.0 * this.value; reset();" id="r" />
     <br />
-    Chainstay length :
+    Chainstay length (mm) :
     <br />
-    <input type="range" min="380" max="430" step="any" value="409" oninput="state.cs = 1.0 * this.value" id="cs" />
+    <input type="range" min="380" max="430" step="1" value="409" oninput="setCs1()" id="cs1" />
+    <br />
+    Chainstay length (1/100 mm) :
+    <br />
+    <input type="range" min="0" max="99" step="1" value="0" oninput="setCs2()" id="cs2" />
     <br />
     Chain links :
     <br />
@@ -81,7 +85,9 @@
     <br />
     <br />
     <br />
-    <button onclick="debug = !debug">Switch debug</button>
+    <button onclick="switchDebug()">Switch debug</button>
+    <br />
+    <button onclick="pause()">Pause</button>
   </div>
   <div id="drawing">
     <canvas id="canvas"></canvas>

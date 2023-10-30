@@ -42,6 +42,12 @@ function drawRivet(rivet) {
     ctx.closePath();
 
     ctx.save();
+    if (stretch > 0.0001) {
+      stretch = Math.max(0.025, stretch);
+    }
+    if (stretch < -0.0001) {
+      stretch = Math.min(-0.025, stretch);
+    }
     const h = 120 - Math.max(-120, Math.min(120, Math.round(120 * stretch / 0.05)));
     ctx.strokeStyle = "hsla(" + h + ", 100%, 50%, 1)";
 
@@ -63,9 +69,13 @@ function drawRivet(rivet) {
   } else {
     ctx.translate((d - halfLink) / 2, 0);
     
-    const s = Math.max(0, Math.min(100, Math.round(100 * stretch / 0.05)));
-    ctx.fillStyle = "hsla(0, " + s + "%, 87%, 1)";
-   // ctx.fillStyle = "#ddd";
+    const astretch = Math.abs(stretch);
+    if (astretch > 0.0001) {
+      const s = Math.max(50, Math.min(100, Math.round(100 * stretch / 0.05)));
+      ctx.fillStyle = "hsla(0, " + s + "%, 87%, 1)";
+    } else {
+      ctx.fillStyle = "hsla(0, 0%, 87%, 1)";
+    }
 
     ctx.beginPath();
     drawRawRivet();

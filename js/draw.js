@@ -10,7 +10,7 @@ function printState(state) {
   printStateValues([
     "halfLinkChain: " + halfLinkChain,
     "d: " + state.t,
-    "dt: " + dt,
+    "speed: " + speed,
     "f: " + state.f,
     "r: " + state.r,
     "cs: " + state.cs,
@@ -24,6 +24,8 @@ function printState(state) {
     "rru: " + state.rru,
     "rr: " + state.rr,
     "modified: " + state.modified,
+    "Last compute: " + roundHuman(state.progressDuration, 2) + "ms",
+    "Last draw: " + roundHuman(state.drawDuration, 2) + "ms"
   ]);
   ctx.restore();
 }
@@ -38,7 +40,7 @@ function printHumanState(state) {
   const wear = roundHuman((100.0 * halfLinkChain / halfLink) - 100.0, 1);
   printStateValues([
     "Chain wear: " + wear + "%",
-    "Interval: " + roundHuman(dt, 6),
+    "Speed: " + roundHuman(speed * 100, 0),
     "Chainring cogs: " + state.f,
     "Sprocket cogs: " + state.r,
     "Chainstay: " + roundHuman(state.cs, 2) + "mm",
@@ -48,6 +50,7 @@ function printHumanState(state) {
 }
 
 function draw() {
+  const start = performance.now();
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -73,6 +76,5 @@ function draw() {
   } else {
     printHumanState(state);
   }
-
-  requestAnimationFrame(draw);
+  state.drawDuration = performance.now() - start;
 }

@@ -2,9 +2,11 @@ let canvas;
 let ctx;
 
 //var debug = true;
-//let dt = 0.001;
+//let speed = 0.1;
+// let paused = true;
 var debug = false;
-let dt = 0.015;
+let speed = 1.0;
+let paused = false;
 
 const halfLink = 25.4 / 2.0;
 let halfLinkChain = 25.4 / 2.0;
@@ -39,16 +41,32 @@ function reset() {
   //simpleInit()
   initStateV1();
 
-  document.getElementById("dt").value = dt;
+  document.getElementById("speed").value = speed;
   document.getElementById("f").value = state.f;
   document.getElementById("r").value = state.r;
-  document.getElementById("cs").value = state.cs;
+  document.getElementById("cs1").value = Math.floor(state.cs);
+  document.getElementById("cs2").value = 100.0 * (state.cs - Math.floor(state.cs));
   document.getElementById("cl").value = state.cl;
 }
 
-function progress() {
-  //simpleProgress()
-  progressV1();
+function progress(dchrono) {
+  const start = performance.now();
+  //simpleProgress(dchrono)
+  progressV1(dchrono);
+  state.progressDuration = performance.now() - start;
+}
+
+let previousChrono;
+function frame(chrono) {
+  if (previousChrono === undefined) {
+    previousChrono = chrono;
+  }
+  if (!paused) {
+    progress(chrono - previousChrono);
+    draw();
+  }
+  previousChrono = chrono;
+  requestAnimationFrame(frame);
 }
 
 function init() {
@@ -57,10 +75,35 @@ function init() {
   resize();
   initInteractive();
   reset();
-  setInterval(progress, 25);
-  draw();
+  requestAnimationFrame(frame);
 }
 
 function setHalfLinkChain(perc) {
   halfLinkChain = 12.7 * ((100.0 + perc) / 100.0);
+}
+
+function setCs1() {
+  state.cs = 1.0 * document.getElementById("cs1").value;
+  document.getElementById("cs2").value = 0;
+}
+
+function setCs2() {
+  const cs1 = 1.0 * document.getElementById("cs1").value;
+  const cs2 = document.getElementById("cs2").value / 100.0;
+  state.cs = cs1 + cs2;
+}
+
+function pause() {
+  paused = !paused;
+}
+
+function drawIfPaused() {
+  if (paused) {
+    draw();
+  }
+}
+
+function switchDebug() {
+  debug = !debug;
+  drawIfPaused();
 }

@@ -17,8 +17,8 @@ function simpleInit() {
     rru = state.rru;
 }
 
-function simpleProgress() {
-    const da = dt;
+function simpleProgress(dchrono) {
+    const da = (1 / 60.0) * speed;
     state.fa = state.fa + da;
     fru = fru + (state.f * da) / (2 * Math.PI);
     state.fru = Math.round(fru);
