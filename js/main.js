@@ -1,5 +1,10 @@
-var debug = false;
-let dt = 0.005;
+var debug = true;
+let dt = 0.000;
+//var debug = false;
+//let dt = 0.005;
+
+const halfLink = 25.4 / 2.0;
+let halfLinkChain = 25.4 / 2.0;
 
 var state = {
   f: 50, // teeth front

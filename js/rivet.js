@@ -24,13 +24,27 @@ function drawRivet(rivet) {
   const a = getAngle(p1, p2);
   ctx.rotate(a);
   if (debug) {
+
+    let stretch = 0;
+    if (d < halfLink) {
+      stretch = (d - halfLink) / d;
+    } else if (d > halfLinkChain) {
+      stretch = (d - halfLinkChain) / d;
+    }
+    let perc = Math.round(stretch * 1000);
+
     ctx.lineWidth = 0.1;
     ctx.fillStyle = "#000";
-    ctx.fillText(rn + "", 0, 5);
+    ctx.fillText(rn + " " + perc, 0, 5);
     ctx.beginPath();
     ctx.arc(0, 0, 3.7, 0, 2 * Math.PI);
     ctx.stroke();
     ctx.closePath();
+
+    ctx.save();
+    const h = 120 - Math.max(-120, Math.min(120, Math.round(120 * stretch / 0.05)));
+    ctx.strokeStyle = "hsla("+h+", 100%, 50%, 1)";
+
     ctx.beginPath();
     let dy = 0;
     if (rivet.rn % 2 == 1) {
@@ -44,6 +58,8 @@ function drawRivet(rivet) {
     ctx.lineTo(d - (d - halfLink) / 2, dy);
     ctx.stroke();
     ctx.closePath();
+
+    ctx.restore();
   } else {
     ctx.translate((d - halfLink) / 2, 0);
     ctx.fillStyle = "#ddd";
