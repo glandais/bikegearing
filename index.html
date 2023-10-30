@@ -1,99 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>bikegearing</title>
-    <script src="js/catenary.js"></script>
-    <script src="js/geom.js"></script>
-    <script src="js/interactive.js"></script>
-    <script src="js/cog.js"></script>
-    <script src="js/rivet.js"></script>
-    <script src="js/draw.js"></script>
-    <script src="js/main.js"></script>
-    <style type="text/css">
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-        padding: 0px;
-        overflow: hidden;
-      }
 
-      #toolbar {
-        height: 100%;
-        width: 20%;
-        margin: 0;
-        padding: 0px;
-        overflow: hidden;
-        float: left;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bikegearing</title>
+  <script src="js/catenary.js"></script>
+  <script src="js/geom.js"></script>
+  <script src="js/interactive.js"></script>
+  <script src="js/cog.js"></script>
+  <script src="js/rivet.js"></script>
+  <script src="js/draw.js"></script>
+  <script src="js/solverV0.js"></script>
+  <script src="js/solverV1.js"></script>
+  <script src="js/main.js"></script>
+  <style type="text/css">
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0px;
+      overflow: hidden;
+    }
 
-      #drawing {
-        height: 100%;
-        width: 80%;
-        margin: 0;
-        padding: 0px;
-        overflow: hidden;
-        float: right;
-      }
+    #toolbar {
+      height: 100%;
+      width: 20%;
+      margin: 0;
+      padding: 0px;
+      overflow: hidden;
+      float: left;
+    }
 
-      #canvas {
-        width: 100%;
-        height: 100%;
-        background: #ffffff;
-      }
-    </style>
-  </head>
-  <body onload="init()">
-    <div id="toolbar">
-      <button onclick="debug = !debug">Switch debug</button>
-      <br />
-      Chain wear :
-      <br />
-      <input type="range" min="12.7" max="13.0" step="any"
-        value="12.7"
-        oninput="halfLinkChain = this.value"
-      />
-      <br />
-      Speed :
-      <br />
-      <input type="range" min="0" max="150"
-        value="5"
-        oninput="dt = this.value / 1000"
-      />
-      <br />
-      Chainring cogs :
-      <br />
-      <input type="range" min="32" max="60"
-        value="50"
-        oninput="state.f = 1.0 * this.value; reset();"
-      />
-      <br />
-      Sprocket cogs :
-      <br />
-      <input type="range" min="10" max="20"
-        value="15"
-        oninput="state.r = 1.0 * this.value; reset();"
-      />
-      <br />
-      Chainstay length :
-      <br />
-      <input type="range" min="380" max="430"
-        value="410"
-        oninput="state.cs = 1.0 * this.value"
-      />
-      <br />
-      Chain links :
-      <br />
-      <input type="range" min="92" max="110"
-        value="100"
-        oninput="state.cl = 1.0 * this.value"
-      />
-    </div>
-    <div id="drawing">
-      <canvas id="canvas"></canvas>
-    </div>
-  </body>
+    #drawing {
+      height: 100%;
+      width: 80%;
+      margin: 0;
+      padding: 0px;
+      overflow: hidden;
+      float: right;
+    }
+
+    #canvas {
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+    }
+  </style>
+</head>
+
+<body onload="init()">
+  <div id="toolbar">
+    Chain wear :
+    <br />
+    <input type="range" min="0" max="2" step="0.1" value="0" 
+      oninput="setHalfLinkChain(1.0 * this.value) "
+      id="halfLinkChain" />
+    <br />
+    Speed :
+    <br />
+    <input type="range" min="0" max="0.02" step="any" value="10" oninput="dt = 1.0 * this.value" id="dt" />
+    <br />
+    Chainring cogs :
+    <br />
+    <input type="range" min="32" max="60" value="50" oninput="state.f = 1.0 * this.value; reset();" id="f" />
+    <br />
+    Sprocket cogs :
+    <br />
+    <input type="range" min="10" max="20" value="15" oninput="state.r = 1.0 * this.value; reset();" id="r" />
+    <br />
+    Chainstay length :
+    <br />
+    <input type="range" min="380" max="430" step="any" value="409" oninput="state.cs = 1.0 * this.value" id="cs" />
+    <br />
+    Chain links :
+    <br />
+    <input type="range" min="92" max="110" value="100" oninput="state.cl = 1.0 * this.value" id="cl" />
+        <br />
+    <br />
+    <br />
+    <br />
+    <button onclick="debug = !debug">Switch debug</button>
+  </div>
+  <div id="drawing">
+    <canvas id="canvas"></canvas>
+  </div>
+</body>
+
 </html>

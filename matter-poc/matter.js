@@ -180,7 +180,7 @@ function init() {
   //engine.world.gravity.y = 0.01;
   //engine.timing.timeScale = 0.01;
 
-  createWorld(50, 15, 410);
+  createWorld(50, 15, 409);
 //  createWorld(50, 50, 254);
 
   // run the renderer

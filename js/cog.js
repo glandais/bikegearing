@@ -52,8 +52,8 @@ function drawCogs(state) {
     drawCog({
       r: state.fradius,
       i: i,
-      a: state.fa - i * state.daf,
-      da: state.daf,
+      a: state.fa - i * state.fda,
+      da: state.fda,
     });
   }
   ctx.restore();
@@ -61,8 +61,8 @@ function drawCogs(state) {
     drawCog({
       r: state.rradius,
       i: i,
-      a: state.ra - i * state.dar,
-      da: state.dar,
+      a: state.ra - i * state.rda,
+      da: state.rda,
     });
   }
 }

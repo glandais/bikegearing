@@ -9,6 +9,7 @@ function printState(state) {
   ctx.font = "16px serif";
   printStateValues([
     "halfLinkChain: " + halfLinkChain,
+    "d: " + state.t,
     "dt: " + dt,
     "f: " + state.f,
     "r: " + state.r,
@@ -23,6 +24,25 @@ function printState(state) {
     "rru: " + state.rru,
     "rr: " + state.rr,
     "modified: " + state.modified,
+  ]);
+  ctx.restore();
+}
+
+function roundHuman(v, d) {
+  return Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
+}
+
+function printHumanState(state) {
+  ctx.save();
+  ctx.font = "16px serif";
+  const wear = roundHuman((100.0 * halfLinkChain / halfLink) - 100.0, 1);
+  printStateValues([
+    "Chain wear: " + wear + "%",
+    "Interval: " + roundHuman(dt, 6),
+    "Chainring cogs: " + state.f,
+    "Sprocket cogs: " + state.r,
+    "Chainstay: " + roundHuman(state.cs, 2) + "mm",
+    "Chain links: " + state.cl
   ]);
   ctx.restore();
 }
@@ -50,6 +70,8 @@ function draw() {
 
   if (debug) {
     printState(state);
+  } else {
+    printHumanState(state);
   }
 
   requestAnimationFrame(draw);

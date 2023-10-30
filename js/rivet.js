@@ -23,18 +23,18 @@ function drawRivet(rivet) {
   ctx.translate(p1.x, p1.y);
   const a = getAngle(p1, p2);
   ctx.rotate(a);
+  
+  let stretch = 0;
+  if (d < halfLink) {
+    stretch = (d - halfLink) / d;
+  } else if (d > halfLinkChain) {
+    stretch = (d - halfLinkChain) / d;
+  }
+
   if (debug) {
-
-    let stretch = 0;
-    if (d < halfLink) {
-      stretch = (d - halfLink) / d;
-    } else if (d > halfLinkChain) {
-      stretch = (d - halfLinkChain) / d;
-    }
-    let perc = Math.round(stretch * 1000);
-
     ctx.lineWidth = 0.1;
     ctx.fillStyle = "#000";
+    let perc = Math.round(stretch * 1000);
     ctx.fillText(rn + " " + perc, 0, 5);
     ctx.beginPath();
     ctx.arc(0, 0, 3.7, 0, 2 * Math.PI);
@@ -62,7 +62,10 @@ function drawRivet(rivet) {
     ctx.restore();
   } else {
     ctx.translate((d - halfLink) / 2, 0);
-    ctx.fillStyle = "#ddd";
+    
+    const s = Math.max(0, Math.min(100, Math.round(100 * stretch / 0.05)));
+    ctx.fillStyle = "hsla(0, " + s + "%, 87%, 1)";
+   // ctx.fillStyle = "#ddd";
 
     ctx.beginPath();
     drawRawRivet();
@@ -118,12 +121,12 @@ function getRivetsFront(state, rivets) {
     const p1 = getRivetPoint(
       state.cs,
       state.fradius,
-      state.fa - cog * state.daf
+      state.fa - cog * state.fda
     );
     const p2 = getRivetPoint(
       state.cs,
       state.fradius,
-      state.fa - (cog + 1) * state.daf
+      state.fa - (cog + 1) * state.fda
     );
 
     const rn = getRn(state.fru + cog - state.fcu, state.cl);
@@ -134,11 +137,11 @@ function getRivetsFront(state, rivets) {
 function getRivetsRear(state, rivets) {
   for (let i = 0; i < state.rr - 1; i++) {
     const cog = i + state.rcu;
-    const p1 = getRivetPoint(0, state.rradius, state.ra - cog * state.dar);
+    const p1 = getRivetPoint(0, state.rradius, state.ra - cog * state.rda);
     const p2 = getRivetPoint(
       0,
       state.rradius,
-      state.ra - (cog + 1) * state.dar
+      state.ra - (cog + 1) * state.rda
     );
     const rn = getRn(state.rru + i, state.cl);
     rivets.push({ p1, p2, rn });
@@ -154,26 +157,21 @@ function getRivetsUp(state, rivets) {
   const s = getRivetPoint(
     state.cs,
     state.fradius,
-    state.fa - state.fcu * state.daf
+    state.fa - state.fcu * state.fda
   );
-  const e = getRivetPoint(0, state.rradius, state.ra - state.rcu * state.dar);
+  const e = getRivetPoint(0, state.rradius, state.ra - state.rcu * state.rda);
 
   let d = state.rru - state.fru;
   while (d < 0) {
     d = d + state.cl;
   }
-  for (let i = 0; i < d; i++) {
+ 
+  const points = catenary(s, e, d * halfLink, d);
+  for (let i = 0; i < points.length - 1; i++) {
     let rn = getRn(state.fru + i, state.cl);
-    let p1 = {
-      x: s.x + (i * (e.x - s.x)) / (1 + re - rs),
-      y: s.y + (i * (e.y - s.y)) / (1 + re - rs),
-    };
-    let p2 = {
-      x: s.x + ((i + 1) * (e.x - s.x)) / (1 + re - rs),
-      y: s.y + ((i + 1) * (e.y - s.y)) / (1 + re - rs),
-    };
-    rivets.push({ p1, p2, rn });
+    rivets.push({ p1: points[i], p2: points[i + 1], rn });
   }
+
 }
 
 function getRivetsDown(state, rivets) {
@@ -185,26 +183,20 @@ function getRivetsDown(state, rivets) {
   const s = getRivetPoint(
     0,
     state.rradius,
-    state.ra - (state.rcu + state.rr - 1) * state.dar
+    state.ra - (state.rcu + state.rr - 1) * state.rda
   );
   const e = getRivetPoint(
     state.cs,
     state.fradius,
-    state.fa - (state.fcu - state.fr + 1) * state.daf
+    state.fa - (state.fcu - state.fr + 1) * state.fda
   );
 
   const d = 1 + re - rs;
-  for (let i = rs; i < re + 1; i++) {
-    const rn = getRn(i, state.cl);
-    let p1 = {
-      x: s.x + ((i - rs) * (e.x - s.x)) / d,
-      y: s.y + ((i - rs) * (e.y - s.y)) / d,
-    };
-    let p2 = {
-      x: s.x + ((i - rs + 1) * (e.x - s.x)) / d,
-      y: s.y + ((i - rs + 1) * (e.y - s.y)) / d,
-    };
-    rivets.push({ p1, p2, rn });
+
+  const points = catenary(s, e, d * halfLink, d);
+  for (let i = 0; i < points.length - 1; i++) {
+    const rn = getRn(i + rs, state.cl);
+    rivets.push({ p1: points[i], p2: points[i + 1], rn });
   }
 }
 
