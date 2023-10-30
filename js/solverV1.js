@@ -39,9 +39,9 @@ function progressV1() {
     do {
         modified = false;
 
-        let rsr;
+        let rsr, fsr;
 
-        const fsr = getRivet(rivets, state.fru);
+        fsr = getRivet(rivets, state.fru);
         rsr = getRivet(rivets, state.rru);
         let d = dist(fsr.p1, rsr.p1);
         let maxDist = halfLinkChain * getRn(state.rru - state.fru, state.cl);
@@ -71,6 +71,8 @@ function progressV1() {
             modified = true;
             rearMoved = true;
         }
+        fsr = getRivet(rivets, state.fru);
+        rsr = getRivet(rivets, state.rru);
 
         const fscm1 = getRivetPoint(state.cs, state.fradius, state.fa - (state.fcu - 1) * state.fda);
         const fsc = getRivetPoint(state.cs, state.fradius, state.fa - state.fcu * state.fda);

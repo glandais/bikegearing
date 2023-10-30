@@ -149,11 +149,6 @@ function getRivetsRear(state, rivets) {
 }
 
 function getRivetsUp(state, rivets) {
-  let rs = state.fru;
-  let re = state.rru - 1;
-  while (re < rs) {
-    re = re + state.cl;
-  }
   const s = getRivetPoint(
     state.cs,
     state.fradius,
