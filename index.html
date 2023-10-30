@@ -51,14 +51,14 @@
       <button onclick="debug = !debug">Switch debug</button>
       <br />
       halfLinkChain :
-      <input type="range" min="12.5" max="12.9" step="any"
+      <input type="range" min="12.7" max="13.0" step="any"
         value="12.7"
         oninput="halfLinkChain = this.value"
       />
       <br />
       dt :
-      <input type="range" min="0" max="50"
-        value="0"
+      <input type="range" min="0" max="150"
+        value="5"
         oninput="dt = this.value / 1000"
       />
       <br />
@@ -83,7 +83,7 @@
       cl :
       <input type="range" min="92" max="110"
         value="100"
-        oninput="state.cl = this.value"
+        oninput="state.cl = 1.0 * this.value"
       />
       <br />
       fa :

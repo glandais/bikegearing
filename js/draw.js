@@ -25,6 +25,7 @@ function printState(state) {
     "rcu: " + state.rcu,
     "rru: " + state.rru,
     "rr: " + state.rr,
+    "modified: " + state.modified,
   ]);
   ctx.restore();
 }
@@ -44,12 +45,6 @@ function draw() {
 
   ctx.translate(cameraOffset.x, cameraOffset.y);
   ctx.scale(cameraZoom, cameraZoom);
-
-  state.daf = (2.0 * Math.PI) / state.f; // angle between two cogs
-  state.fradius = halfLink / 2 / Math.sin(state.daf / 2.0); // radius to rivet - drawing1.jpg
-
-  state.dar = (2.0 * Math.PI) / state.r; // angle between two cogs
-  state.rradius = halfLink / 2 / Math.sin(state.dar / 2.0); // radius to rivet - drawing1.jpg
 
   drawCogs(state);
   drawRivets(state);

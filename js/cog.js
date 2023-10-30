@@ -48,7 +48,7 @@ function drawCogs(state) {
   ctx.save();
   ctx.translate(state.cs, 0);
 
-  if (debug) {
+  if (false && debug) {
     ctx.save();
     ctx.lineWidth = 0.1;
     ctx.beginPath();
@@ -68,7 +68,7 @@ function drawCogs(state) {
   }
   ctx.restore();
 
-  if (debug) {
+  if (false && debug) {
     ctx.save();
     ctx.lineWidth = 0.1;
     ctx.beginPath();

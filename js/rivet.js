@@ -12,25 +12,6 @@ function drawRawRivet() {
   ctx.bezierCurveTo(dist / 2 - dcx2, r - dy, dcx1, r, 0, r);
 }
 
-function getAngle(p1, p2) {
-  const dx = p2.x - p1.x;
-  const dy = p2.y - p1.y;
-  let a = 0;
-  if (Math.abs(dx) < 0.0001) {
-    if (dy > 0) {
-      a = Math.PI / 2;
-    } else {
-      a = -Math.PI / 2;
-    }
-  } else {
-    a = Math.atan(dy / dx);
-    if (dx < 0) {
-      a = a + Math.PI;
-    }
-  }
-  return a;
-}
-
 function drawRivet(rivet) {
   const p1 = rivet.p1;
   const p2 = rivet.p2;
@@ -92,6 +73,7 @@ function drawRivet(rivet) {
     if (rivet.rn % 10 == 1) {
       ctx.save();
       ctx.font = "3.5px serif";
+      ctx.lineWidth = 0.1;
       ctx.strokeStyle = "#000";
       ctx.strokeText("GLA", d / 2, 0.4);
       ctx.restore();
@@ -114,7 +96,7 @@ function getRivetPoint(dx, r, a) {
   };
 }
 
-function drawRivetsFront(state, rivets) {
+function getRivetsFront(state, rivets) {
   for (let i = 1; i < state.fr; i++) {
     const cog = i + (state.fcu - state.fr);
     const p1 = getRivetPoint(
@@ -133,7 +115,7 @@ function drawRivetsFront(state, rivets) {
   }
 }
 
-function drawRivetsRear(state, rivets) {
+function getRivetsRear(state, rivets) {
   for (let i = 0; i < state.rr - 1; i++) {
     const cog = i + state.rcu;
     const p1 = getRivetPoint(0, state.rradius, state.ra - cog * state.dar);
@@ -147,7 +129,7 @@ function drawRivetsRear(state, rivets) {
   }
 }
 
-function drawRivetsUp(state, rivets) {
+function getRivetsUp(state, rivets) {
   let rs = state.fru;
   let re = state.rru - 1;
   while (re < rs) {
@@ -178,7 +160,7 @@ function drawRivetsUp(state, rivets) {
   }
 }
 
-function drawRivetsDown(state, rivets) {
+function getRivetsDown(state, rivets) {
   let rs = state.rru + state.rr - 1;
   let re = state.fru - state.fr;
   while (re < rs) {
@@ -210,12 +192,17 @@ function drawRivetsDown(state, rivets) {
   }
 }
 
-function drawRivets(state) {
+function getRivets(state) {
   let rivets = [];
-  drawRivetsFront(state, rivets);
-  drawRivetsRear(state, rivets);
-  drawRivetsUp(state, rivets);
-  drawRivetsDown(state, rivets);
+  getRivetsFront(state, rivets);
+  getRivetsRear(state, rivets);
+  getRivetsUp(state, rivets);
+  getRivetsDown(state, rivets);
+  return rivets;
+}
+
+function drawRivets(state) {
+  const rivets = getRivets(state);
   rivets.forEach((rivet) => {
     if (rivet.rn % 2 == 0) {
       drawRivet(rivet);
