@@ -11,19 +11,20 @@ function printState(state) {
   ctx.save();
   ctx.font = "16px serif";
   printStateValues([
+    "halfLinkChain: " + halfLinkChain,
     "dt: " + dt,
     "f: " + state.f,
     "r: " + state.r,
     "cs: " + state.cs,
     "cl: " + state.cl,
-    "af: " + Math.round((180 * state.af) / (2 * Math.PI)) + "°",
-    "ar: " + Math.round((180 * state.ar) / (2 * Math.PI)) + "°",
-    "fu: " + state.fu,
-    "cfu: " + state.cfu,
-    "ru: " + state.ru,
-    "cru: " + state.cru,
-    "clf: " + state.clf,
-    "clr: " + state.clr,
+    "fa: " + Math.round((180 * state.fa) / (2 * Math.PI)) + "°",
+    "fcu: " + state.fcu,
+    "fru: " + state.fru,
+    "fr: " + state.fr,
+    "ra: " + Math.round((180 * state.ra) / (2 * Math.PI)) + "°",
+    "rcu: " + state.rcu,
+    "rru: " + state.rru,
+    "rr: " + state.rr,
   ]);
   ctx.restore();
 }
@@ -45,10 +46,10 @@ function draw() {
   ctx.scale(cameraZoom, cameraZoom);
 
   state.daf = (2.0 * Math.PI) / state.f; // angle between two cogs
-  state.rf = halfLink / 2 / Math.sin(state.daf / 2.0); // radius to rivet - drawing1.jpg
+  state.fradius = halfLink / 2 / Math.sin(state.daf / 2.0); // radius to rivet - drawing1.jpg
 
   state.dar = (2.0 * Math.PI) / state.r; // angle between two cogs
-  state.rr = halfLink / 2 / Math.sin(state.dar / 2.0); // radius to rivet - drawing1.jpg
+  state.rradius = halfLink / 2 / Math.sin(state.dar / 2.0); // radius to rivet - drawing1.jpg
 
   drawCogs(state);
   drawRivets(state);

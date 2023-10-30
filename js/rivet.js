@@ -36,7 +36,7 @@ function drawRivet(rivet) {
   const p2 = rivet.p2;
   const rn = rivet.rn;
 
-  const dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+  const d = dist(p1, p2);
 
   ctx.save();
   ctx.translate(p1.x, p1.y);
@@ -47,7 +47,7 @@ function drawRivet(rivet) {
     ctx.fillStyle = "#000";
     ctx.fillText(rn + "", 0, 5);
     ctx.beginPath();
-    ctx.arc(0, 0, 1, 0, 2 * Math.PI);
+    ctx.arc(0, 0, 3.7, 0, 2 * Math.PI);
     ctx.stroke();
     ctx.closePath();
     ctx.beginPath();
@@ -57,19 +57,20 @@ function drawRivet(rivet) {
     } else {
       dy = -1;
     }
-    ctx.moveTo((dist - halfLink) / 2, dy);
-    ctx.lineTo((dist - halfLink) / 2, 0);
-    ctx.lineTo(dist - (dist - halfLink) / 2, 0);
-    ctx.lineTo(dist - (dist - halfLink) / 2, dy);
+    ctx.moveTo((d - halfLink) / 2, dy);
+    ctx.lineTo((d - halfLink) / 2, 0);
+    ctx.lineTo(d - (d - halfLink) / 2, 0);
+    ctx.lineTo(d - (d - halfLink) / 2, dy);
     ctx.stroke();
     ctx.closePath();
   } else {
+    ctx.translate((d - halfLink) / 2, 0);
     ctx.fillStyle = "#ddd";
 
     ctx.beginPath();
-    drawRawRivet(dist);
+    drawRawRivet();
     ctx.fill();
-    drawRawRivet(dist);
+    drawRawRivet();
     ctx.stroke();
     ctx.closePath();
 
@@ -82,9 +83,9 @@ function drawRivet(rivet) {
       ctx.stroke();
       ctx.closePath();
       ctx.beginPath();
-      ctx.arc(dist, 0, 2, 0, 2 * Math.PI);
+      ctx.arc(d, 0, 2, 0, 2 * Math.PI);
       ctx.fill();
-      ctx.arc(dist, 0, 2, 0, 2 * Math.PI);
+      ctx.arc(d, 0, 2, 0, 2 * Math.PI);
       ctx.stroke();
       ctx.closePath();
     }
@@ -92,7 +93,7 @@ function drawRivet(rivet) {
       ctx.save();
       ctx.font = "3.5px serif";
       ctx.strokeStyle = "#000";
-      ctx.strokeText("GLA", dist / 2, 0.4);
+      ctx.strokeText("GLA", d / 2, 0.4);
       ctx.restore();
     }
   }
@@ -114,41 +115,57 @@ function getRivetPoint(dx, r, a) {
 }
 
 function drawRivetsFront(state, rivets) {
-  for (let i = 1; i < state.clf; i++) {
-    const cog = i + (state.fu - state.clf);
-    const p1 = getRivetPoint(state.cs, state.rf, state.af - cog * state.daf);
+  for (let i = 1; i < state.fr; i++) {
+    const cog = i + (state.fcu - state.fr);
+    const p1 = getRivetPoint(
+      state.cs,
+      state.fradius,
+      state.fa - cog * state.daf
+    );
     const p2 = getRivetPoint(
       state.cs,
-      state.rf,
-      state.af - (cog + 1) * state.daf
+      state.fradius,
+      state.fa - (cog + 1) * state.daf
     );
 
-    const rn = getRn(state.cfu + cog - state.fu, state.cl);
+    const rn = getRn(state.fru + cog - state.fcu, state.cl);
     rivets.push({ p1, p2, rn });
   }
 }
 
 function drawRivetsRear(state, rivets) {
-  for (let i = 0; i < state.clr - 1; i++) {
-    const cog = i + state.ru;
-    const p1 = getRivetPoint(0, state.rr, state.ar - cog * state.dar);
-    const p2 = getRivetPoint(0, state.rr, state.ar - (cog + 1) * state.dar);
-    const rn = getRn(state.cru + i, state.cl);
+  for (let i = 0; i < state.rr - 1; i++) {
+    const cog = i + state.rcu;
+    const p1 = getRivetPoint(0, state.rradius, state.ra - cog * state.dar);
+    const p2 = getRivetPoint(
+      0,
+      state.rradius,
+      state.ra - (cog + 1) * state.dar
+    );
+    const rn = getRn(state.rru + i, state.cl);
     rivets.push({ p1, p2, rn });
   }
 }
 
 function drawRivetsUp(state, rivets) {
-  let rs = state.cfu;
-  let re = state.cru - 1;
+  let rs = state.fru;
+  let re = state.rru - 1;
   while (re < rs) {
     re = re + state.cl;
   }
-  const s = getRivetPoint(state.cs, state.rf, state.af - state.fu * state.daf);
-  const e = getRivetPoint(0, state.rr, state.ar - state.ru * state.dar);
+  const s = getRivetPoint(
+    state.cs,
+    state.fradius,
+    state.fa - state.fcu * state.daf
+  );
+  const e = getRivetPoint(0, state.rradius, state.ra - state.rcu * state.dar);
 
-  for (let i = 0; i < state.cru - state.cfu; i++) {
-    let rn = state.cfu + i;
+  let d = state.rru - state.fru;
+  while (d < 0) {
+    d = d + state.cl;
+  }
+  for (let i = 0; i < d; i++) {
+    let rn = getRn(state.fru + i, state.cl);
     let p1 = {
       x: s.x + (i * (e.x - s.x)) / (1 + re - rs),
       y: s.y + (i * (e.y - s.y)) / (1 + re - rs),
@@ -162,20 +179,20 @@ function drawRivetsUp(state, rivets) {
 }
 
 function drawRivetsDown(state, rivets) {
-  let rs = state.cru + state.clr - 1;
-  let re = state.cfu - state.clf;
+  let rs = state.rru + state.rr - 1;
+  let re = state.fru - state.fr;
   while (re < rs) {
     re = re + state.cl;
   }
   const s = getRivetPoint(
     0,
-    state.rr,
-    state.ar - (state.ru + state.clr - 1) * state.dar
+    state.rradius,
+    state.ra - (state.rcu + state.rr - 1) * state.dar
   );
   const e = getRivetPoint(
     state.cs,
-    state.rf,
-    state.af - (state.fu - state.clf + 1) * state.daf
+    state.fradius,
+    state.fa - (state.fcu - state.fr + 1) * state.daf
   );
 
   const d = 1 + re - rs;
