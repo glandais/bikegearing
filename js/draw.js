@@ -11,6 +11,8 @@ function commonPrintState(state) {
     "Speed: " + roundHuman(speed * 100, 0) + "%",
     "Chainring cogs: " + state.f,
     "Sprocket cogs: " + state.r,
+    "Single-legged skid patches: " + state.skidPatchesSingleLegged,
+    "Ambidextrous skid patches: " + state.skidPatchesAmbidextrous,
     "Chainstay: " + roundHuman(state.cs, 2) + "mm",
     "Chain links: " + state.cl,
     "Speed (km/h): " + roundHuman(state.speedkmh, 1),

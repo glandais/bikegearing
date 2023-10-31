@@ -30,6 +30,8 @@ function ratio(p1, p2, r) {
     y: p1.y + r * (p2.y - p1.y)
   }
 }
+
+// https://stackoverflow.com/a/68092269
 /**
  * @description Get information about the intersection points of a circle.
  * Adapted from: https://stackoverflow.com/a/12221389/5553768.
@@ -129,4 +131,14 @@ function comparableAngle(a1, a2) {
 
 function roundHuman(v, d) {
   return Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
+}
+
+// https://stackoverflow.com/a/4652513
+// Reduce a fraction by finding the Greatest Common Divisor and dividing by it.
+function reduce(numerator, denominator) {
+  var gcd = function gcd(a, b) {
+    return b ? gcd(b, a % b) : a;
+  };
+  gcd = gcd(numerator, denominator);
+  return [numerator / gcd, denominator / gcd];
 }

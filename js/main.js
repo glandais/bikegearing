@@ -39,6 +39,15 @@ function reset() {
   state.rda = (2.0 * Math.PI) / state.r; // angle between two cogs
   state.rradius = halfLink / 2 / Math.sin(state.rda / 2.0); // radius to rivet - drawing1.jpg
 
+  // https://www.icebike.org/skid-patch-calculator/
+  let reduced = reduce(state.f, state.r);
+  state.skidPatchesSingleLegged = reduced[1];
+  if (reduced[0] % 2 == 0) {
+    state.skidPatchesAmbidextrous = reduced[1];
+  } else {
+    state.skidPatchesAmbidextrous = reduced[1] * 2;
+  }
+
   state.t = 0;
   //simpleInit()
   initStateV1();
