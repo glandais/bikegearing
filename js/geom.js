@@ -110,3 +110,16 @@ function intersection(c1, c2) {
   }
   return result;
 }
+
+function comparableAngle(a1, a2) {
+  let a = a2;
+  let minA = a1 - Math.PI;
+  do {
+    a = a + 2 * Math.PI;
+  } while (a < minA);
+  let maxA = a1 + Math.PI;
+  do {
+    a = a - 2 * Math.PI;
+  } while (a > maxA);
+  return a;
+}

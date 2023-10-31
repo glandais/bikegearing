@@ -54,11 +54,14 @@
   <div id="toolbar">
     Chain wear :
     <br />
-    <input type="range" min="0" max="2" step="0.1" value="0" 
-      oninput="setHalfLinkChain(1.0 * this.value) "
+    <input type="range" min="0" max="2" step="0.1" value="0" oninput="setHalfLinkChain(1.0 * this.value) "
       id="halfLinkChain" />
     <br />
-    Speed :
+    Angle speed (front or rear):
+    <br />
+    <input type="range" min="-2.00" max="2.00" step="0.02" value="10" oninput="speeda = 1.0 * this.value" id="speeda" />
+    <br />
+    Simulation speed :
     <br />
     <input type="range" min="0" max="2.00" step="0.02" value="10" oninput="speed = 1.0 * this.value" id="speed" />
     <br />
@@ -81,7 +84,7 @@
     Chain links :
     <br />
     <input type="range" min="86" max="110" value="100" oninput="state.cl = 1.0 * this.value" id="cl" />
-        <br />
+    <br />
     <br />
     <br />
     <br />

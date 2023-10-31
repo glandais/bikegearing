@@ -8,6 +8,8 @@ var debug = false;
 let speed = 1.0;
 let paused = false;
 
+let speeda = 1.0;
+
 let followRivet = false;
 
 const halfLink = 25.4 / 2.0;
@@ -43,6 +45,7 @@ function reset() {
   //simpleInit()
   initStateV1();
 
+  document.getElementById("speeda").value = speeda;
   document.getElementById("speed").value = speed;
   document.getElementById("f").value = state.f;
   document.getElementById("r").value = state.r;

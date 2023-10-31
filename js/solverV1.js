@@ -29,51 +29,92 @@ function debugAngles(label, a1, a2) {
 
 function progressV1(dtchrono) {
     let rpra = state.ra;
-    let da = speed * (dtchrono / 1000);
+    let fpra = state.fa;
     state.t += speed * (dtchrono / 1000);
-    state.fa = state.fa + da;
+
+    let da = speed * speeda * (dtchrono / 1000);
+    if (speeda > 0) {
+        state.fa = state.fa + da;
+    } else {
+        state.ra = state.ra - da;
+    }
     let modified = false;
     let modification = 0;
     let onceModified = false;
-    let rearMoved = false;
     let rivets = getRivets(state);
     do {
         modified = false;
 
-        let rsr, fsr;
+        let rsr, fsr, rer, fer;
 
-        fsr = getRivet(rivets, state.fru);
-        rsr = getRivet(rivets, state.rru);
-        let d = dist(fsr.p1, rsr.p1);
-        let maxDist = halfLinkChain * getRn(state.rru - state.fru, state.cl);
-        if (d >= maxDist) {
-            let inter = intersection(
-                {
-                    x: fsr.p1.x,
-                    y: fsr.p1.y,
-                    r: maxDist
-                },
-                {
-                    x: 0,
-                    y: 0,
-                    r: state.rradius
+        if (da > 0) {
+            fsr = getRivet(rivets, state.fru);
+            rsr = getRivet(rivets, state.rru);
+            let d = dist(fsr.p1, rsr.p1);
+            let maxDist = halfLinkChain * getRn(state.rru - state.fru, state.cl);
+            if (d >= maxDist) {
+                let inter = intersection(
+                    {
+                        x: fsr.p1.x,
+                        y: fsr.p1.y,
+                        r: maxDist
+                    },
+                    {
+                        x: 0,
+                        y: 0,
+                        r: state.rradius
+                    }
+                );
+                let pinter;
+                if (inter.point_1.y < 0) {
+                    pinter = inter.point_1;
+                } else {
+                    pinter = inter.point_2;
                 }
-            );
-            let pinter;
-            if (inter.point_1.y < 0) {
-                pinter = inter.point_1;
-            } else {
-                pinter = inter.point_2;
+                let newRa = getAngle({ x: 0, y: 0 }, pinter);
+                let currentRa = state.ra - state.rcu * state.rda;
+                if (Math.abs(newRa - currentRa) > 0.00001) {
+                    state.ra = state.ra + (newRa - currentRa);
+                    rivets = getRivets(state);
+                    modified = true;
+                }
             }
-            let newRa = getAngle({ x: 0, y: 0 }, pinter);
-            let currentRa = state.ra - state.rcu * state.rda;
-            if (Math.abs(newRa - currentRa) > 0.00001) {
-                state.ra = state.ra + (newRa - currentRa);
-                rivets = getRivets(state);
-                modified = true;
-                rearMoved = true;
+        } else {
+            fer = getRivet(rivets, state.fru - state.fr + 1);
+            rer = getRivet(rivets, state.rru + state.rr - 1);
+            let d = dist(rer.p1, fer.p1);
+            let maxDist = halfLinkChain * getRn((state.fru - state.fr + 1) - (state.rru + state.rr - 1), state.cl);
+            if (d >= maxDist) {
+                let inter = intersection(
+                    {
+                        x: rer.p1.x,
+                        y: rer.p1.y,
+                        r: maxDist
+                    },
+                    {
+                        x: state.cs,
+                        y: 0,
+                        r: state.fradius
+                    }
+                );
+                let pinter;
+                if (inter.point_1.y > 0) {
+                    pinter = inter.point_1;
+                } else {
+                    pinter = inter.point_2;
+                }
+                let newFa = getAngle({ x: state.cs, y: 0 }, pinter);
+                let currentFa = state.fa - (state.fcu - state.fr) * state.rda;
+                currentFa = comparableAngle(newFa, currentFa);
+                if (Math.abs(newFa - currentFa) > 0.00001) {
+                    state.fa = state.fa + (newFa - currentFa);
+                    rivets = getRivets(state);
+                    modified = true;
+                }
+                                
             }
         }
+
         fsr = getRivet(rivets, state.fru);
         rsr = getRivet(rivets, state.rru);
 
@@ -122,7 +163,7 @@ function progressV1(dtchrono) {
             modified = true;
         }
 
-        let rer = getRivet(rivets, state.rru + state.rr - 1);
+        rer = getRivet(rivets, state.rru + state.rr - 1);
         let recm1 = getRivetPoint(0, state.rradius, state.ra - (state.rcu + state.rr - 2) * state.rda);
         let rec = getRivetPoint(0, state.rradius, state.ra - (state.rcu + state.rr - 1) * state.rda);
         let recp1 = getRivetPoint(0, state.rradius, state.ra - (state.rcu + state.rr) * state.rda);
@@ -143,7 +184,7 @@ function progressV1(dtchrono) {
             modified = true;
         }
 
-        let fer = getRivet(rivets, state.fru - state.fr);
+        fer = getRivet(rivets, state.fru - state.fr);
         let fecog = 1 + state.fcu - state.fr;
         let fecm1 = getRivetPoint(state.cs, state.fradius, state.fa - (fecog - 1) * state.fda);
         let fec = getRivetPoint(state.cs, state.fradius, state.fa - fecog * state.fda);
@@ -183,17 +224,23 @@ function progressV1(dtchrono) {
         rdra = rdra + Math.PI;
     }
 
+    let fdra = state.fa - fpra;
+    while (fdra > Math.PI / 2) {
+        fdra = fdra - Math.PI;
+    }
+    while (fdra < - Math.PI / 2) {
+        fdra = fdra + Math.PI;
+    }
+
     let distchronokm = (2100 / (1000 * 1000)) * (rdra / (2 * Math.PI));
     let dtchronoh = dtchrono / (1000 * 3600);
     let speedkmh = distchronokm / dtchronoh;
 
     state.speedkmh = speedkmh;
 
-    let rotation = da / (2 * Math.PI);
+    let rotation = fdra / (2 * Math.PI);
     let dtchronomin = dtchrono / (1000 * 60);
     let rpm = rotation / dtchronomin;
 
     state.rpm = rpm;
-
-    return rearMoved;
 }
