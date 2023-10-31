@@ -7,16 +7,18 @@ function printStateValues(values) {
 function printState(state) {
   ctx.save();
   ctx.font = "16px serif";
+  let wear = roundHuman((100.0 * halfLinkChain / halfLink) - 100.0, 1);
   printStateValues([
-    "halfLinkChain: " + halfLinkChain,
-    "d: " + state.t,
-    "speed: " + speed,
-    "speed (km/h): " + state.speedkmh,
-    "rpm: " + state.rpm,
-    "f: " + state.f,
-    "r: " + state.r,
-    "cs: " + state.cs,
-    "cl: " + state.cl,
+    "Chain wear: " + wear + "%",
+    "Speed: " + roundHuman(speed * 100, 0) + "%",
+    "Chainring cogs: " + state.f,
+    "Sprocket cogs: " + state.r,
+    "Chainstay: " + roundHuman(state.cs, 2) + "mm",
+    "Chain links: " + state.cl,
+    "Speed (km/h): " + roundHuman(state.speedkmh, 1),
+    "RPM: " + roundHuman(state.rpm, 1),
+    "",
+    "t: " + state.t,
     "fa: " + Math.round((180 * state.fa) / (2 * Math.PI)) + "°",
     "fcu: " + state.fcu,
     "fru: " + state.fru,
@@ -25,15 +27,10 @@ function printState(state) {
     "rcu: " + state.rcu,
     "rru: " + state.rru,
     "rr: " + state.rr,
-    "modified: " + state.modified,
-    "Last compute: " + roundHuman(state.progressDuration, 2) + "ms",
+    "computeLog: " + state.computeLog,
     "Last draw: " + roundHuman(state.drawDuration, 2) + "ms"
   ]);
   ctx.restore();
-}
-
-function roundHuman(v, d) {
-  return Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
 }
 
 function printHumanState(state) {
@@ -65,7 +62,12 @@ function draw() {
   let start = performance.now();
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (debug || paused) {
+    ctx.fillStyle = "rgba(255,255,255,1.0)";
+  } else {
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+  }
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.restore();
 
   ctx.save();

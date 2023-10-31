@@ -110,3 +110,20 @@ function intersection(c1, c2) {
   }
   return result;
 }
+
+function comparableAngle(a1, a2) {
+  let a = a2;
+  let minA = a1 - Math.PI;
+  while (a < minA) {
+    a = a + 2 * Math.PI;    
+  }
+  let maxA = a1 + Math.PI;
+  while (a > maxA) {
+    a = a - 2 * Math.PI;
+  } while (a > maxA);
+  return a;
+}
+
+function roundHuman(v, d) {
+  return Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
+}

@@ -51,11 +51,9 @@ function reset() {
   document.getElementById("cl").value = state.cl;
 }
 
-function progress(dtchrono) {
-  let start = performance.now();
-  //simpleProgress(dtchrono)
-  progressV1(dtchrono);
-  state.progressDuration = performance.now() - start;
+function compute(dtchrono) {
+  //simpleCompute(dtchrono)
+  computeV1(dtchrono);
 }
 
 let previousChrono;
@@ -68,7 +66,7 @@ function frame(chrono) {
     if (dchrono > 100) {
       dchrono = 16;
     }
-    progress(dchrono);
+    compute(dchrono);
     draw();
   }
   previousChrono = chrono;
@@ -101,6 +99,7 @@ function setCs2() {
 
 function pause() {
   paused = !paused;
+  draw();
 }
 
 function drawIfPaused() {

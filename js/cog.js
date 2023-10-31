@@ -41,6 +41,19 @@ function drawCog(cog) {
   ctx.stroke();
   ctx.closePath();
 
+  if (cog.i == 0) {
+    ctx.save();
+
+    ctx.translate(cog.r - 10, 0);
+    ctx.rotate(Math.PI / 2);
+
+    ctx.font = "10px serif";
+    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = "#000";
+    ctx.strokeText(cog.count, 0, 0);
+    ctx.restore();
+  }
+
   ctx.restore();
 }
 
@@ -50,6 +63,7 @@ function drawCogs(state) {
 
   for (let i = 0; i < state.f; i++) {
     drawCog({
+      count: state.f,
       r: state.fradius,
       i: i,
       a: state.fa - i * state.fda,
@@ -59,6 +73,7 @@ function drawCogs(state) {
   ctx.restore();
   for (let i = 0; i < state.r; i++) {
     drawCog({
+      count: state.r,
       r: state.rradius,
       i: i,
       a: state.ra - i * state.rda,

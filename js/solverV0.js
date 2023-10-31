@@ -17,7 +17,7 @@ function simpleInit() {
     rru = state.rru;
 }
 
-function simpleProgress(dtchrono) {
+function simpleCompute(dtchrono) {
     let da = (1 / 60.0) * speed;
     state.fa = state.fa + da;
     fru = fru + (state.f * da) / (2 * Math.PI);
