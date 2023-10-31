@@ -14,20 +14,20 @@ function getCatenary(p1, p2, l) {
         y2 = -p1.y;
         inverted = true;
     }
-    const dx = x2 - x1;
-    const dy = y2 - y1;
+    let dx = x2 - x1;
+    let dy = y2 - y1;
     if (Math.sqrt(l * l) < (Math.sqrt(dx * dx + dy * dy) + 0.001)) {
         return [
             p1, p2
         ];
     }
 
-    const ax = (x2 + x1) / 2;
-    const ay = (y2 + y1) / 2;
+    let ax = (x2 + x1) / 2;
+    let ay = (y2 + y1) / 2;
 
     // l² <= dx² + dy²
     // dx != 0
-    const r = Math.sqrt(l * l - dy * dy) / dx
+    let r = Math.sqrt(l * l - dy * dy) / dx
     // r = sinh(A)/A
     let A;
     if (r < 3) {
@@ -41,15 +41,15 @@ function getCatenary(p1, p2, l) {
         diff = Math.abs(r - (Math.sinh(A) / A));
     } while (diff > 0.0000001);
 
-    const a = dx / (2 * A);
-    const b = ax - (a * Math.atanh(dy / l));
-    const c = ay - (l / (2 * Math.tanh(A)));
+    let a = dx / (2 * A);
+    let b = ax - (a * Math.atanh(dy / l));
+    let c = ay - (l / (2 * Math.tanh(A)));
 
-    const nPoints = 100;
-    const points = [];
+    let nPoints = 100;
+    let points = [];
     for (let i = 0; i <= nPoints; i++) {
-        const x = x1 + i * (x2 - x1) / nPoints;
-        const y = -(c + a * Math.cosh((x - b) / a));
+        let x = x1 + i * (x2 - x1) / nPoints;
+        let y = -(c + a * Math.cosh((x - b) / a));
         points.push({ x, y });
     }
     if (inverted) {
@@ -59,30 +59,31 @@ function getCatenary(p1, p2, l) {
 }
 
 function catenary(p1, p2, l, n) {
-    const points = getCatenary(p1, p2, l);
+    let points = getCatenary(p1, p2, l);
 
-    const dseg = [];
+    let dseg = [];
     let dtot = 0;
     for (let i = 0; i < points.length - 1; i++) {
-        const d = dist(points[i], points[i + 1]);
+        let d = dist(points[i], points[i + 1]);
         dtot = dtot + d;
         dseg.push(d);
     }
 
-    const result = [];
+    let result = [];
 
     let d = 0;
     let iseg = 0;
     let dl = dtot / n;
 
     for (let i = 0; i < dseg.length; i++) {
-        const nd = d + dseg[i];
+        let nd = d + dseg[i];
 
         let added = false;
         do {
             if (d - 0.001 <= iseg * dl && iseg * dl <= nd + 0.001) {
-                const r = (iseg * dl - d) / (nd - d);
-                const p = ratio(points[i], points[i + 1], r);
+                let r = (iseg * dl - d) / (nd - d);
+                let p = ratio(points[i], points[i + 1], r);
+                p.fixed = false;
                 result.push(p);
                 iseg++;
                 added = true;
@@ -93,5 +94,7 @@ function catenary(p1, p2, l, n) {
 
         d = nd;
     }
+    result[0].fixed = true;
+    result[result.length - 1].fixed = true;
     return result;
 }

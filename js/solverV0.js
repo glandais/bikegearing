@@ -17,14 +17,14 @@ function simpleInit() {
     rru = state.rru;
 }
 
-function simpleProgress(dchrono) {
-    const da = (1 / 60.0) * speed;
+function simpleProgress(dtchrono) {
+    let da = (1 / 60.0) * speed;
     state.fa = state.fa + da;
     fru = fru + (state.f * da) / (2 * Math.PI);
     state.fru = Math.round(fru);
     state.fcu = Math.round(14 + (state.f * state.fa) / (2 * Math.PI)) % state.f;
 
-    const rda = da * (state.f / state.r);
+    let rda = da * (state.f / state.r);
     state.ra = state.ra + rda;
     rru = rru + (state.r * rda) / (2 * Math.PI);
     state.rru = Math.round(rru);

@@ -1,6 +1,6 @@
 
 function initStateV1() {
-    const alpha = Math.asin((state.f - state.r) / state.cs);
+    let alpha = Math.asin((state.f - state.r) / state.cs);
     state.fa = -Math.PI / 2 - Math.PI / 6;
     state.fcu = 0;
     state.fru = 0;
@@ -27,9 +27,10 @@ function debugAngles(label, a1, a2) {
     }
 }
 
-function progressV1(dchrono) {
-    const da = speed * (1/60);
-    state.t += speed * (1/60);
+function progressV1(dtchrono) {
+    let rpra = state.ra;
+    let da = speed * (dtchrono / 1000);
+    state.t += speed * (dtchrono / 1000);
     state.fa = state.fa + da;
     let modified = false;
     let modification = 0;
@@ -46,7 +47,7 @@ function progressV1(dchrono) {
         let d = dist(fsr.p1, rsr.p1);
         let maxDist = halfLinkChain * getRn(state.rru - state.fru, state.cl);
         if (d >= maxDist) {
-            const inter = intersection(
+            let inter = intersection(
                 {
                     x: fsr.p1.x,
                     y: fsr.p1.y,
@@ -64,8 +65,8 @@ function progressV1(dchrono) {
             } else {
                 pinter = inter.point_2;
             }
-            const newRa = getAngle({ x: 0, y: 0 }, pinter);
-            const currentRa = state.ra - state.rcu * state.rda;
+            let newRa = getAngle({ x: 0, y: 0 }, pinter);
+            let currentRa = state.ra - state.rcu * state.rda;
             if (Math.abs(newRa - currentRa) > 0.00001) {
                 state.ra = state.ra + (newRa - currentRa);
                 rivets = getRivets(state);
@@ -76,13 +77,13 @@ function progressV1(dchrono) {
         fsr = getRivet(rivets, state.fru);
         rsr = getRivet(rivets, state.rru);
 
-        const fscm1 = getRivetPoint(state.cs, state.fradius, state.fa - (state.fcu - 1) * state.fda);
-        const fsc = getRivetPoint(state.cs, state.fradius, state.fa - state.fcu * state.fda);
-        const fscp1 = getRivetPoint(state.cs, state.fradius, state.fa - (state.fcu + 1) * state.fda);
+        let fscm1 = getRivetPoint(state.cs, state.fradius, state.fa - (state.fcu - 1) * state.fda);
+        let fsc = getRivetPoint(state.cs, state.fradius, state.fa - state.fcu * state.fda);
+        let fscp1 = getRivetPoint(state.cs, state.fradius, state.fa - (state.fcu + 1) * state.fda);
 
-        const fsra = getAngle(fsr.p1, fsr.p2);
-        const fscm1a = getAngle(fscm1, fsc);
-        const fscp1a = getAngle(fsc, fscp1);
+        let fsra = getAngle(fsr.p1, fsr.p2);
+        let fscm1a = getAngle(fscm1, fsc);
+        let fscp1a = getAngle(fsc, fscp1);
 
         if (fsra < fscp1a - 0.001) {
             debugAngles("fsra < fscp1a", fsra, fscp1a);
@@ -99,13 +100,13 @@ function progressV1(dchrono) {
         }
 
         rsr = getRivet(rivets, state.rru - 1);
-        const rscm1 = getRivetPoint(0, state.rradius, state.ra - (state.rcu - 1) * state.rda);
-        const rsc = getRivetPoint(0, state.rradius, state.ra - state.rcu * state.rda);
-        const rscp1 = getRivetPoint(0, state.rradius, state.ra - (state.rcu + 1) * state.rda);
+        let rscm1 = getRivetPoint(0, state.rradius, state.ra - (state.rcu - 1) * state.rda);
+        let rsc = getRivetPoint(0, state.rradius, state.ra - state.rcu * state.rda);
+        let rscp1 = getRivetPoint(0, state.rradius, state.ra - (state.rcu + 1) * state.rda);
 
-        const rsra = getAngle(rsr.p2, rsr.p1);
-        const rscm1a = getAngle(rsc, rscm1);
-        const rscp1a = getAngle(rscp1, rsc);
+        let rsra = getAngle(rsr.p2, rsr.p1);
+        let rscm1a = getAngle(rsc, rscm1);
+        let rscp1a = getAngle(rscp1, rsc);
 
         if (rsra > rscm1a + 0.001) {
             debugAngles("rsra > rscm1a", rsra, rscm1a);
@@ -121,14 +122,14 @@ function progressV1(dchrono) {
             modified = true;
         }
 
-        const rer = getRivet(rivets, state.rru + state.rr - 1);
-        const recm1 = getRivetPoint(0, state.rradius, state.ra - (state.rcu + state.rr - 2) * state.rda);
-        const rec = getRivetPoint(0, state.rradius, state.ra - (state.rcu + state.rr - 1) * state.rda);
-        const recp1 = getRivetPoint(0, state.rradius, state.ra - (state.rcu + state.rr) * state.rda);
+        let rer = getRivet(rivets, state.rru + state.rr - 1);
+        let recm1 = getRivetPoint(0, state.rradius, state.ra - (state.rcu + state.rr - 2) * state.rda);
+        let rec = getRivetPoint(0, state.rradius, state.ra - (state.rcu + state.rr - 1) * state.rda);
+        let recp1 = getRivetPoint(0, state.rradius, state.ra - (state.rcu + state.rr) * state.rda);
 
-        const rera = getAngle(rer.p1, rer.p2);
-        const recm1a = getAngle(recm1, rec);
-        const recp1a = getAngle(rec, recp1);
+        let rera = getAngle(rer.p1, rer.p2);
+        let recm1a = getAngle(recm1, rec);
+        let recp1a = getAngle(rec, recp1);
 
         if (rera > recm1a + 0.001) {
             debugAngles("rera > recm1a", rera, recm1a);
@@ -142,15 +143,15 @@ function progressV1(dchrono) {
             modified = true;
         }
 
-        const fer = getRivet(rivets, state.fru - state.fr);
-        const fecog = 1 + state.fcu - state.fr;
-        const fecm1 = getRivetPoint(state.cs, state.fradius, state.fa - (fecog - 1) * state.fda);
-        const fec = getRivetPoint(state.cs, state.fradius, state.fa - fecog * state.fda);
-        const fecp1 = getRivetPoint(state.cs, state.fradius, state.fa - (fecog + 1) * state.fda);
+        let fer = getRivet(rivets, state.fru - state.fr);
+        let fecog = 1 + state.fcu - state.fr;
+        let fecm1 = getRivetPoint(state.cs, state.fradius, state.fa - (fecog - 1) * state.fda);
+        let fec = getRivetPoint(state.cs, state.fradius, state.fa - fecog * state.fda);
+        let fecp1 = getRivetPoint(state.cs, state.fradius, state.fa - (fecog + 1) * state.fda);
 
-        const fera = getAngle(fer.p1, fer.p2);
-        const fecm1a = getAngle(fecm1, fec);
-        const fecp1a = getAngle(fec, fecp1);
+        let fera = getAngle(fer.p1, fer.p2);
+        let fecm1a = getAngle(fecm1, fec);
+        let fecp1a = getAngle(fec, fecp1);
 
         if (fera > fecm1a + 0.001) {
             debugAngles("fera < fecm1a", fera, fecm1a);
@@ -173,5 +174,26 @@ function progressV1(dchrono) {
     state.rcu = state.rcu % state.r;
     state.fru = state.fru % state.cl;
     state.rru = state.rru % state.cl;
+
+    let rdra = state.ra - rpra;
+    while (rdra > Math.PI / 2) {
+        rdra = rdra - Math.PI;
+    }
+    while (rdra < - Math.PI / 2) {
+        rdra = rdra + Math.PI;
+    }
+
+    let distchronokm = (2100 / (1000 * 1000)) * (rdra / (2 * Math.PI));
+    let dtchronoh = dtchrono / (1000 * 3600);
+    let speedkmh = distchronokm / dtchronoh;
+
+    state.speedkmh = speedkmh;
+
+    let rotation = da / (2 * Math.PI);
+    let dtchronomin = dtchrono / (1000 * 60);
+    let rpm = rotation / dtchronomin;
+
+    state.rpm = rpm;
+
     return rearMoved;
 }

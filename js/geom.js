@@ -3,8 +3,8 @@ function dist(p1, p2) {
 }
 
 function getAngle(p1, p2) {
-  const dx = p2.x - p1.x;
-  const dy = p2.y - p1.y;
+  let dx = p2.x - p1.x;
+  let dy = p2.y - p1.y;
   let a = 0;
   if (Math.abs(dx) < 0.0001) {
     if (dy > 0) {
@@ -42,7 +42,7 @@ function ratio(p1, p2, r) {
  */
 function intersection(c1, c2) {
   // Start constructing the response object.
-  const result = {
+  let result = {
     intersect_count: 0,
     intersect_occurs: true,
     one_is_in_other: false,
@@ -52,11 +52,11 @@ function intersection(c1, c2) {
   };
 
   // Get vertical and horizontal distances between circles.
-  const dx = c2.x - c1.x;
-  const dy = c2.y - c1.y;
+  let dx = c2.x - c1.x;
+  let dy = c2.y - c1.y;
 
   // Calculate the distance between the circle centers as a straight line.
-  const dist = Math.hypot(dy, dx);
+  let dist = Math.hypot(dy, dx);
 
   // Check if circles intersect.
   if (dist > c1.r + c2.r) {
@@ -79,18 +79,18 @@ function intersection(c1, c2) {
   if (result.intersect_occurs) {
     // Centroid is the pt where two lines cross. A line between the circle centers
     // and a line between the intersection points.
-    const centroid = (c1.r * c1.r - c2.r * c2.r + dist * dist) / (2.0 * dist);
+    let centroid = (c1.r * c1.r - c2.r * c2.r + dist * dist) / (2.0 * dist);
 
     // Get the coordinates of centroid.
-    const x2 = c1.x + (dx * centroid) / dist;
-    const y2 = c1.y + (dy * centroid) / dist;
+    let x2 = c1.x + (dx * centroid) / dist;
+    let y2 = c1.y + (dy * centroid) / dist;
 
     // Get the distance from centroid to the intersection points.
-    const h = Math.sqrt(c1.r * c1.r - centroid * centroid);
+    let h = Math.sqrt(c1.r * c1.r - centroid * centroid);
 
     // Get the x and y dist of the intersection points from centroid.
-    const rx = -dy * (h / dist);
-    const ry = dx * (h / dist);
+    let rx = -dy * (h / dist);
+    let ry = dx * (h / dist);
 
     // Get the intersection points.
     result.point_1.x = Number((x2 + rx).toFixed(15));

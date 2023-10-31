@@ -11,6 +11,8 @@ function printState(state) {
     "halfLinkChain: " + halfLinkChain,
     "d: " + state.t,
     "speed: " + speed,
+    "speed (km/h): " + state.speedkmh,
+    "rpm: " + state.rpm,
     "f: " + state.f,
     "r: " + state.r,
     "cs: " + state.cs,
@@ -37,14 +39,16 @@ function roundHuman(v, d) {
 function printHumanState(state) {
   ctx.save();
   ctx.font = "16px serif";
-  const wear = roundHuman((100.0 * halfLinkChain / halfLink) - 100.0, 1);
+  let wear = roundHuman((100.0 * halfLinkChain / halfLink) - 100.0, 1);
   printStateValues([
     "Chain wear: " + wear + "%",
-    "Speed: " + roundHuman(speed * 100, 0),
+    "Speed: " + roundHuman(speed * 100, 0) + "%",
     "Chainring cogs: " + state.f,
     "Sprocket cogs: " + state.r,
     "Chainstay: " + roundHuman(state.cs, 2) + "mm",
-    "Chain links: " + state.cl
+    "Chain links: " + state.cl,
+    "Speed (km/h): " + roundHuman(state.speedkmh, 1),
+    "RPM: " + roundHuman(state.rpm, 1),
   ]);
   ctx.restore();
 }
@@ -58,7 +62,7 @@ function getRivet(rivets, rn) {
 }
 
 function draw() {
-  const start = performance.now();
+  let start = performance.now();
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -74,13 +78,13 @@ function draw() {
   ctx.translate(cameraOffset.x, cameraOffset.y);
   ctx.scale(cameraZoom, cameraZoom);
 
-  const rivets = getRivets(state);
+  let rivets = getRivets(state);
   let rivet;
   if (followRivet) {
     rivet = getRivet(rivets, 0);
     if (rivet) {
       let rivetAngle = getAngle(rivet.p1, rivet.p2);
-      ctx.rotate(Math.PI-rivetAngle);
+      ctx.rotate(Math.PI - rivetAngle);
       ctx.translate(-rivet.p1.x, -rivet.p1.y);
     }
   }

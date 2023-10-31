@@ -51,10 +51,10 @@ function reset() {
   document.getElementById("cl").value = state.cl;
 }
 
-function progress(dchrono) {
-  const start = performance.now();
-  //simpleProgress(dchrono)
-  progressV1(dchrono);
+function progress(dtchrono) {
+  let start = performance.now();
+  //simpleProgress(dtchrono)
+  progressV1(dtchrono);
   state.progressDuration = performance.now() - start;
 }
 
@@ -64,7 +64,11 @@ function frame(chrono) {
     previousChrono = chrono;
   }
   if (!paused) {
-    progress(chrono - previousChrono);
+    let dchrono = chrono - previousChrono;
+    if (dchrono > 100) {
+      dchrono = 16;
+    }
+    progress(dchrono);
     draw();
   }
   previousChrono = chrono;
@@ -90,8 +94,8 @@ function setCs1() {
 }
 
 function setCs2() {
-  const cs1 = 1.0 * document.getElementById("cs1").value;
-  const cs2 = document.getElementById("cs2").value / 100.0;
+  let cs1 = 1.0 * document.getElementById("cs1").value;
+  let cs2 = document.getElementById("cs2").value / 100.0;
   state.cs = cs1 + cs2;
 }
 

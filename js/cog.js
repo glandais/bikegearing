@@ -15,9 +15,9 @@ function drawCog(cog) {
 
   ctx.rotate(cog.a);
 
-  const c1 = getArcEnd(cog.r + 2, cog.da / 2);
-  const c2 = getArcEnd(cog.r + 2, -cog.da / 2);
-  const a = cog.da / 2;
+  let c1 = getArcEnd(cog.r + 2, cog.da / 2);
+  let c2 = getArcEnd(cog.r + 2, -cog.da / 2);
+  let a = cog.da / 2;
 
   if (debug) {
     ctx.save();
@@ -27,7 +27,7 @@ function drawCog(cog) {
     ctx.fillText("" + cog.i, cog.r + 10, 0);
     ctx.beginPath();
     ctx.lineTo(cog.r, 0);
-    const cog2 = getArcEnd(cog.r, cog.da);
+    let cog2 = getArcEnd(cog.r, cog.da);
     ctx.lineTo(cog2.x, cog2.y);
     ctx.stroke();
     ctx.closePath();

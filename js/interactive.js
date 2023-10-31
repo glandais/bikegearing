@@ -28,7 +28,7 @@ function onPointerUp(e) {
 
 function onPointerMove(e) {
   if (isDragging) {
-    const diff = {
+    let diff = {
       x: e.clientX - dragStart.x,
       y: e.clientY - dragStart.y,
     };
@@ -40,9 +40,9 @@ function onPointerMove(e) {
 
 function adjustZoom(e) {
   if (!isDragging) {
-    const deltaY = e.deltaY;
+    let deltaY = e.deltaY;
     zoomAmount = -deltaY * SCROLL_SENSITIVITY;
-    const worldPosition = getWorldPosition(e);
+    let worldPosition = getWorldPosition(e);
     cameraZoom += zoomAmount;
     cameraZoom = Math.min(cameraZoom, MAX_ZOOM);
     cameraZoom = Math.max(cameraZoom, MIN_ZOOM);
