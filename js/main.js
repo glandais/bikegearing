@@ -1,45 +1,65 @@
-let canvas;
-let ctx;
+var canvas;
+var ctx;
 
-let debug = false;
-let speed = 0.02;
-let paused = false;
-// let debug = false;
-// let speed = 1.0;
-// let paused = false;
+let debug;
+let speed;
+let paused;
+let followRivet;
+let doDrawWheel;
 
-let followRivet = false;
-
-let doDrawWheel = true;
-
-const halfLink = 25.4 / 2.0;
+const HALF_LINK = 25.4 / 2.0;
 let halfLinkChain = 25.4 / 2.0;
 
-var state = {
-  f: 50, // teeth front
-  r: 15, // teeth rear
-  cs: 409, // chainstay (mm)
-  cl: 98, // chain length in rivets (mm -> cl * 2.54 / 2)
+var state;
 
-  fa: 0, // angle front
-  fcu: 14, // cog hole number where chain is leaving front
-  fru: 18, // rivet number on fcu
-  fr: 29, // rivets on front
+function init() {
+  canvas = document.getElementById("canvas");
+  ctx = canvas.getContext("2d");
+  initInteractive();
 
-  ra: 0, // angle rear
-  rcu: 4, // cog hole number where chain is arriving on rear
-  rru: 50, // rivet number on rcu
-  rr: 8, // rivets on rear
+  resetState();
+  requestAnimationFrame(frame);
+}
 
-  modified: ""
-};
+function resetState() {
+  state = {
+    f: 50, // teeth front
+    r: 15, // teeth rear
+    cs: 409, // chainstay (mm)
+    cl: 98, // chain length in rivets (mm -> cl * 2.54 / 2)
+
+    fa: 0, // angle front
+    fcu: 14, // cog hole number where chain is leaving front
+    fru: 18, // rivet number on fcu
+    fr: 29, // rivets on front
+
+    ra: 0, // angle rear
+    rcu: 4, // cog hole number where chain is arriving on rear
+    rru: 50, // rivet number on rcu
+    rr: 8, // rivets on rear
+
+    modified: ""
+  };
+
+  debug = false;
+  speed = 1.0;
+  paused = false;
+
+  followRivet = false;
+
+  doDrawWheel = true;
+
+  halfLinkChain = 25.4 / 2.0;
+
+  reset();
+}
 
 function reset() {
   state.fda = (2.0 * Math.PI) / state.f; // angle between two cogs
-  state.fradius = halfLink / 2 / Math.sin(state.fda / 2.0); // radius to rivet - drawing1.jpg
+  state.fradius = (HALF_LINK / 2) / Math.sin(state.fda / 2.0); // radius to rivet - drawing1.jpg
 
   state.rda = (2.0 * Math.PI) / state.r; // angle between two cogs
-  state.rradius = halfLink / 2 / Math.sin(state.rda / 2.0); // radius to rivet - drawing1.jpg
+  state.rradius = (HALF_LINK / 2) / Math.sin(state.rda / 2.0); // radius to rivet - drawing1.jpg
 
   // https://www.icebike.org/skid-patch-calculator/
   let reduced = reduce(state.f, state.r);
@@ -51,9 +71,10 @@ function reset() {
   }
 
   state.t = 0;
-  //simpleInit()
-  initStateV1();
 
+  resetComputer(state);
+
+  updateHalfLinkChainUI();
   document.getElementById("speed").value = speed;
   document.getElementById("f").value = state.f;
   document.getElementById("r").value = state.r;
@@ -64,11 +85,8 @@ function reset() {
   document.getElementById("followRivet").checked = followRivet;
   document.getElementById("debug").checked = debug;
   document.getElementById("paused").checked = paused;
-}
 
-function compute(dtchrono) {
-  //simpleCompute(dtchrono)
-  computeV1(dtchrono);
+  resetInteractive();
 }
 
 let previousChrono;
@@ -82,43 +100,11 @@ function frame(chrono) {
     if (dchrono > 100) {
       dchrono = 16;
     }
-    compute(dchrono);
-    draw();
+    compute(state, dchrono);
+    draw(state);
   } else {
     state.fps = 0;
   }
   previousChrono = chrono;
   requestAnimationFrame(frame);
-}
-
-function init() {
-  canvas = document.getElementById("canvas");
-  ctx = canvas.getContext("2d");
-  resize();
-  initInteractive();
-  reset();
-  requestAnimationFrame(frame);
-}
-
-function setHalfLinkChain(perc) {
-  halfLinkChain = 12.7 * ((100.0 + perc) / 100.0);
-}
-
-function setCs1() {
-  state.cs = 1.0 * document.getElementById("cs1").value;
-  document.getElementById("cs2").value = 0;
-}
-
-function setCs2() {
-  let cs1 = 1.0 * document.getElementById("cs1").value;
-  let cs2 = document.getElementById("cs2").value / 100.0;
-  state.cs = cs1 + cs2;
-}
-
-function switchPause(cb) {
-  paused = cb.checked;
-  if (paused) {
-    state.fps = 0;
-    draw();
-  }
 }

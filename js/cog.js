@@ -32,6 +32,19 @@ function drawCogDebug(cog) {
   ctx.restore();
 }
 
+function drawCogsLabel(cogs) {
+  ctx.save();
+  ctx.rotate(cogs.a);
+  ctx.translate(cogs.r - 10, 0);
+  ctx.rotate(Math.PI / 2);
+
+  ctx.font = "10px serif";
+  ctx.lineWidth = 0.5;
+  ctx.strokeStyle = "#000";
+  ctx.strokeText(cogs.n, 0, 0);
+  ctx.restore();
+}
+
 function drawAnyCogs(cogs) {
 
   ctx.fillStyle = "#ddd";
@@ -69,16 +82,7 @@ function drawAnyCogs(cogs) {
     ctx.restore();
   }
 
-  ctx.save();
-  ctx.rotate(cogs.a);
-  ctx.translate(cogs.r - 10, 0);
-  ctx.rotate(Math.PI / 2);
-
-  ctx.font = "10px serif";
-  ctx.lineWidth = 0.5;
-  ctx.strokeStyle = "#000";
-  ctx.strokeText(cogs.n, 0, 0);
-  ctx.restore();
+  drawCogsLabel(cogs);
 }
 
 function drawFrontCogs(state) {

@@ -1,10 +1,10 @@
-let cameraOffset = { x: 172, y: 358 };
-let cameraZoom = 2.0;
-let worldWidth = 650;
+let cameraOffset;
+let cameraZoom;
+let worldWidth;
 
-let MAX_ZOOM = 50;
-let MIN_ZOOM = 0.5;
-let SCROLL_SENSITIVITY = 0.005;
+const MAX_ZOOM = 50;
+const MIN_ZOOM = 0.5;
+const SCROLL_SENSITIVITY = 0.005;
 
 function getWorldPosition(e) {
   return {
@@ -15,7 +15,6 @@ function getWorldPosition(e) {
 
 let isDragging = false;
 let dragStart = { x: 0, y: 0 };
-
 let previousCameraOffset;
 
 function onPointerDown(e) {
@@ -61,7 +60,14 @@ function adjustZoom(e) {
   }
 }
 
-function resize() {
+function resetInteractive() {
+  cameraOffset = { x: 172, y: 358 };
+  cameraZoom = 2.0;
+  worldWidth = 650;
+  onResize();
+}
+
+function onResize() {
   canvas.style.width = '100%';
   canvas.style.height = '100%';
   canvas.width = canvas.offsetWidth;
@@ -74,11 +80,7 @@ function resize() {
 }
 
 function initInteractive() {
-  addEventListener("resize", (event) => {
-    canvas = document.getElementById("canvas");
-    ctx = canvas.getContext("2d");
-    resize();
-  });
+  addEventListener("resize", onResize);
   canvas.addEventListener("mousedown", onPointerDown);
   canvas.addEventListener("mouseup", onPointerUp);
   canvas.addEventListener("mousemove", onPointerMove);

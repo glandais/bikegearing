@@ -5,7 +5,7 @@ function printStateValues(values) {
 }
 
 function commonPrintState(state) {
-  let wear = roundHuman((100.0 * halfLinkChain / halfLink) - 100.0, 1);
+  let wear = roundHuman((100.0 * halfLinkChain / HALF_LINK) - 100.0, 1);
   return [
     "Chain wear: " + wear + "%",
     "Speed: " + roundHuman(speed * 100, 0) + "%",
@@ -25,7 +25,6 @@ function commonPrintState(state) {
 function printState(state) {
   ctx.save();
   ctx.font = "16px serif";
-  let wear = roundHuman((100.0 * halfLinkChain / halfLink) - 100.0, 1);
   let values = commonPrintState(state);
   let debugValues = [
     "",
@@ -57,15 +56,7 @@ function printHumanState(state) {
   ctx.restore();
 }
 
-function getRivet(rivets, rn) {
-  for (let i = 0; i < rivets.length; i++) {
-    if (rivets[i].rn === rn) {
-      return rivets[i];
-    }
-  }
-}
-
-function draw() {
+function draw(state) {
   let start = performance.now();
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -90,7 +81,7 @@ function draw() {
   let rivets = getRivets(state);
   let rivet;
   if (followRivet) {
-    rivet = getRivet(rivets, 0);
+    rivet = getRivet(state, rivets, 0);
     if (rivet) {
       let rivetAngle = getAngle(rivet.p1, rivet.p2);
       ctx.rotate(Math.PI - rivetAngle);
@@ -139,15 +130,8 @@ function drawCircle(x, y, r, fill = false) {
   ctx.closePath();
 }
 
-function getArcEnd(r, a) {
-  return {
-    x: r * Math.cos(a),
-    y: r * Math.sin(a),
-  };
-}
-
 function drawIfPaused() {
   if (paused) {
-    draw();
+    draw(state);
   }
 }

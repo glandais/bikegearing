@@ -1,5 +1,5 @@
 
-function initStateV1() {
+function resetComputer(state) {
     let alpha = Math.asin((state.f - state.r) / state.cs);
     state.fa = -Math.PI / 2 - Math.PI / 6;
     state.fcu = 0;
@@ -8,17 +8,8 @@ function initStateV1() {
 
     state.ra = -Math.PI / 2;
     state.rcu = 0;
-    state.rru = Math.round((state.cs * Math.cos(alpha)) / halfLink);
+    state.rru = Math.round((state.cs * Math.cos(alpha)) / HALF_LINK);
     state.rr = Math.round(state.r / 2.0);
-}
-
-function getRivet(rivets, rn) {
-    rn = getRn(rn, state.cl);
-    for (let i = 0; i < rivets.length; i++) {
-        if (rivets[i].rn === rn) {
-            return rivets[i];
-        }
-    }
 }
 
 function debugAngles(label, a1, a2) {
@@ -27,7 +18,7 @@ function debugAngles(label, a1, a2) {
     }
 }
 
-function computeV1(dtchrono) {
+function compute(state, dtchrono) {
     let start = performance.now();
 
     let dt = speed * (dtchrono / 1000);
@@ -52,8 +43,8 @@ function computeV1(dtchrono) {
 
             let rsr, fsr;
 
-            fsr = getRivet(rivets, state.fru);
-            rsr = getRivet(rivets, state.rru);
+            fsr = getRivet(state, rivets, state.fru);
+            rsr = getRivet(state, rivets, state.rru);
             let d = dist(fsr.p1, rsr.p1);
             let maxDist = halfLinkChain * getRn(state.rru - state.fru, state.cl);
             if (d >= maxDist) {
@@ -83,8 +74,8 @@ function computeV1(dtchrono) {
                     modified = true;
                 }
             }
-            fsr = getRivet(rivets, state.fru);
-            rsr = getRivet(rivets, state.rru);
+            fsr = getRivet(state, rivets, state.fru);
+            rsr = getRivet(state, rivets, state.rru);
 
             let fscm1 = getRivetPoint(state.cs, state.fradius, state.fa - (state.fcu - 1) * state.fda);
             let fsc = getRivetPoint(state.cs, state.fradius, state.fa - state.fcu * state.fda);
@@ -108,7 +99,7 @@ function computeV1(dtchrono) {
                 modified = true;
             }
 
-            rsr = getRivet(rivets, state.rru - 1);
+            rsr = getRivet(state, rivets, state.rru - 1);
             let rscm1 = getRivetPoint(0, state.rradius, state.ra - (state.rcu - 1) * state.rda);
             let rsc = getRivetPoint(0, state.rradius, state.ra - state.rcu * state.rda);
             let rscp1 = getRivetPoint(0, state.rradius, state.ra - (state.rcu + 1) * state.rda);
@@ -131,7 +122,7 @@ function computeV1(dtchrono) {
                 modified = true;
             }
 
-            let rer = getRivet(rivets, state.rru + state.rr - 1);
+            let rer = getRivet(state, rivets, state.rru + state.rr - 1);
             let recm1 = getRivetPoint(0, state.rradius, state.ra - (state.rcu + state.rr - 2) * state.rda);
             let rec = getRivetPoint(0, state.rradius, state.ra - (state.rcu + state.rr - 1) * state.rda);
             let recp1 = getRivetPoint(0, state.rradius, state.ra - (state.rcu + state.rr) * state.rda);
@@ -152,7 +143,7 @@ function computeV1(dtchrono) {
                 modified = true;
             }
 
-            let fer = getRivet(rivets, state.fru - state.fr);
+            let fer = getRivet(state, rivets, state.fru - state.fr);
             let fecog = 1 + state.fcu - state.fr;
             let fecm1 = getRivetPoint(state.cs, state.fradius, state.fa - (fecog - 1) * state.fda);
             let fec = getRivetPoint(state.cs, state.fradius, state.fa - fecog * state.fda);

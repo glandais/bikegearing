@@ -142,3 +142,10 @@ function reduce(numerator, denominator) {
   gcd = gcd(numerator, denominator);
   return [numerator / gcd, denominator / gcd];
 }
+
+function getArcEnd(r, a) {
+  return {
+    x: r * Math.cos(a),
+    y: r * Math.sin(a),
+  };
+}
