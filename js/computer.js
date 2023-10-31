@@ -30,7 +30,11 @@ function compute(state, dtchrono) {
 
     let fra = state.fa + dt * 10;
     let modification = 0;
-    while (state.fa < fra) {
+    let forced = false;
+    if (dtchrono == 0) {
+        forced = true;
+    }
+    while (state.fa < fra || forced) {
 
         state.fa = state.fa + 0.01;
         if (state.fa > fra) {
@@ -173,6 +177,8 @@ function compute(state, dtchrono) {
         state.rcu = state.rcu % state.r;
         state.fru = state.fru % state.cl;
         state.rru = state.rru % state.cl;
+
+        forced = false;
     }
     state.fa = comparableAngle(0, state.fa);
     state.ra = comparableAngle(0, state.ra);

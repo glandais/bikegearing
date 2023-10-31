@@ -73,6 +73,7 @@ function reset() {
   state.t = 0;
 
   resetComputer(state);
+  compute(state, 0);
 
   updateHalfLinkChainUI();
   document.getElementById("speed").value = speed;
