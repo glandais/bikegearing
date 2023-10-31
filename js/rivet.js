@@ -23,7 +23,7 @@ function drawRivet(rivet) {
   ctx.translate(p1.x, p1.y);
   let a = getAngle(p1, p2);
   ctx.rotate(a);
-  
+
   let stretch = 0;
   if (d < halfLink) {
     stretch = (d - halfLink) / d;
@@ -36,10 +36,7 @@ function drawRivet(rivet) {
     ctx.fillStyle = "#000";
     let perc = Math.round(stretch * 1000);
     ctx.fillText(rn + " " + perc, 0, 5);
-    ctx.beginPath();
-    ctx.arc(0, 0, 3.7, 0, 2 * Math.PI);
-    ctx.stroke();
-    ctx.closePath();
+    drawCircle(0, 0, 3.7);
 
     ctx.save();
     if (stretch > 0.0001) {
@@ -68,7 +65,7 @@ function drawRivet(rivet) {
     ctx.restore();
   } else {
     ctx.translate((d - halfLink) / 2, 0);
-    
+
     let astretch = Math.abs(stretch);
     if (astretch > 0.0001) {
       let s = Math.max(50, Math.min(100, Math.round(100 * stretch / 0.05)));
@@ -86,18 +83,10 @@ function drawRivet(rivet) {
 
     if (rivet.rn % 2 == 1) {
       ctx.fillStyle = "#ccc";
-      ctx.beginPath();
-      ctx.arc(0, 0, 2, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.arc(0, 0, 2, 0, 2 * Math.PI);
-      ctx.stroke();
-      ctx.closePath();
-      ctx.beginPath();
-      ctx.arc(d, 0, 2, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.arc(d, 0, 2, 0, 2 * Math.PI);
-      ctx.stroke();
-      ctx.closePath();
+      drawCircle(0, 0, 2, true);
+      drawCircle(0, 0, 2, false);
+      drawCircle(d, 0, 2, true);
+      drawCircle(d, 0, 2, false);
     }
     if (rivet.rn % 10 == 1) {
       ctx.save();
@@ -170,7 +159,7 @@ function getRivetsUp(state, rivets) {
   while (d < 0) {
     d = d + state.cl;
   }
- 
+
   let points = catenary(s, e, d * halfLink, d);
   for (let i = 0; i < points.length - 1; i++) {
     let rn = getRn(state.fru + i, state.cl);

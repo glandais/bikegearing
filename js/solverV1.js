@@ -191,13 +191,13 @@ function computeV1(dtchrono) {
     let fda = state.fa - fpra;
     fda = comparableAngle(0, fda);
 
-    let distchronokm = (2100 / (1000 * 1000)) * (rda / (2 * Math.PI));
+    let distchronokm = (2100 / (1000 * 1000)) * (rda / TWO_PI);
     let dtchronoh = dtchrono / (1000 * 3600);
     let speedkmh = distchronokm / dtchronoh;
 
     state.speedkmh = speedkmh;
 
-    let rotation = fda / (2 * Math.PI);
+    let rotation = fda / TWO_PI;
     let dtchronomin = dtchrono / (1000 * 60);
     let rpm = rotation / dtchronomin;
 

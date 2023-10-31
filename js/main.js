@@ -62,12 +62,15 @@ function frame(chrono) {
     previousChrono = chrono;
   }
   if (!paused) {
-    let dchrono = chrono - previousChrono;
+    let dchrono = Math.max(1, chrono - previousChrono);
+    state.fps = 1000 / dchrono;
     if (dchrono > 100) {
       dchrono = 16;
     }
     compute(dchrono);
     draw();
+  } else {
+    state.fps = 0;
   }
   previousChrono = chrono;
   requestAnimationFrame(frame);
@@ -99,6 +102,9 @@ function setCs2() {
 
 function pause() {
   paused = !paused;
+  if (paused) {
+    state.fps = 0;
+  }
   draw();
 }
 

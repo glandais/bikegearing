@@ -1,3 +1,6 @@
+
+const TWO_PI = 2 * Math.PI;
+
 function dist(p1, p2) {
   return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 }
@@ -115,11 +118,11 @@ function comparableAngle(a1, a2) {
   let a = a2;
   let minA = a1 - Math.PI;
   while (a < minA) {
-    a = a + 2 * Math.PI;    
+    a = a + TWO_PI;
   }
   let maxA = a1 + Math.PI;
   while (a > maxA) {
-    a = a - 2 * Math.PI;
+    a = a - TWO_PI;
   } while (a > maxA);
   return a;
 }

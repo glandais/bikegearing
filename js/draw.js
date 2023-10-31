@@ -4,11 +4,9 @@ function printStateValues(values) {
   }
 }
 
-function printState(state) {
-  ctx.save();
-  ctx.font = "16px serif";
+function commonPrintState(state) {
   let wear = roundHuman((100.0 * halfLinkChain / halfLink) - 100.0, 1);
-  printStateValues([
+  return [
     "Chain wear: " + wear + "%",
     "Speed: " + roundHuman(speed * 100, 0) + "%",
     "Chainring cogs: " + state.f,
@@ -18,35 +16,38 @@ function printState(state) {
     "Speed (km/h): " + roundHuman(state.speedkmh, 1),
     "RPM: " + roundHuman(state.rpm, 1),
     "",
+    "FPS: " + roundHuman(state.fps, 0)
+  ];
+}
+
+function printState(state) {
+  ctx.save();
+  ctx.font = "16px serif";
+  let wear = roundHuman((100.0 * halfLinkChain / halfLink) - 100.0, 1);
+  let values = commonPrintState(state);
+  let debugValues = [
+    "",
     "t: " + state.t,
-    "fa: " + Math.round((180 * state.fa) / (2 * Math.PI)) + "°",
+    "fa: " + Math.round((180 * state.fa) / TWO_PI) + "°",
     "fcu: " + state.fcu,
     "fru: " + state.fru,
     "fr: " + state.fr,
-    "ra: " + Math.round((180 * state.ra) / (2 * Math.PI)) + "°",
+    "ra: " + Math.round((180 * state.ra) / TWO_PI) + "°",
     "rcu: " + state.rcu,
     "rru: " + state.rru,
     "rr: " + state.rr,
     "computeLog: " + state.computeLog,
     "Last draw: " + roundHuman(state.drawDuration, 2) + "ms"
-  ]);
+  ];
+  values.push(...debugValues);
+  printStateValues(values);
   ctx.restore();
 }
 
 function printHumanState(state) {
   ctx.save();
   ctx.font = "16px serif";
-  let wear = roundHuman((100.0 * halfLinkChain / halfLink) - 100.0, 1);
-  printStateValues([
-    "Chain wear: " + wear + "%",
-    "Speed: " + roundHuman(speed * 100, 0) + "%",
-    "Chainring cogs: " + state.f,
-    "Sprocket cogs: " + state.r,
-    "Chainstay: " + roundHuman(state.cs, 2) + "mm",
-    "Chain links: " + state.cl,
-    "Speed (km/h): " + roundHuman(state.speedkmh, 1),
-    "RPM: " + roundHuman(state.rpm, 1),
-  ]);
+  printStateValues(commonPrintState(state));
   ctx.restore();
 }
 
@@ -117,4 +118,15 @@ function draw() {
     printHumanState(state);
   }
   state.drawDuration = performance.now() - start;
+}
+
+function drawCircle(x, y, r, fill = false) {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, TWO_PI);
+  if (fill) {
+    ctx.fill();
+  } else {
+    ctx.stroke();
+  }
+  ctx.closePath();
 }
