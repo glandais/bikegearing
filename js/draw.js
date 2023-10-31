@@ -39,7 +39,11 @@ function printState(state) {
     "rru: " + state.rru,
     "rr: " + state.rr,
     "computeLog: " + state.computeLog,
-    "Last draw: " + roundHuman(state.drawDuration, 2) + "ms"
+    "Last draw: " + roundHuman(state.drawDuration, 2) + "ms",
+    "cameraOffset.x: " + roundHuman(cameraOffset.x, 2),
+    "cameraOffset.y: " + roundHuman(cameraOffset.y, 2),
+    "cameraZoom: " + roundHuman(cameraZoom, 2),
+    "worldWidth: " + roundHuman(worldWidth, 2),
   ];
   values.push(...debugValues);
   printStateValues(values);
@@ -94,6 +98,9 @@ function draw() {
     }
   }
 
+  if (doDrawWheel) {
+    drawWheel(state);
+  }
   drawCogs(state);
   drawRivets(rivets);
 
@@ -125,10 +132,22 @@ function draw() {
 function drawCircle(x, y, r, fill = false) {
   ctx.beginPath();
   ctx.arc(x, y, r, 0, TWO_PI);
-  if (fill) {
+  if (fill && !debug) {
     ctx.fill();
-  } else {
-    ctx.stroke();
   }
+  ctx.stroke();
   ctx.closePath();
+}
+
+function getArcEnd(r, a) {
+  return {
+    x: r * Math.cos(a),
+    y: r * Math.sin(a),
+  };
+}
+
+function drawIfPaused() {
+  if (paused) {
+    draw();
+  }
 }

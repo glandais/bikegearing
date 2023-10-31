@@ -63,40 +63,41 @@ function drawRivet(rivet) {
     ctx.closePath();
 
     ctx.restore();
-  } else {
-    ctx.translate((d - halfLink) / 2, 0);
-
-    let astretch = Math.abs(stretch);
-    if (astretch > 0.0001) {
-      let s = Math.max(50, Math.min(100, Math.round(100 * stretch / 0.05)));
-      ctx.fillStyle = "hsla(0, " + s + "%, 87%, 1)";
-    } else {
-      ctx.fillStyle = "hsla(0, 0%, 87%, 1)";
-    }
-
-    ctx.beginPath();
-    drawRawRivet();
-    ctx.fill();
-    drawRawRivet();
-    ctx.stroke();
-    ctx.closePath();
-
-    if (rivet.rn % 2 == 1) {
-      ctx.fillStyle = "#ccc";
-      drawCircle(0, 0, 2, true);
-      drawCircle(0, 0, 2, false);
-      drawCircle(d, 0, 2, true);
-      drawCircle(d, 0, 2, false);
-    }
-    if (rivet.rn % 10 == 1) {
-      ctx.save();
-      ctx.font = "3.5px serif";
-      ctx.lineWidth = 0.1;
-      ctx.strokeStyle = "#000";
-      ctx.strokeText("GLA", d / 2, 0.4);
-      ctx.restore();
-    }
   }
+
+  ctx.translate((d - halfLink) / 2, 0);
+
+  let astretch = Math.abs(stretch);
+  if (astretch > 0.0001) {
+    let s = Math.max(50, Math.min(100, Math.round(100 * stretch / 0.05)));
+    ctx.fillStyle = "hsla(0, " + s + "%, 87%, 1)";
+  } else {
+    ctx.fillStyle = "hsla(0, 0%, 87%, 1)";
+  }
+
+  ctx.beginPath();
+  drawRawRivet();
+  if (!debug) {
+    ctx.fill();
+  }
+  ctx.stroke();
+  ctx.closePath();
+
+  if (!debug && rivet.rn % 2 == 1) {
+    ctx.fillStyle = "#ccc";
+    drawCircle(0, 0, 2, true);
+    drawCircle(d, 0, 2, true);
+  }
+  if (rivet.rn % 10 == 1) {
+    ctx.save();
+    ctx.font = "3.5px serif";
+    ctx.lineWidth = 0.1;
+    ctx.strokeStyle = "#000";
+    ctx.strokeText("GLA", d / 2, 0.4);
+    ctx.restore();
+  }
+
+
   ctx.restore();
 }
 

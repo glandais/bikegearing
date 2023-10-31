@@ -1,14 +1,16 @@
 let canvas;
 let ctx;
 
-//var debug = true;
-//let speed = 0.1;
-// let paused = true;
-var debug = false;
-let speed = 1.0;
+let debug = false;
+let speed = 0.02;
 let paused = false;
+// let debug = false;
+// let speed = 1.0;
+// let paused = false;
 
 let followRivet = false;
+
+let doDrawWheel = true;
 
 const halfLink = 25.4 / 2.0;
 let halfLinkChain = 25.4 / 2.0;
@@ -58,6 +60,10 @@ function reset() {
   document.getElementById("cs1").value = Math.floor(state.cs);
   document.getElementById("cs2").value = 100.0 * (state.cs - Math.floor(state.cs));
   document.getElementById("cl").value = state.cl;
+  document.getElementById("doDrawWheel").checked = doDrawWheel;
+  document.getElementById("followRivet").checked = followRivet;
+  document.getElementById("debug").checked = debug;
+  document.getElementById("paused").checked = paused;
 }
 
 function compute(dtchrono) {
@@ -109,21 +115,10 @@ function setCs2() {
   state.cs = cs1 + cs2;
 }
 
-function pause() {
-  paused = !paused;
+function switchPause(cb) {
+  paused = cb.checked;
   if (paused) {
     state.fps = 0;
-  }
-  draw();
-}
-
-function drawIfPaused() {
-  if (paused) {
     draw();
   }
-}
-
-function switchDebug() {
-  debug = !debug;
-  drawIfPaused();
 }

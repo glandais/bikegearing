@@ -1,10 +1,3 @@
-function getArcEnd(r, a) {
-  return {
-    x: r * Math.cos(a),
-    y: r * Math.sin(a),
-  };
-}
-
 const aup = (70 * Math.PI) / 180;
 const am = Math.PI - (60 * Math.PI) / 180;
 
@@ -19,65 +12,97 @@ function drawCog(cog) {
   let c2 = getArcEnd(cog.r + 2, -cog.da / 2);
   let a = cog.da / 2;
 
+  ctx.arc(c1.x, c1.y, 1.6, a, a - aup, true);
+  ctx.arc(cog.r, 0, 3.7, am, -am);
+  ctx.arc(c2.x, c2.y, 1.6, aup - a, -a, true);
+
+  ctx.restore();
+}
+
+function drawCogDebug(cog) {
+  ctx.save();
+  ctx.rotate(cog.a);
+  ctx.fillText("" + cog.i, cog.r + 10, 0);
+  ctx.beginPath();
+  ctx.lineTo(cog.r, 0);
+  let cog2 = getArcEnd(cog.r, cog.da);
+  ctx.lineTo(cog2.x, cog2.y);
+  ctx.stroke();
+  ctx.closePath();
+  ctx.restore();
+}
+
+function drawAnyCogs(cogs) {
+
+  ctx.fillStyle = "#ddd";
+  ctx.strokeStyle = "#000";
+
+  ctx.beginPath();
+  for (let i = 0; i < cogs.n; i++) {
+    drawCog({
+      count: cogs.n,
+      r: cogs.r,
+      i: i,
+      a: cogs.a - i * cogs.da,
+      da: cogs.da,
+    });
+  }
+  ctx.stroke();
+  if (!debug) {
+    ctx.fill();
+  }
+  ctx.closePath();
   if (debug) {
     ctx.save();
     ctx.fillStyle = "#055";
     ctx.strokeStyle = "#055";
     ctx.lineWidth = 0.1;
-    ctx.fillText("" + cog.i, cog.r + 10, 0);
-    ctx.beginPath();
-    ctx.lineTo(cog.r, 0);
-    let cog2 = getArcEnd(cog.r, cog.da);
-    ctx.lineTo(cog2.x, cog2.y);
-    ctx.stroke();
-    ctx.closePath();
+    for (let i = 0; i < cogs.n; i++) {
+      drawCogDebug({
+        count: cogs.n,
+        r: cogs.r,
+        i: i,
+        a: cogs.a - i * cogs.da,
+        da: cogs.da,
+      });
+    }
     ctx.restore();
   }
 
-  ctx.beginPath();
-  ctx.arc(c1.x, c1.y, 1.6, a, a - aup, true);
-  ctx.arc(cog.r, 0, 3.7, am, -am);
-  ctx.arc(c2.x, c2.y, 1.6, aup - a, -a, true);
-  ctx.stroke();
-  ctx.closePath();
+  ctx.save();
+  ctx.rotate(cogs.a);
+  ctx.translate(cogs.r - 10, 0);
+  ctx.rotate(Math.PI / 2);
 
-  if (cog.i == 0) {
-    ctx.save();
-
-    ctx.translate(cog.r - 10, 0);
-    ctx.rotate(Math.PI / 2);
-
-    ctx.font = "10px serif";
-    ctx.lineWidth = 0.5;
-    ctx.strokeStyle = "#000";
-    ctx.strokeText(cog.count, 0, 0);
-    ctx.restore();
-  }
-
+  ctx.font = "10px serif";
+  ctx.lineWidth = 0.5;
+  ctx.strokeStyle = "#000";
+  ctx.strokeText(cogs.n, 0, 0);
   ctx.restore();
 }
 
-function drawCogs(state) {
+function drawFrontCogs(state) {
   ctx.save();
   ctx.translate(state.cs, 0);
-
-  for (let i = 0; i < state.f; i++) {
-    drawCog({
-      count: state.f,
-      r: state.fradius,
-      i: i,
-      a: state.fa - i * state.fda,
-      da: state.fda,
-    });
-  }
+  drawAnyCogs({
+    n: state.f,
+    r: state.fradius,
+    a: state.fa,
+    da: state.fda
+  });
   ctx.restore();
-  for (let i = 0; i < state.r; i++) {
-    drawCog({
-      count: state.r,
-      r: state.rradius,
-      i: i,
-      a: state.ra - i * state.rda,
-      da: state.rda,
-    });
-  }
+}
+
+function drawRearCogs(state) {
+  drawAnyCogs({
+    n: state.r,
+    r: state.rradius,
+    a: state.ra,
+    da: state.rda
+  });
+}
+
+function drawCogs(state) {
+  drawFrontCogs(state);
+  drawRearCogs(state);
 }

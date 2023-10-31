@@ -11,6 +11,7 @@
   <script src="js/interactive.js"></script>
   <script src="js/cog.js"></script>
   <script src="js/rivet.js"></script>
+  <script src="js/wheel.js"></script>
   <script src="js/draw.js"></script>
   <script src="js/solverV0.js"></script>
   <script src="js/solverV1.js"></script>
@@ -54,8 +55,7 @@
   <div id="toolbar">
     Chain wear :
     <br />
-    <input type="range" min="0" max="2" step="0.1" value="0" 
-      oninput="setHalfLinkChain(1.0 * this.value) "
+    <input type="range" min="0" max="2" step="0.1" value="0" oninput="setHalfLinkChain(1.0 * this.value) "
       id="halfLinkChain" />
     <br />
     Speed :
@@ -81,15 +81,19 @@
     Chain links :
     <br />
     <input type="range" min="86" max="110" value="100" oninput="state.cl = 1.0 * this.value" id="cl" />
-        <br />
     <br />
     <br />
+    <input type="checkbox" id="doDrawWheel" name="doDrawWheel" oninput="doDrawWheel = this.checked; drawIfPaused();" />
+    <label for="doDrawWheel">Draw wheel</label>
     <br />
-    <button onclick="pause()">Pause</button>
+    <input type="checkbox" id="paused" name="paused" onclick="switchPause(this)" />
+    <label for="paused">Paused</label>
     <br />
-    <button onclick="switchDebug()">Switch debug</button>
+    <input type="checkbox" id="debug" name="debug" onclick="debug = this.checked; drawIfPaused();" />
+    <label for="debug">Debug</label>
     <br />
-    <button onclick="followRivet = !followRivet">Follow rivet</button>
+    <input type="checkbox" id="followRivet" name="followRivet" oninput="followRivet = this.checked; drawIfPaused();" />
+    <label for="followRivet">Follow rivet</label>
   </div>
   <div id="drawing">
     <canvas id="canvas"></canvas>

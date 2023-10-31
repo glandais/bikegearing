@@ -1,5 +1,7 @@
-let cameraOffset = { x: 100, y: 300 };
-let cameraZoom = 2;
+let cameraOffset = { x: 172, y: 358 };
+let cameraZoom = 2.0;
+let worldWidth = 650;
+
 let MAX_ZOOM = 50;
 let MIN_ZOOM = 0.5;
 let SCROLL_SENSITIVITY = 0.005;
@@ -53,19 +55,21 @@ function adjustZoom(e) {
     cameraOffset.x = e.clientX - worldPosition.x * cameraZoom
     cameraOffset.y = e.clientY - worldPosition.y * cameraZoom
 
+    worldWidth = canvas.width / cameraZoom;
+
     drawIfPaused();
   }
 }
 
 function resize() {
-  //  drawing = document.getElementById("drawing");
-  //  canvas.width = drawing.width;
-  //  canvas.height = drawing.height;
   canvas.style.width = '100%';
   canvas.style.height = '100%';
-  // ...then set the internal size to match
   canvas.width = canvas.offsetWidth;
   canvas.height = canvas.offsetHeight;
+  let oldCameraZoom = cameraZoom;
+  cameraZoom = canvas.width / worldWidth;
+  cameraOffset.x = cameraOffset.x * (cameraZoom / oldCameraZoom);
+  cameraOffset.y = cameraOffset.y * (cameraZoom / oldCameraZoom);
   drawIfPaused();
 }
 
