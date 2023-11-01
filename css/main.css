@@ -1,0 +1,34 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+#sidebar {
+  height: 100%;
+  width: 250px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  overflow-x: hidden;
+}
+
+#sidebar-btn {
+    text-align: right;
+    cursor: pointer;
+}
+
+#sidebar input[type="range"] {
+  width: 240px;
+}
+
+#main {
+  height: 100%;
+  margin-left: 250px;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-right: 0;
+  padding: 0px;
+  overflow: hidden;
+}

@@ -1,3 +1,5 @@
+// inspired from https://codepen.io/chengarda/pen/wRxoyB
+
 let cameraOffset;
 let cameraZoom;
 let worldWidth;
@@ -77,12 +79,7 @@ function getWorldPosition(clientX, clientY, offset, zoom) {
   };
 }
 
-function adjustZoom(
-  clientX,
-  clientY,
-  worldPosition,
-  newCameraZoom
-) {
+function adjustZoom(clientX, clientY, worldPosition, newCameraZoom) {
   if (!isDragging) {
     cameraZoom = newCameraZoom;
     cameraZoom = Math.min(cameraZoom, MAX_ZOOM);
@@ -108,10 +105,13 @@ function resetInteractive() {
 }
 
 function onResize() {
-  canvas.style.width = "100%";
-  canvas.style.height = "100%";
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
+  var parent = canvas.parentNode,
+    styles = getComputedStyle(parent),
+    w = parseInt(styles.getPropertyValue("width"), 10),
+    h = parseInt(styles.getPropertyValue("height"), 10);
+  canvas.width = w;
+  canvas.height = h;
+
   canvasBoundingClientRect = canvas.getBoundingClientRect();
   let oldCameraZoom = cameraZoom;
   cameraZoom = canvas.width / worldWidth;
@@ -137,7 +137,7 @@ function handlePinch(e) {
   let touchCenter = {
     x: (touch1.x + touch2.x) / 2 - canvasBoundingClientRect.left,
     y: (touch1.y + touch2.y) / 2 - canvasBoundingClientRect.top,
-  }
+  };
 
   let currentDistance = Math.hypot(touch1.x - touch2.x, touch1.y - touch2.y);
 
@@ -169,4 +169,19 @@ function initInteractive() {
   canvas.addEventListener("mousemove", onPointerMove);
   canvas.addEventListener("touchmove", (e) => handleTouch(e, onPointerMove));
   canvas.addEventListener("wheel", adjustZoomWheel);
+}
+
+let sideBarVisible = true;
+function switchSidebar() {
+  sideBarVisible = !sideBarVisible;
+  if (sideBarVisible) {
+    document.getElementById("sidebar").style.width = "250px";
+    document.getElementById("main").style.marginLeft = "250px";
+    document.getElementById("sidebar-btn").innerText = "X";
+  } else {
+    document.getElementById("sidebar").style.width = "20px";
+    document.getElementById("main").style.marginLeft = "20px";
+    document.getElementById("sidebar-btn").innerText = ">";
+  }
+  onResize();
 }
