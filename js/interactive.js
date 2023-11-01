@@ -5,8 +5,8 @@ let worldWidth;
 let canvasBoundingClientRect = null;
 
 let initialPinchDistance = null;
+let initialPinchWorldPosition = null;
 let initialPinchZoom = null;
-let initialPinchPoint = null;
 
 let isDragging = false;
 let dragStart = { x: 0, y: 0 };
@@ -39,8 +39,8 @@ function onPointerDown(e) {
 function onPointerUp(e) {
   isDragging = false;
   initialPinchDistance = null;
+  initialPinchWorldPosition = null;
   initialPinchZoom = null;
-  initialPinchPoint = null;
 }
 
 function onPointerMove(e) {
@@ -55,26 +55,35 @@ function onPointerMove(e) {
 function adjustZoomWheel(e) {
   if (!isDragging) {
     let eventLocation = getEventLocation(e);
+    let worldPosition = getWorldPosition(
+      eventLocation.x,
+      eventLocation.y,
+      cameraOffset,
+      cameraZoom
+    );
     adjustZoom(
       eventLocation.x,
       eventLocation.y,
-      cameraZoom,
+      worldPosition,
       cameraZoom - e.deltaY * SCROLL_SENSITIVITY
     );
   }
 }
 
-function getWorldPosition(clientX, clientY, zoom) {
+function getWorldPosition(clientX, clientY, offset, zoom) {
   return {
-    x: (clientX - cameraOffset.x) / zoom,
-    y: (clientY - cameraOffset.y) / zoom,
+    x: (clientX - offset.x) / zoom,
+    y: (clientY - offset.y) / zoom,
   };
 }
 
-function adjustZoom(clientX, clientY, previousCameraZoom, newCameraZoom) {
+function adjustZoom(
+  clientX,
+  clientY,
+  worldPosition,
+  newCameraZoom
+) {
   if (!isDragging) {
-    let worldPosition = getWorldPosition(clientX, clientY, previousCameraZoom);
-
     cameraZoom = newCameraZoom;
     cameraZoom = Math.min(cameraZoom, MAX_ZOOM);
     cameraZoom = Math.max(cameraZoom, MIN_ZOOM);
@@ -125,21 +134,27 @@ function handlePinch(e) {
 
   let touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   let touch2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
+  let touchCenter = {
+    x: (touch1.x + touch2.x) / 2 - canvasBoundingClientRect.left,
+    y: (touch1.y + touch2.y) / 2 - canvasBoundingClientRect.top,
+  }
 
   let currentDistance = Math.hypot(touch1.x - touch2.x, touch1.y - touch2.y);
 
   if (initialPinchDistance == null) {
     initialPinchDistance = currentDistance;
+    initialPinchWorldPosition = getWorldPosition(
+      touchCenter.x,
+      touchCenter.y,
+      cameraOffset,
+      cameraZoom
+    );
     initialPinchZoom = cameraZoom;
-    initialPinchPoint = {
-      x: (touch1.x + touch2.x) / 2 - canvasBoundingClientRect.left,
-      y: (touch1.y + touch2.y) / 2 - canvasBoundingClientRect.top,
-    };
   } else {
     adjustZoom(
-      initialPinchPoint.x,
-      initialPinchPoint.y,
-      initialPinchZoom,
+      touchCenter.x,
+      touchCenter.y,
+      initialPinchWorldPosition,
       initialPinchZoom * (currentDistance / initialPinchDistance)
     );
   }
