@@ -2,57 +2,88 @@ let cameraOffset;
 let cameraZoom;
 let worldWidth;
 
-const MAX_ZOOM = 50;
-const MIN_ZOOM = 0.5;
-const SCROLL_SENSITIVITY = 0.005;
+let canvasBoundingClientRect = null;
 
-function getWorldPosition(e) {
-  return {
-    x: (e.clientX - cameraOffset.x) / cameraZoom,
-    y: (e.clientY - cameraOffset.y) / cameraZoom,
-  };
-}
+let initialPinchDistance = null;
+let initialPinchZoom = null;
+let initialPinchPoint = null;
 
 let isDragging = false;
 let dragStart = { x: 0, y: 0 };
 let previousCameraOffset;
 
+const MAX_ZOOM = 50;
+const MIN_ZOOM = 0.5;
+const SCROLL_SENSITIVITY = 0.005;
+
+function getEventLocation(e) {
+  if (e.touches && e.touches.length == 1) {
+    return {
+      x: e.touches[0].clientX - canvasBoundingClientRect.left,
+      y: e.touches[0].clientY - canvasBoundingClientRect.top,
+    };
+  } else if (e.clientX && e.clientY) {
+    return {
+      x: e.clientX - canvasBoundingClientRect.left,
+      y: e.clientY - canvasBoundingClientRect.top,
+    };
+  }
+}
+
 function onPointerDown(e) {
   isDragging = true;
   previousCameraOffset = { x: cameraOffset.x, y: cameraOffset.y };
-  dragStart = { x: e.clientX, y: e.clientY };
+  dragStart = getEventLocation(e);
 }
 
 function onPointerUp(e) {
   isDragging = false;
+  initialPinchDistance = null;
+  initialPinchZoom = null;
+  initialPinchPoint = null;
 }
 
 function onPointerMove(e) {
   if (isDragging) {
-    let diff = {
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y,
-    };
-    cameraOffset.x = previousCameraOffset.x + diff.x;
-    cameraOffset.y = previousCameraOffset.y + diff.y;
+    let eventLocation = getEventLocation(e);
+    cameraOffset.x = previousCameraOffset.x + eventLocation.x - dragStart.x;
+    cameraOffset.y = previousCameraOffset.y + eventLocation.y - dragStart.y;
     drawIfPaused();
   }
 }
 
-function adjustZoom(e) {
+function adjustZoomWheel(e) {
   if (!isDragging) {
-    let deltaY = e.deltaY;
-    zoomAmount = -deltaY * SCROLL_SENSITIVITY;
-    let worldPosition = getWorldPosition(e);
-    cameraZoom += zoomAmount;
+    let eventLocation = getEventLocation(e);
+    adjustZoom(
+      eventLocation.x,
+      eventLocation.y,
+      cameraZoom,
+      cameraZoom - e.deltaY * SCROLL_SENSITIVITY
+    );
+  }
+}
+
+function getWorldPosition(clientX, clientY, zoom) {
+  return {
+    x: (clientX - cameraOffset.x) / zoom,
+    y: (clientY - cameraOffset.y) / zoom,
+  };
+}
+
+function adjustZoom(clientX, clientY, previousCameraZoom, newCameraZoom) {
+  if (!isDragging) {
+    let worldPosition = getWorldPosition(clientX, clientY, previousCameraZoom);
+
+    cameraZoom = newCameraZoom;
     cameraZoom = Math.min(cameraZoom, MAX_ZOOM);
     cameraZoom = Math.max(cameraZoom, MIN_ZOOM);
 
-    // worldPosition.x = (e.clientX - cameraOffset.x) / cameraZoom
-    // worldPosition.x * cameraZoom = e.clientX - cameraOffset.x
-    // worldPosition.x * cameraZoom + cameraOffset.x = e.clientX
-    cameraOffset.x = e.clientX - worldPosition.x * cameraZoom
-    cameraOffset.y = e.clientY - worldPosition.y * cameraZoom
+    // worldPosition.x = (clientX - cameraOffset.x) / cameraZoom
+    // worldPosition.x * cameraZoom = clientX - cameraOffset.x
+    // worldPosition.x * cameraZoom + cameraOffset.x = clientX
+    cameraOffset.x = clientX - worldPosition.x * cameraZoom;
+    cameraOffset.y = clientY - worldPosition.y * cameraZoom;
 
     worldWidth = canvas.width / cameraZoom;
 
@@ -68,10 +99,11 @@ function resetInteractive() {
 }
 
 function onResize() {
-  canvas.style.width = '100%';
-  canvas.style.height = '100%';
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
   canvas.width = canvas.offsetWidth;
   canvas.height = canvas.offsetHeight;
+  canvasBoundingClientRect = canvas.getBoundingClientRect();
   let oldCameraZoom = cameraZoom;
   cameraZoom = canvas.width / worldWidth;
   cameraOffset.x = cameraOffset.x * (cameraZoom / oldCameraZoom);
@@ -79,10 +111,47 @@ function onResize() {
   drawIfPaused();
 }
 
+function handleTouch(e, singleTouchHandler) {
+  if (e.touches.length == 1) {
+    singleTouchHandler(e);
+  } else if (e.type == "touchmove" && e.touches.length == 2) {
+    isDragging = false;
+    handlePinch(e);
+  }
+}
+
+function handlePinch(e) {
+  e.preventDefault();
+
+  let touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  let touch2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
+
+  let currentDistance = Math.hypot(touch1.x - touch2.x, touch1.y - touch2.y);
+
+  if (initialPinchDistance == null) {
+    initialPinchDistance = currentDistance;
+    initialPinchZoom = cameraZoom;
+    initialPinchPoint = {
+      x: (touch1.x + touch2.x) / 2 - canvasBoundingClientRect.left,
+      y: (touch1.y + touch2.y) / 2 - canvasBoundingClientRect.top,
+    };
+  } else {
+    adjustZoom(
+      initialPinchPoint.x,
+      initialPinchPoint.y,
+      initialPinchZoom,
+      initialPinchZoom * (currentDistance / initialPinchDistance)
+    );
+  }
+}
+
 function initInteractive() {
   addEventListener("resize", onResize);
   canvas.addEventListener("mousedown", onPointerDown);
+  canvas.addEventListener("touchstart", (e) => handleTouch(e, onPointerDown));
   canvas.addEventListener("mouseup", onPointerUp);
+  canvas.addEventListener("touchend", (e) => handleTouch(e, onPointerUp));
   canvas.addEventListener("mousemove", onPointerMove);
-  canvas.addEventListener("wheel", adjustZoom);
+  canvas.addEventListener("touchmove", (e) => handleTouch(e, onPointerMove));
+  canvas.addEventListener("wheel", adjustZoomWheel);
 }
