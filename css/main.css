@@ -2,7 +2,7 @@ html,
 body {
   margin: 0;
   height: 100%;
-  overscroll-behavior-y: contain;
+  overscroll-behavior: contain;
 }
 
 #sidebar {
@@ -32,4 +32,8 @@ body {
   margin-right: 0;
   padding: 0px;
   overflow: hidden;
+}
+
+#canvas {
+    overscroll-behavior: contain;
 }
