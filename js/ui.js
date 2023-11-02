@@ -22,7 +22,7 @@ class BikeGearingUi {
       .getElementById("cs1")
       .addEventListener("input", (e) => this.setCs1());
     document
-      .getElementById("cs1")
+      .getElementById("cs2")
       .addEventListener("input", (e) => this.setCs2());
     document
       .getElementById("cl")
@@ -61,14 +61,25 @@ class BikeGearingUi {
     let state = this.state;
     let perc = (100.0 * state.halfLinkChain) / 12.7 - 100;
     document.getElementById("halfLinkChain").value = perc;
+    document.getElementById("halfLinkChainValue").innerText =
+      BikeGearingMath.roundHuman(perc, 1) + "%";
     document.getElementById("simulationSpeed").value = state.simulationSpeed;
+    document.getElementById("simulationSpeedValue").innerText =
+      BikeGearingMath.roundHuman(state.simulationSpeed * 100, 0) + "%";
     document.getElementById("rotationSpeed").value = state.rotationSpeed;
+    document.getElementById("rotationSpeedValue").innerText =
+      BikeGearingMath.roundHuman(state.rotationSpeed, 1) + "rpm";
     document.getElementById("f").value = state.f;
+    document.getElementById("fValue").innerText = state.f;
     document.getElementById("r").value = state.r;
+    document.getElementById("rValue").innerText = this.state.r;
     document.getElementById("cs1").value = Math.floor(state.cs);
     document.getElementById("cs2").value =
       100.0 * (state.cs - Math.floor(state.cs));
+    document.getElementById("csValue").innerText =
+      BikeGearingMath.roundHuman(this.state.cs, 2) + "mm";
     document.getElementById("cl").value = state.cl;
+    document.getElementById("clValue").innerText = this.state.cl;
     document.getElementById("doDrawWheel").checked = state.doDrawWheel;
     document.getElementById("followRivet").checked = state.followRivet;
     document.getElementById("switchDebug").checked = state.debug;
@@ -77,36 +88,48 @@ class BikeGearingUi {
 
   setHalfLinkChain(e) {
     this.state.halfLinkChain = 12.7 * ((100.0 + 1.0 * e.target.value) / 100.0);
+    document.getElementById("halfLinkChainValue").innerText =
+      BikeGearingMath.roundHuman(e.target.value, 1) + "%";
     this.main.compute0();
   }
 
   setSimulationSpeed(e) {
     this.state.simulationSpeed = 1.0 * e.target.value;
+    document.getElementById("simulationSpeedValue").innerText =
+      BikeGearingMath.roundHuman(this.state.simulationSpeed * 100, 0) + "%";
   }
 
   setRotationSpeed(e) {
     this.state.rotationSpeed = 1.0 * e.target.value;
+    document.getElementById("rotationSpeedValue").innerText =
+      BikeGearingMath.roundHuman(this.state.rotationSpeed, 1) + "rpm";
   }
 
   setF(e) {
     this.state.f = 1.0 * e.target.value;
-    this.main.reset();
+    document.getElementById("fValue").innerText = this.state.f;
+    this.main.resetComputer();
   }
 
   setR(e) {
     this.state.r = 1.0 * e.target.value;
-    this.main.reset();
+    document.getElementById("rValue").innerText = this.state.r;
+    this.main.resetComputer();
   }
 
   setCs1() {
     this.state.cs = 1.0 * document.getElementById("cs1").value;
     document.getElementById("cs2").value = 0;
+    document.getElementById("csValue").innerText =
+      BikeGearingMath.roundHuman(this.state.cs, 2) + "mm";
     this.main.compute0();
   }
 
   setCs2() {
     let cs1 = 1.0 * document.getElementById("cs1").value;
     let cs2 = (1.0 * document.getElementById("cs2").value) / 100.0;
+    document.getElementById("csValue").innerText =
+      BikeGearingMath.roundHuman(this.state.cs, 2) + "mm";
     this.state.cs = cs1 + cs2;
     this.main.compute0();
   }
@@ -118,6 +141,7 @@ class BikeGearingUi {
     let df = this.state.getRivetIndex(state.fru - state.frb);
     let dr = this.state.getRivetIndex(state.rrb - state.rru);
     state.cl = cl;
+    document.getElementById("clValue").innerText = this.state.cl;
     if (rotationSpeed > 0) {
       state.frb = state.frb + dcl;
       state.fru = state.frb + df;

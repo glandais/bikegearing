@@ -41,7 +41,7 @@ class BikeGearingInteractive {
     canvas.addEventListener("wheel", (e) => this.adjustZoomWheel(e));
   }
 
-  resetInteractive() {
+  reset() {
     this.cameraOffset = { x: 172, y: 358 };
     this.cameraZoom = 2.0;
     this.worldWidth = 650;

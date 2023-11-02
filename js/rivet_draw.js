@@ -50,11 +50,11 @@ class BikeGearingRivetsDrawer {
   drawLink(r1, r2, i) {
     let debug = this.state.debug;
     let ctx = this.ctx;
-    let d = BikeGearingCogsMath.dist(r1, r2);
+    let d = BikeGearingMath.dist(r1, r2);
 
     ctx.save();
     ctx.translate(r1.x, r1.y);
-    let a = BikeGearingCogsMath.getAngle(r1, r2);
+    let a = BikeGearingMath.getAngle(r1, r2);
     ctx.rotate(a);
 
     let stretch = 0;

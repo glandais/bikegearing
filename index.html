@@ -24,7 +24,7 @@
   <body onload="init()">
     <div id="sidebar">
       <div id="sidebar-btn">X&nbsp;</div>
-      Chain wear :
+      Chain wear : <span id="halfLinkChainValue"></span>
       <br />
       <input
         type="range"
@@ -35,7 +35,7 @@
         id="halfLinkChain"
       />
       <br />
-      Simulation speed :
+      Simulation speed : <span id="simulationSpeedValue"></span>
       <br />
       <input
         type="range"
@@ -46,7 +46,7 @@
         id="simulationSpeed"
       />
       <br />
-      Crankset RPM :
+      Crankset RPM : <span id="rotationSpeedValue"></span>
       <br />
       <input
         type="range"
@@ -57,15 +57,15 @@
         id="rotationSpeed"
       />
       <br />
-      Chainring cogs :
+      Chainring cogs : <span id="fValue"></span>
       <br />
       <input type="range" min="32" max="60" value="50" id="f" />
       <br />
-      Sprocket cogs :
+      Sprocket cogs : <span id="rValue"></span>
       <br />
       <input type="range" min="10" max="20" value="15" id="r" />
       <br />
-      Chainstay length (mm) :
+      Chainstay length (mm) : <span id="csValue"></span>
       <br />
       <input type="range" min="380" max="430" step="1" value="409" id="cs1" />
       <br />
@@ -73,7 +73,7 @@
       <br />
       <input type="range" min="0" max="99" step="1" value="0" id="cs2" />
       <br />
-      Chain links :
+      Chain links : <span id="clValue"></span>
       <br />
       <input type="range" min="86" max="110" value="100" id="cl" />
       <br />

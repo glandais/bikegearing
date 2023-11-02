@@ -97,12 +97,12 @@ class BikeGearingWheelDrawer {
     let ctx = this.ctx;
     let wheel = this.wheel;
     ctx.save();
-    ctx.rotate(BikeGearingCogsMath.TWO_PI / (24 * 2));
+    ctx.rotate(BikeGearingMath.TWO_PI / (24 * 2));
     ctx.strokeStyle = "#000";
     ctx.fillStyle = "#999";
     for (let i = 0; i < 24; i++) {
       ctx.save();
-      ctx.rotate((i * BikeGearingCogsMath.TWO_PI) / 24);
+      ctx.rotate((i * BikeGearingMath.TWO_PI) / 24);
       ctx.translate(wheel.rim - wheel.rimHeight, 0);
       ctx.rotate(Math.PI);
       this.drawValveRect(9, 3, 0);
@@ -120,7 +120,7 @@ class BikeGearingWheelDrawer {
         ctx.lineWidth = 0.1;
         ctx.strokeStyle = "#000";
         ctx.fillStyle = "#444";
-        ctx.rotate((i * BikeGearingCogsMath.TWO_PI) / 24);
+        ctx.rotate((i * BikeGearingMath.TWO_PI) / 24);
         this.drawer.drawCircle(wheel.hubSpoke, 0, 2, true);
         ctx.restore();
       }
@@ -129,7 +129,7 @@ class BikeGearingWheelDrawer {
         ctx.lineWidth = 0.1;
         ctx.strokeStyle = "#000";
         ctx.fillStyle = "#ddd";
-        ctx.rotate((i * BikeGearingCogsMath.TWO_PI) / 24);
+        ctx.rotate((i * BikeGearingMath.TWO_PI) / 24);
         this.drawer.drawCircle(wheel.hubSpoke, 0, 1.5, true);
         ctx.restore();
       }
@@ -140,17 +140,17 @@ class BikeGearingWheelDrawer {
         ctx.strokeStyle = "#000";
         ctx.lineWidth = 2;
 
-        ctx.rotate((i * BikeGearingCogsMath.TWO_PI) / 24);
+        ctx.rotate((i * BikeGearingMath.TWO_PI) / 24);
         let a;
         if (i % 2 == 0) {
-          a = (3.5 * BikeGearingCogsMath.TWO_PI) / 24;
+          a = (3.5 * BikeGearingMath.TWO_PI) / 24;
         } else {
-          a = (-2.5 * BikeGearingCogsMath.TWO_PI) / 24;
+          a = (-2.5 * BikeGearingMath.TWO_PI) / 24;
         }
 
         ctx.beginPath();
         ctx.moveTo(wheel.hubSpoke, 0);
-        let e = BikeGearingCogsMath.getArcEnd(
+        let e = BikeGearingMath.getArcEnd(
           wheel.rim - wheel.rimHeight - 9,
           a
         );

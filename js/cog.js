@@ -12,8 +12,8 @@ class BikeGearingCogsDrawer {
 
     ctx.rotate(cog.a);
 
-    let c1 = BikeGearingCogsMath.getArcEnd(cog.r + 2, cog.da / 2);
-    let c2 = BikeGearingCogsMath.getArcEnd(cog.r + 2, -cog.da / 2);
+    let c1 = BikeGearingMath.getArcEnd(cog.r + 2, cog.da / 2);
+    let c2 = BikeGearingMath.getArcEnd(cog.r + 2, -cog.da / 2);
     let a = cog.da / 2;
 
     ctx.arc(c1.x, c1.y, 1.6, a, a - BikeGearingCogsDrawer.aup, true);
@@ -32,7 +32,7 @@ class BikeGearingCogsDrawer {
     //  ctx.fillText("" + cog.i + " " + (cog.count - cog.i), cog.r + 10, 0);
     ctx.beginPath();
     ctx.lineTo(cog.r, 0);
-    let cog2 = BikeGearingCogsMath.getArcEnd(cog.r, cog.da);
+    let cog2 = BikeGearingMath.getArcEnd(cog.r, cog.da);
     ctx.lineTo(cog2.x, cog2.y);
     ctx.stroke();
     ctx.closePath();

@@ -1,10 +1,10 @@
-class BikeGearingCogsMath {
+class BikeGearingMath {
   static roundHuman(v, d) {
     return Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
   }
 
   static toDegreesHuman(a) {
-    return BikeGearingCogsMath.roundHuman((180.0 * a) / Math.PI, 1);
+    return BikeGearingMath.roundHuman((180.0 * a) / Math.PI, 1);
   }
 
   static dist(p1, p2) {
@@ -47,11 +47,11 @@ class BikeGearingCogsMath {
     let a = a2;
     let minA = a1 - Math.PI / 2 - 0.01;
     while (a < minA) {
-      a = a + BikeGearingCogsMath.TWO_PI;
+      a = a + BikeGearingMath.TWO_PI;
     }
     let maxA = a1 + Math.PI / 2 + 0.01;
     while (a > maxA) {
-      a = a - BikeGearingCogsMath.TWO_PI;
+      a = a - BikeGearingMath.TWO_PI;
     }
     return a;
   }
@@ -154,4 +154,4 @@ class BikeGearingCogsMath {
     return [numerator / gcd, denominator / gcd];
   }
 }
-BikeGearingCogsMath.TWO_PI = 2 * Math.PI;
+BikeGearingMath.TWO_PI = 2 * Math.PI;

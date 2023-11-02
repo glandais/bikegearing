@@ -45,7 +45,7 @@ class BikeGearingCogsMain {
         this.computer.compute(dchrono);
       } catch (e) {
         console.log(e);
-        this.computer.resetComputer();
+        this.computer.reset();
       }
       this.drawer.draw();
     } else {
@@ -60,11 +60,15 @@ class BikeGearingCogsMain {
     this.reset();
   }
 
-  reset() {
-    this.computer.resetComputer();
+  resetComputer() {
+    this.computer.reset();
     this.computer.compute(0);
+  }
+
+  reset() {
+    this.resetComputer();
     this.onReset();
-    this.interactive.resetInteractive();
+    this.interactive.reset();
   }
 
   drawIfPaused() {
