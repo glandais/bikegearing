@@ -71,7 +71,7 @@ class BikeGearingDrawer {
     let state = this.state;
     let debugValues = [
       "",
-      "t: " + BikeGearingCogsMath.roundHuman(state.drawDuration, state.t, 3),
+      "t: " + BikeGearingCogsMath.roundHuman(state.t, 5),
       "fa: " + BikeGearingCogsMath.toDegreesHuman(state.fa) + "°",
       "fcu: " + state.fcu,
       "fru: " + state.fru,

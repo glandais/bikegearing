@@ -1,8 +1,7 @@
 class BikeGearingUi {
-  constructor(state, main, rivetsCalculator) {
+  constructor(state, main) {
     this.state = state;
     this.main = main;
-    this.rivetsCalculator = rivetsCalculator;
     this.sideBarVisible = true;
 
     document
@@ -58,7 +57,7 @@ class BikeGearingUi {
     }
   }
 
-  updateUI() {
+  update() {
     let state = this.state;
     let perc = (100.0 * state.halfLinkChain) / 12.7 - 100;
     document.getElementById("halfLinkChain").value = perc;
@@ -116,8 +115,8 @@ class BikeGearingUi {
     let cl = 1.0 * e.target.value;
     let state = this.state;
     let dcl = cl - state.cl;
-    let df = this.rivetsCalculator.getRivetIndex(state.fru - state.frb);
-    let dr = this.rivetsCalculator.getRivetIndex(state.rrb - state.rru);
+    let df = this.state.getRivetIndex(state.fru - state.frb);
+    let dr = this.state.getRivetIndex(state.rrb - state.rru);
     state.cl = cl;
     if (rotationSpeed > 0) {
       state.frb = state.frb + dcl;

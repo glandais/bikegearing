@@ -3,13 +3,6 @@ class BikeGearingRivetsCalculator {
     this.state = state;
   }
 
-  getRivetIndex(i) {
-    while (i < 0) {
-      i = i + this.state.cl;
-    }
-    return i % this.state.cl;
-  }
-
   getCogIndex(c, i) {
     while (i < 0) {
       i = i + c;
@@ -18,7 +11,7 @@ class BikeGearingRivetsCalculator {
   }
 
   getRivet(rivets, i) {
-    return rivets[this.getRivetIndex(i)];
+    return rivets[this.state.getRivetIndex(i)];
   }
 
   getFrontCogPoint(c) {
@@ -40,7 +33,7 @@ class BikeGearingRivetsCalculator {
   getRivetsUp(rivets) {
     let s = this.getFrontCogPoint(this.state.fcu);
     let e = this.getRearCogPoint(this.state.rcu);
-    let rc = this.getRivetIndex(this.state.rru - this.state.fru);
+    let rc = this.state.getRivetIndex(this.state.rru - this.state.fru);
     let points = BikeGearingCatenary.getCatenaryIntervals(
       s,
       e,
@@ -53,7 +46,7 @@ class BikeGearingRivetsCalculator {
   }
 
   getRivetsRear(rivets) {
-    let count = this.getRivetIndex(this.state.rrb - this.state.rru);
+    let count = this.state.getRivetIndex(this.state.rrb - this.state.rru);
     for (let i = 1; i < count; i++) {
       let c = this.state.rcu + i;
       let p = this.getRearCogPoint(c);
@@ -64,7 +57,7 @@ class BikeGearingRivetsCalculator {
   getRivetsDown(rivets) {
     let s = this.getRearCogPoint(this.state.rcb);
     let e = this.getFrontCogPoint(this.state.fcb);
-    let rc = this.getRivetIndex(this.state.frb - this.state.rrb);
+    let rc = this.state.getRivetIndex(this.state.frb - this.state.rrb);
     let points = BikeGearingCatenary.getCatenaryIntervals(
       s,
       e,
@@ -77,7 +70,7 @@ class BikeGearingRivetsCalculator {
   }
 
   getRivetsFront(rivets) {
-    let count = this.getRivetIndex(this.state.fru - this.state.frb);
+    let count = this.state.getRivetIndex(this.state.fru - this.state.frb);
     for (let i = 1; i < count; i++) {
       let c = this.state.fcb + i;
       let p = this.getFrontCogPoint(c);
@@ -93,7 +86,7 @@ class BikeGearingRivetsCalculator {
     this.getRivetsFront(rivets);
     let result = [];
     for (let i = 0; i < this.state.cl; i++) {
-      result.push(rivets[this.getRivetIndex(i - this.state.fru)]);
+      result.push(rivets[this.state.getRivetIndex(i - this.state.fru)]);
     }
     return result;
   }

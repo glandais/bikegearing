@@ -105,5 +105,11 @@ class BikeGearingState {
 
     this.t = 0.0;
   }
+  getRivetIndex(i) {
+    while (i < 0) {
+      i = i + this.cl;
+    }
+    return i % this.cl;
+  }
 }
 BikeGearingState.HALF_LINK = 25.4 / 2.0;

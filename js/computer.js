@@ -92,9 +92,9 @@ class BikeGearingComputer {
 
   checkState() {
     let state = this.state;
-    let fdr = this.rivetsCalculator.getRivetIndex(state.fru - state.frb);
+    let fdr = this.state.getRivetIndex(state.fru - state.frb);
     let fdc = this.rivetsCalculator.getCogIndex(state.f, state.fcu - state.fcb);
-    let rdr = this.rivetsCalculator.getRivetIndex(state.rrb - state.rru);
+    let rdr = this.state.getRivetIndex(state.rrb - state.rru);
     let rdc = this.rivetsCalculator.getCogIndex(state.r, state.rcb - state.rcu);
     if (fdr != fdc || rdr != rdc) {
       console.error(["invalid state", state]);
@@ -109,8 +109,7 @@ class BikeGearingComputer {
     let r2 = this.rivetsCalculator.getRivet(rivets, state.rru);
     let d = BikeGearingCogsMath.dist(r1, r2);
     let maxDist =
-      state.halfLinkChain *
-      this.rivetsCalculator.getRivetIndex(state.rru - state.fru);
+      state.halfLinkChain * this.state.getRivetIndex(state.rru - state.fru);
     if (d >= maxDist) {
       let inter = BikeGearingCogsMath.intersection(
         {
@@ -156,8 +155,7 @@ class BikeGearingComputer {
     let r2 = this.rivetsCalculator.getRivet(rivets, state.rrb);
     let d = BikeGearingCogsMath.dist(r1, r2);
     let maxDist =
-      state.halfLinkChain *
-      this.rivetsCalculator.getRivetIndex(state.frb - state.rrb);
+      state.halfLinkChain * this.state.getRivetIndex(state.frb - state.rrb);
     if (d >= maxDist) {
       let inter = BikeGearingCogsMath.intersection(
         {

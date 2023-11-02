@@ -1,20 +1,16 @@
-function init() {
-  new BikeGearingCogsMain();
-}
-
 class BikeGearingCogsMain {
   static get aup() {
     return (70 * Math.PI) / 180;
   }
 
-  constructor() {
-    this.canvas = document.getElementById("canvas");
+  constructor(state, canvasId, onReset) {
+    this.canvas = document.getElementById(canvasId);
     this.ctx = this.canvas.getContext("2d");
 
     this.interactive = new BikeGearingInteractive(this.canvas, this);
     this.interactive.initInteractive();
 
-    this.state = new BikeGearingState();
+    this.state = state;
 
     this.rivetsCalculator = new BikeGearingRivetsCalculator(this.state);
 
@@ -26,8 +22,10 @@ class BikeGearingCogsMain {
       this.interactive
     );
 
-    this.ui = new BikeGearingUi(this.state, this, this.rivetsCalculator);
+    this.onReset = onReset;
+  }
 
+  start() {
     this.previousChrono = 0;
     this.resetState();
     requestAnimationFrame((chrono) => this.frame(chrono));
@@ -65,7 +63,7 @@ class BikeGearingCogsMain {
   reset() {
     this.computer.resetComputer();
     this.computer.compute(0);
-    this.ui.updateUI();
+    this.onReset();
     this.interactive.resetInteractive();
   }
 
