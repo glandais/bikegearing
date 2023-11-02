@@ -1,14 +1,25 @@
 function printStateValues(values) {
+  ctx.save();
+  ctx.font = "16px serif";
+  ctx.fillStyle = "rgba(255,255,255,0.7)";
+  let maxWidth = 0;
   for (let i = 0; i < values.length; i++) {
-    ctx.fillText(values[i], 10, 20 + 16 * i);
+    maxWidth = Math.max(maxWidth, ctx.measureText(values[i]).width);
   }
+  ctx.fillRect(10, 4, maxWidth, 17 * values.length);
+  ctx.fillStyle = "#000";
+  for (let i = 0; i < values.length; i++) {
+    ctx.fillText(values[i], 10, 20 + 17 * i);
+  }
+  ctx.restore();
 }
 
-function commonPrintState(state) {
+function getCommonValues(state) {
   let wear = roundHuman((100.0 * halfLinkChain) / HALF_LINK - 100.0, 1);
   return [
     "Chain wear: " + wear + "%",
-    "Speed: " + roundHuman(speed * 100, 0) + "%",
+    "Simulation speed: " + roundHuman(simulationSpeed * 100, 0) + "%",
+    "Rotation speed: " + roundHuman(rotationSpeed, 1) + "rpm",
     "Chainring cogs: " + state.f,
     "Sprocket cogs: " + state.r,
     "Single-legged skid patches: " + state.skidPatchesSingleLegged,
@@ -16,16 +27,14 @@ function commonPrintState(state) {
     "Chainstay: " + roundHuman(state.cs, 2) + "mm",
     "Chain links: " + state.cl,
     "Speed (km/h): " + roundHuman(state.speedkmh, 1),
-    "RPM: " + roundHuman(state.rpm, 1),
+    "RPM: " + roundHuman(state.rpm, 1) + "rpm",
     "",
     "FPS: " + roundHuman(state.fps, 0),
   ];
 }
 
-function printState(state) {
-  ctx.save();
-  ctx.font = "16px serif";
-  let values = commonPrintState(state);
+function getDebugValues(state) {
+  let values = getCommonValues(state);
   let debugValues = [
     "",
     "t: " + state.t,
@@ -47,15 +56,7 @@ function printState(state) {
     "worldWidth: " + roundHuman(worldWidth, 2),
   ];
   values.push(...debugValues);
-  printStateValues(values);
-  ctx.restore();
-}
-
-function printHumanState(state) {
-  ctx.save();
-  ctx.font = "16px serif";
-  printStateValues(commonPrintState(state));
-  ctx.restore();
+  return values;
 }
 
 function draw(state) {
@@ -116,9 +117,9 @@ function draw(state) {
   ctx.restore();
 
   if (debug) {
-    printState(state);
+    printStateValues(getDebugValues(state));
   } else {
-    printHumanState(state);
+    printStateValues(getCommonValues(state));
   }
   state.drawDuration = performance.now() - start;
 }
