@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>bikegearing</title>
     <link rel="stylesheet" href="css/main.css" />
+    <script src="js/state.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/catenary.js"></script>
     <script src="js/math.js"></script>
@@ -21,7 +22,7 @@
 
   <body onload="init()">
     <div id="sidebar">
-      <div id="sidebar-btn" onclick="switchSidebar()">X&nbsp;</div>
+      <div id="sidebar-btn">X&nbsp;</div>
       Chain wear :
       <br />
       <input
@@ -30,11 +31,10 @@
         max="2"
         step="0.1"
         value="0"
-        oninput="setHalfLinkChain(1.0 * this.value) "
         id="halfLinkChain"
       />
       <br />
-      Speed :
+      Simulation speed :
       <br />
       <input
         type="range"
@@ -42,101 +42,54 @@
         max="2.00"
         step="0.02"
         value="10"
-        oninput="speed = 1.0 * this.value"
-        id="speed"
+        id="simulationSpeed"
+      />
+      <br />
+      Crankset RPM :
+      <br />
+      <input
+        type="range"
+        min="-120.0"
+        max="120.0"
+        step="1.0"
+        value="80.0"
+        id="rotationSpeed"
       />
       <br />
       Chainring cogs :
       <br />
-      <input
-        type="range"
-        min="32"
-        max="60"
-        value="50"
-        oninput="state.f = 1.0 * this.value; reset();"
-        id="f"
-      />
+      <input type="range" min="32" max="60" value="50" id="f" />
       <br />
       Sprocket cogs :
       <br />
-      <input
-        type="range"
-        min="10"
-        max="20"
-        value="15"
-        oninput="state.r = 1.0 * this.value; reset();"
-        id="r"
-      />
+      <input type="range" min="10" max="20" value="15" id="r" />
       <br />
       Chainstay length (mm) :
       <br />
-      <input
-        type="range"
-        min="380"
-        max="430"
-        step="1"
-        value="409"
-        oninput="setCs1()"
-        id="cs1"
-      />
+      <input type="range" min="380" max="430" step="1" value="409" id="cs1" />
       <br />
       Chainstay length (1/100 mm) :
       <br />
-      <input
-        type="range"
-        min="0"
-        max="99"
-        step="1"
-        value="0"
-        oninput="setCs2()"
-        id="cs2"
-      />
+      <input type="range" min="0" max="99" step="1" value="0" id="cs2" />
       <br />
       Chain links :
       <br />
-      <input
-        type="range"
-        min="86"
-        max="110"
-        value="100"
-        oninput="setCl(1.0 * this.value);"
-        id="cl"
-      />
+      <input type="range" min="86" max="110" value="100" id="cl" />
       <br />
       <br />
-      <input
-        type="checkbox"
-        id="doDrawWheel"
-        name="doDrawWheel"
-        oninput="doDrawWheel = this.checked; drawIfPaused();"
-      />
+      <input type="checkbox" id="doDrawWheel" name="doDrawWheel" />
       <label for="doDrawWheel">Draw wheel</label>
       <br />
-      <input
-        type="checkbox"
-        id="paused"
-        name="paused"
-        onclick="switchPause(this)"
-      />
-      <label for="paused">Paused</label>
+      <input type="checkbox" id="switchPause" name="switchPause" />
+      <label for="switchPause">Paused</label>
       <br />
-      <input
-        type="checkbox"
-        id="debug"
-        name="debug"
-        onclick="debug = this.checked; drawIfPaused();"
-      />
-      <label for="debug">Debug</label>
+      <input type="checkbox" id="switchDebug" name="switchDebug" />
+      <label for="switchDebug">Debug</label>
       <br />
-      <input
-        type="checkbox"
-        id="followRivet"
-        name="followRivet"
-        oninput="followRivet = this.checked; drawIfPaused();"
-      />
+      <input type="checkbox" id="followRivet" name="followRivet" />
       <label for="followRivet">Follow rivet</label>
       <br />
-      <button onclick="resetState()">Reset</button>
+      <button id="resetState">Reset</button>
     </div>
     <div id="main">
       <canvas id="canvas"></canvas>

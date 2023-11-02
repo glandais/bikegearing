@@ -1,115 +1,83 @@
-var canvas;
-var ctx;
-
-let debug;
-let debugCompute;
-let speed;
-let paused;
-let followRivet;
-let doDrawWheel;
-
-const HALF_LINK = 25.4 / 2.0;
-let halfLinkChain;
-
-var state;
-
 function init() {
-  canvas = document.getElementById("canvas");
-  ctx = canvas.getContext("2d");
-  initInteractive();
-
-  resetState();
-  requestAnimationFrame(frame);
+  new BikeGearingCogsMain();
 }
 
-function resetState() {
-  state = {
-    f: 51, // teeth front
-    r: 15, // teeth rear
-    cs: 406, // chainstay (mm)
-    cl: 98, // chain length in rivets (mm -> cl * 2.54 / 2)
-
-    fa: 0, // angle front
-    fcu: 0, // cog hole number where chain is leaving front - up
-    fru: 0, // rivet number on fcu
-    fcb: 0, // cog hole number where chain is leaving front - bottom
-    frb: 0, // rivet number on fcb
-
-    ra: 0, // angle rear
-    rcu: 4, // cog hole number where chain is leaving rear - up
-    rru: 50, // rivet number on rcu
-    rcb: 0, // cog hole number where chain is leaving rear - bottom
-    rrb: 0, // rivet number on fcb
-
-    modified: ""
-  };
-
-  debug = false;
-  debugCompute = false;
-  speed = 1.0;
-  paused = false;
-
-  followRivet = false;
-
-  doDrawWheel = true;
-
-  halfLinkChain = HALF_LINK;
-
-  reset();
-}
-
-function reset() {
-  state.fda = (2.0 * Math.PI) / state.f; // angle between two cogs
-  state.fradius = (HALF_LINK / 2) / Math.sin(state.fda / 2.0); // radius to rivet - drawing1.jpg
-
-  state.rda = (2.0 * Math.PI) / state.r; // angle between two cogs
-  state.rradius = (HALF_LINK / 2) / Math.sin(state.rda / 2.0); // radius to rivet - drawing1.jpg
-
-  // https://www.icebike.org/skid-patch-calculator/
-  let reduced = reduce(state.f, state.r);
-  state.skidPatchesSingleLegged = reduced[1];
-  if (reduced[0] % 2 == 0) {
-    state.skidPatchesAmbidextrous = reduced[1];
-  } else {
-    state.skidPatchesAmbidextrous = reduced[1] * 2;
+class BikeGearingCogsMain {
+  static get aup() {
+    return (70 * Math.PI) / 180;
   }
 
-  state.t = 0;
+  constructor() {
+    this.canvas = document.getElementById("canvas");
+    this.ctx = this.canvas.getContext("2d");
 
-  resetComputer(state);
-  compute(state, 0);
+    this.interactive = new BikeGearingInteractive(this.canvas, this);
+    this.interactive.initInteractive();
 
-  updateHalfLinkChainUI();
-  document.getElementById("speed").value = speed;
-  document.getElementById("f").value = state.f;
-  document.getElementById("r").value = state.r;
-  document.getElementById("cs1").value = Math.floor(state.cs);
-  document.getElementById("cs2").value = 100.0 * (state.cs - Math.floor(state.cs));
-  document.getElementById("cl").value = state.cl;
-  document.getElementById("doDrawWheel").checked = doDrawWheel;
-  document.getElementById("followRivet").checked = followRivet;
-  document.getElementById("debug").checked = debug;
-  document.getElementById("paused").checked = paused;
+    this.state = new BikeGearingState();
 
-  resetInteractive();
-}
+    this.rivetsCalculator = new BikeGearingRivetsCalculator(this.state);
 
-let previousChrono;
-function frame(chrono) {
-  if (previousChrono === undefined) {
-    previousChrono = chrono;
+    this.computer = new BikeGearingComputer(this.state, this.rivetsCalculator);
+    this.drawer = new BikeGearingDrawer(
+      this.ctx,
+      this.state,
+      this.rivetsCalculator,
+      this.interactive
+    );
+
+    this.ui = new BikeGearingUi(this.state, this, this.rivetsCalculator);
+
+    this.previousChrono = 0;
+    this.resetState();
+    requestAnimationFrame((chrono) => this.frame(chrono));
   }
-  if (!paused) {
-    let dchrono = Math.max(1, chrono - previousChrono);
-    state.fps = 1000 / dchrono;
-    if (dchrono > 100) {
-      dchrono = 16;
+
+  frame(chrono) {
+    if (this.previousChrono === undefined) {
+      this.previousChrono = chrono;
     }
-    compute(state, dchrono);
-    draw(state);
-  } else {
-    state.fps = 0;
+    if (!this.state.paused) {
+      let dchrono = Math.max(1, chrono - this.previousChrono);
+      this.state.fps = 1000 / dchrono;
+      if (dchrono > 100) {
+        dchrono = 16;
+      }
+      try {
+        this.computer.compute(dchrono);
+      } catch (e) {
+        console.log(e);
+        this.computer.resetComputer();
+      }
+      this.drawer.draw();
+    } else {
+      this.state.fps = 0;
+    }
+    this.previousChrono = chrono;
+    requestAnimationFrame((chrono) => this.frame(chrono));
   }
-  previousChrono = chrono;
-  requestAnimationFrame(frame);
+
+  resetState() {
+    this.state.reset();
+    this.reset();
+  }
+
+  reset() {
+    this.computer.resetComputer();
+    this.computer.compute(0);
+    this.ui.updateUI();
+    this.interactive.resetInteractive();
+  }
+
+  drawIfPaused() {
+    if (this.state.paused) {
+      this.drawer.draw();
+    }
+  }
+
+  compute0() {
+    this.computer.moduloState();
+    this.computer.compute(0);
+    this.drawer.draw();
+  }
 }
