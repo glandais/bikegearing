@@ -16,7 +16,6 @@ let previousCameraOffset;
 
 const MAX_ZOOM = 50;
 const MIN_ZOOM = 0.5;
-const SCROLL_SENSITIVITY = 0.005;
 
 function getEventLocation(e) {
   if (e.touches && e.touches.length == 1) {
@@ -63,11 +62,19 @@ function adjustZoomWheel(e) {
       cameraOffset,
       cameraZoom
     );
+
+    let sens = e.deltaY / 1000.0;
+    let scale;
+    if (e.deltaY >= 0) {
+      scale = 1 - sens;
+    } else {
+      scale = 1 / (1 + sens);
+    }
     adjustZoom(
       eventLocation.x,
       eventLocation.y,
       worldPosition,
-      cameraZoom - e.deltaY * SCROLL_SENSITIVITY
+      cameraZoom * scale
     );
   }
 }

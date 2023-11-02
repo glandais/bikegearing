@@ -5,7 +5,7 @@ function printStateValues(values) {
 }
 
 function commonPrintState(state) {
-  let wear = roundHuman((100.0 * halfLinkChain / HALF_LINK) - 100.0, 1);
+  let wear = roundHuman((100.0 * halfLinkChain) / HALF_LINK - 100.0, 1);
   return [
     "Chain wear: " + wear + "%",
     "Speed: " + roundHuman(speed * 100, 0) + "%",
@@ -18,7 +18,7 @@ function commonPrintState(state) {
     "Speed (km/h): " + roundHuman(state.speedkmh, 1),
     "RPM: " + roundHuman(state.rpm, 1),
     "",
-    "FPS: " + roundHuman(state.fps, 0)
+    "FPS: " + roundHuman(state.fps, 0),
   ];
 }
 
@@ -29,14 +29,16 @@ function printState(state) {
   let debugValues = [
     "",
     "t: " + state.t,
-    "fa: " + Math.round((180 * state.fa) / TWO_PI) + "°",
+    "fa: " + roundHuman(toDegrees(state.fa), 1) + "°",
     "fcu: " + state.fcu,
     "fru: " + state.fru,
-    "fr: " + state.fr,
-    "ra: " + Math.round((180 * state.ra) / TWO_PI) + "°",
+    "fcb: " + state.fcb,
+    "frb: " + state.frb,
+    "ra: " + roundHuman(toDegrees(state.ra), 1) + "°",
     "rcu: " + state.rcu,
     "rru: " + state.rru,
-    "rr: " + state.rr,
+    "rcb: " + state.rcb,
+    "rrb: " + state.rrb,
     "computeLog: " + state.computeLog,
     "Last draw: " + roundHuman(state.drawDuration, 2) + "ms",
     "cameraOffset.x: " + roundHuman(cameraOffset.x, 2),
@@ -79,13 +81,14 @@ function draw(state) {
   ctx.scale(cameraZoom, cameraZoom);
 
   let rivets = getRivets(state);
-  let rivet;
+  let r1;
   if (followRivet) {
-    rivet = getRivet(state, rivets, 0);
-    if (rivet) {
-      let rivetAngle = getAngle(rivet.p1, rivet.p2);
+    r1 = getRivet(state, rivets, 0);
+    r2 = getRivet(state, rivets, 1);
+    if (r1 && r2) {
+      let rivetAngle = getAngle(r1, r2);
       ctx.rotate(Math.PI - rivetAngle);
-      ctx.translate(-rivet.p1.x, -rivet.p1.y);
+      ctx.translate(-r1.x, -r1.y);
     }
   }
 
@@ -93,18 +96,18 @@ function draw(state) {
     drawWheel(state);
   }
   drawCogs(state);
-  drawRivets(rivets);
+  drawLinks(rivets);
 
   if (followRivet) {
-    if (rivet) {
+    if (r1) {
       ctx.beginPath();
-      ctx.lineTo(rivet.p1.x - 5, rivet.p1.y);
-      ctx.lineTo(rivet.p1.x + 5, rivet.p1.y);
+      ctx.lineTo(r1.x - 5, r1.y);
+      ctx.lineTo(r1.x + 5, r1.y);
       ctx.stroke();
       ctx.closePath();
       ctx.beginPath();
-      ctx.lineTo(rivet.p1.x, rivet.p1.y + 5);
-      ctx.lineTo(rivet.p1.x, rivet.p1.y - 5);
+      ctx.lineTo(r1.x, r1.y + 5);
+      ctx.lineTo(r1.x, r1.y - 5);
       ctx.stroke();
       ctx.closePath();
     }

@@ -83,7 +83,6 @@ function catenary(p1, p2, l, n) {
             if (d - 0.001 <= iseg * dl && iseg * dl <= nd + 0.001) {
                 let r = (iseg * dl - d) / (nd - d);
                 let p = ratio(points[i], points[i + 1], r);
-                p.fixed = false;
                 result.push(p);
                 iseg++;
                 added = true;
@@ -94,7 +93,5 @@ function catenary(p1, p2, l, n) {
 
         d = nd;
     }
-    result[0].fixed = true;
-    result[result.length - 1].fixed = true;
     return result;
 }

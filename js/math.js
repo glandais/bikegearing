@@ -24,6 +24,10 @@ function getAngle(p1, p2) {
   return a;
 }
 
+function toDegrees(a) {
+  return 180.0 * a / Math.PI;
+}
+
 function ratio(p1, p2, r) {
   return {
     x: p1.x + r * (p2.x - p1.x),
@@ -118,14 +122,14 @@ function intersection(c1, c2) {
 
 function comparableAngle(a1, a2) {
   let a = a2;
-  let minA = a1 - Math.PI;
+  let minA = a1 - Math.PI / 2 - 0.01;
   while (a < minA) {
     a = a + TWO_PI;
   }
-  let maxA = a1 + Math.PI;
+  let maxA = a1 + Math.PI / 2 + 0.01;
   while (a > maxA) {
     a = a - TWO_PI;
-  } while (a > maxA);
+  }
   return a;
 }
 

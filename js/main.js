@@ -2,13 +2,14 @@ var canvas;
 var ctx;
 
 let debug;
+let debugCompute;
 let speed;
 let paused;
 let followRivet;
 let doDrawWheel;
 
 const HALF_LINK = 25.4 / 2.0;
-let halfLinkChain = 25.4 / 2.0;
+let halfLinkChain;
 
 var state;
 
@@ -23,25 +24,28 @@ function init() {
 
 function resetState() {
   state = {
-    f: 50, // teeth front
+    f: 51, // teeth front
     r: 15, // teeth rear
-    cs: 409, // chainstay (mm)
+    cs: 406, // chainstay (mm)
     cl: 98, // chain length in rivets (mm -> cl * 2.54 / 2)
 
     fa: 0, // angle front
-    fcu: 14, // cog hole number where chain is leaving front
-    fru: 18, // rivet number on fcu
-    fr: 29, // rivets on front
+    fcu: 0, // cog hole number where chain is leaving front - up
+    fru: 0, // rivet number on fcu
+    fcb: 0, // cog hole number where chain is leaving front - bottom
+    frb: 0, // rivet number on fcb
 
     ra: 0, // angle rear
-    rcu: 4, // cog hole number where chain is arriving on rear
+    rcu: 4, // cog hole number where chain is leaving rear - up
     rru: 50, // rivet number on rcu
-    rr: 8, // rivets on rear
+    rcb: 0, // cog hole number where chain is leaving rear - bottom
+    rrb: 0, // rivet number on fcb
 
     modified: ""
   };
 
   debug = false;
+  debugCompute = false;
   speed = 1.0;
   paused = false;
 
@@ -49,7 +53,7 @@ function resetState() {
 
   doDrawWheel = true;
 
-  halfLinkChain = 25.4 / 2.0;
+  halfLinkChain = HALF_LINK;
 
   reset();
 }

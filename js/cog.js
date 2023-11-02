@@ -23,6 +23,7 @@ function drawCogDebug(cog) {
   ctx.save();
   ctx.rotate(cog.a);
   ctx.fillText("" + cog.i, cog.r + 10, 0);
+//  ctx.fillText("" + cog.i + " " + (cog.count - cog.i), cog.r + 10, 0);
   ctx.beginPath();
   ctx.lineTo(cog.r, 0);
   let cog2 = getArcEnd(cog.r, cog.da);
