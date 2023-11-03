@@ -65,7 +65,7 @@ class BikeGearingCogsDrawer {
 
     ctx.save();
     ctx.rotate(cogs.a - i * cogs.da);
-    ctx.fillText("" + cogs.i, cogs.r + 10, 0);
+    ctx.fillText("" + i, cogs.r + 10, 0);
     //  ctx.fillText("" + cog.i + " " + (cog.n - cog.i), cog.r + 10, 0);
     ctx.beginPath();
     ctx.lineTo(cogs.r, 0);
