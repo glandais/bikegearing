@@ -1,26 +1,45 @@
 import { TWO_PI } from "./constants.js";
 
 class BikeGearingPoint {
+  /**
+   * @param {Number} x
+   * @param {Number} y
+   */
   constructor(x, y) {
     this.x = x;
     this.y = y;
   }
 
+  /**
+   * @param {Number} r radius
+   * @param {Number} a angle
+   */
   static getArcEnd(r, a) {
     return new BikeGearingPoint(r * Math.cos(a), r * Math.sin(a));
   }
 
+  /**
+   * @param {BikeGearingPoint} p other point
+   */
   dist(p) {
     return Math.hypot(this.x - p.x, this.y - p.y);
   }
 
+  /**
+   * Return point between this and p at ratio
+   * @param {BikeGearingPoint} p other point
+   * @param {Number} r ratio [0, 1]
+   */
   ratio(p, r) {
     return new BikeGearingPoint(
       this.x + r * (p.x - this.x),
-      this.y + r * (p.y - this.y),
+      this.y + r * (p.y - this.y)
     );
   }
 
+  /**
+   * @param {BikeGearingPoint} p other point
+   */
   getAngle(p) {
     let dx = p.x - this.x;
     let dy = p.y - this.y;
@@ -43,13 +62,21 @@ class BikeGearingPoint {
 BikeGearingPoint.ZERO = new BikeGearingPoint(0, 0);
 
 class BikeGearingCircle {
+  /**
+   * @param {Number} x center x
+   * @param {Number} y center y
+   * @param {Number} r radius
+   */
   constructor(x, y, r) {
     this.x = x;
     this.y = y;
     this.r = r;
   }
 
-  // https://stackoverflow.com/a/68092269
+  /**
+   * https://stackoverflow.com/a/68092269
+   * @param {BikeGearingCircle} c other circle
+   */
   intersection(c) {
     // Start constructing the response object.
     let result = {
@@ -121,14 +148,26 @@ class BikeGearingCircle {
     return result;
   }
 }
+
+/**
+ * @param {Number} v value
+ * @param {Number} d decimals count
+ */
 function roundHuman(v, d) {
   return Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
 }
 
+/**
+ * @param {Number} a angle (rad)
+ */
 function toDegreesHuman(a) {
   return roundHuman((180.0 * a) / Math.PI, 1);
 }
 
+/**
+ * @param {Number} a1
+ * @param {Number} a2
+ */
 function comparableAngle(a1, a2) {
   let a = a2;
   let minA = a1 - Math.PI / 2 - 0.01;

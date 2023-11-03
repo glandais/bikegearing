@@ -2,9 +2,18 @@ import BikeGearingCogsDrawer from "./cogs_drawer.js";
 import BikeGearingRivetsDrawer from "./rivet_drawer.js";
 import BikeGearingWheelDrawer from "./wheel_drawer.js";
 import { roundHuman, toDegreesHuman } from "./math.js";
-import { TWO_PI, HALF_LINK } from "./constants.js";
+import { TWO_PI } from "./constants.js";
+import BikeGearingState from "./state.js";
+import BikeGearingRivetsCalculator from "./rivet_calculator.js";
+import BikeGearingInteractive from "./interactive.js";
 
 class BikeGearingDrawer {
+  /**
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {BikeGearingState} state
+   * @param {BikeGearingRivetsCalculator} rivetsCalculator
+   * @param {BikeGearingInteractive} interactive
+   */
   constructor(ctx, state, rivetsCalculator, interactive) {
     this.ctx = ctx;
     this.state = state;
@@ -15,6 +24,12 @@ class BikeGearingDrawer {
     this.wheelDrawer = new BikeGearingWheelDrawer(ctx, state, this);
   }
 
+  /**
+   * @param {Number} x
+   * @param {Number} y
+   * @param {Number} r
+   * @param {boolean} fill
+   */
   drawCircle(x, y, r, fill = false) {
     let ctx = this.ctx;
     let debug = this.state.debug;
@@ -47,7 +62,6 @@ class BikeGearingDrawer {
 
   getCommonValues() {
     let state = this.state;
-    let wear = roundHuman((100.0 * state.halfLinkChain) / HALF_LINK - 100.0, 1);
     return [
       "Single-legged skid patches: " + state.skidPatchesSingleLegged,
       "Ambidextrous skid patches: " + state.skidPatchesAmbidextrous,
@@ -111,7 +125,7 @@ class BikeGearingDrawer {
 
     ctx.translate(
       this.interactive.cameraOffset.x,
-      this.interactive.cameraOffset.y,
+      this.interactive.cameraOffset.y
     );
     ctx.scale(this.interactive.cameraZoom, this.interactive.cameraZoom);
 

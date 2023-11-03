@@ -10,22 +10,36 @@ class BikeGearingState {
     this.reset();
   }
   reset() {
-    this.f = 51; // teeth front
-    this.r = 15; // teeth rear
-    this.cs = 406; // chainstay (mm)
-    this.cl = 98; // chain length in rivets (mm -> cl * 2.54 / 2)
+    /** teeth front */
+    this.f = 51;
+    /** teeth rear */
+    this.r = 15;
+    /** chainstay (mm) */
+    this.cs = 406;
+    /** chain length in rivets (mm -> cl * 2.54 / 2) */
+    this.cl = 98;
 
-    this.fa = 0; // angle front
-    this.fcu = 0; // cog hole number where chain is leaving front - up
-    this.fru = 0; // rivet number on fcu
-    this.fcb = 0; // cog hole number where chain is leaving front - bottom
-    this.frb = 0; // rivet number on fcb
+    /** angle front */
+    this.fa = 0;
+    /** cog hole number where chain is leaving front - up */
+    this.fcu = 0;
+    /** rivet number on fcu */
+    this.fru = 0;
+    /** cog hole number where chain is leaving front - bottom */
+    this.fcb = 0;
+    /** rivet number on fcb */
+    this.frb = 0;
 
-    this.ra = 0; // angle rear
-    this.rcu = 0; // cog hole number where chain is leaving rear - up
-    this.rru = 0; // rivet number on rcu
-    this.rcb = 0; // cog hole number where chain is leaving rear - bottom
-    this.rrb = 0; // rivet number on fcb
+    /** angle rear */
+    this.ra = 0;
+    /** cog hole number where chain is leaving rear - up */
+    this.rcu = 0;
+    /** rivet number on rcu */
+    this.rru = 0;
+    /** cog hole number where chain is leaving rear - bottom */
+    this.rcb = 0;
+    /** rivet number on rcb */
+    this.rrb = 0;
 
     this.modified = "";
 
@@ -41,24 +55,33 @@ class BikeGearingState {
 
     this.halfLinkChain = HALF_LINK;
 
+    this.fps = 0.0;
     this.t = 0.0;
   }
+  /** Number of cogs front */
   get f() {
     return this.internalf;
   }
+  /** Number of cogs front */
   set f(value) {
     this.internalf = value;
-    this.fda = (2.0 * Math.PI) / this.internalf; // angle between two cogs
-    this.fradius = HALF_LINK / 2 / Math.sin(this.fda / 2.0); // radius to rivet - drawing1.jpg
+    /** angle between two cogs - front */
+    this.fda = (2.0 * Math.PI) / this.internalf;
+    /** radius to rivet - front - drawing1.jpg */
+    this.fradius = HALF_LINK / 2 / Math.sin(this.fda / 2.0);
     this.computeSkidPatches();
   }
+  /** Number of teeth cogs rear */
   get r() {
     return this.internalr;
   }
+  /** Number of teeth cogs rear */
   set r(value) {
     this.internalr = value;
-    this.rda = (2.0 * Math.PI) / this.internalr; // angle between two cogs
-    this.rradius = HALF_LINK / 2 / Math.sin(this.rda / 2.0); // radius to rivet - drawing1.jpg
+    /** angle between two cogs - rear */
+    this.rda = (2.0 * Math.PI) / this.internalr;
+    /** radius to rivet - rear - drawing1.jpg */
+    this.rradius = HALF_LINK / 2 / Math.sin(this.rda / 2.0);
     this.computeSkidPatches();
   }
   computeSkidPatches() {
@@ -71,6 +94,9 @@ class BikeGearingState {
       this.skidPatchesAmbidextrous = reduced[1] * 2;
     }
   }
+  /**
+   * @param {Number} i
+   */
   getRivetIndex(i) {
     while (i < 0) {
       i = i + this.cl;

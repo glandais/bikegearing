@@ -1,6 +1,12 @@
+import BikeGearingMain from "./main.js";
 import { roundHuman } from "./math.js";
+import BikeGearingState from "./state.js";
 
 class BikeGearingUi {
+  /**
+   * @param {BikeGearingState} state
+   * @param {BikeGearingMain} main
+   */
   constructor(state, main) {
     this.state = state;
     this.main = main;

@@ -1,7 +1,14 @@
 import { TWO_PI } from "./constants.js";
+import BikeGearingDrawer from "./drawer.js";
 import { BikeGearingPoint } from "./math.js";
+import BikeGearingState from "./state.js";
 
 class BikeGearingWheelDrawer {
+  /**
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {BikeGearingState} state
+   * @param {BikeGearingDrawer} drawer
+   */
   constructor(ctx, state, drawer) {
     this.ctx = ctx;
     this.state = state;

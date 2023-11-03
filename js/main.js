@@ -2,27 +2,36 @@ import BikeGearingInteractive from "./interactive.js";
 import BikeGearingRivetsCalculator from "./rivet_calculator.js";
 import BikeGearingComputer from "./computer.js";
 import BikeGearingDrawer from "./drawer.js";
+import BikeGearingState from "./state.js";
 
 class BikeGearingMain {
+  /**
+   * @param {BikeGearingState} state
+   * @param {string} canvasId
+   * @param {Function} onReset
+   */
   constructor(state, canvasId, onReset) {
+    /** @type {HTMLCanvasElement} */
     this.canvas = document.getElementById(canvasId);
-    this.ctx = this.canvas.getContext("2d");
+    /** @type {CanvasRenderingContext2D} */
+    let ctx = this.canvas.getContext("2d");
 
     this.interactive = new BikeGearingInteractive(this.canvas, this);
     this.interactive.initInteractive();
 
     this.state = state;
 
-    this.rivetsCalculator = new BikeGearingRivetsCalculator(this.state);
+    let rivetsCalculator = new BikeGearingRivetsCalculator(this.state);
 
-    this.computer = new BikeGearingComputer(this.state, this.rivetsCalculator);
+    this.computer = new BikeGearingComputer(this.state, rivetsCalculator);
     this.drawer = new BikeGearingDrawer(
-      this.ctx,
+      ctx,
       this.state,
-      this.rivetsCalculator,
+      rivetsCalculator,
       this.interactive,
     );
 
+    /** @type {Function} */
     this.onReset = onReset;
   }
 

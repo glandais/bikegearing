@@ -1,6 +1,14 @@
 import { HALF_LINK } from "./constants.js";
+import BikeGearingState from "./state.js";
+import BikeGearingDrawer from "./drawer.js";
+import { BikeGearingPoint } from "./math.js";
 
 class BikeGearingRivetsDrawer {
+  /**
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {BikeGearingState} state
+   * @param {BikeGearingDrawer} drawer
+   */
   constructor(ctx, state, drawer) {
     this.ctx = ctx;
     this.state = state;
@@ -20,7 +28,7 @@ class BikeGearingRivetsDrawer {
       HALF_LINK / 2 - dcx2,
       -r + dy,
       HALF_LINK / 2,
-      -r + dy,
+      -r + dy
     );
     ctx.bezierCurveTo(
       HALF_LINK / 2 + dcx2,
@@ -28,7 +36,7 @@ class BikeGearingRivetsDrawer {
       HALF_LINK - dcx1,
       -r,
       HALF_LINK,
-      -r,
+      -r
     );
     ctx.arc(HALF_LINK, 0, r, -Math.PI / 2, Math.PI / 2);
     ctx.bezierCurveTo(
@@ -37,11 +45,16 @@ class BikeGearingRivetsDrawer {
       HALF_LINK / 2 + dcx2,
       r - dy,
       HALF_LINK / 2,
-      r - dy,
+      r - dy
     );
     ctx.bezierCurveTo(HALF_LINK / 2 - dcx2, r - dy, dcx1, r, 0, r);
   }
 
+  /**
+   * @param {BikeGearingPoint} r1
+   * @param {BikeGearingPoint} r2
+   * @param {Number} i
+   */
   drawLink(r1, r2, i) {
     let debug = this.state.debug;
     let ctx = this.ctx;
@@ -129,6 +142,9 @@ class BikeGearingRivetsDrawer {
     ctx.restore();
   }
 
+  /**
+   * @param {BikeGearingPoint[]} rivets
+   */
   drawLinks(rivets) {
     for (let i = 0; i < rivets.length - 1; i = i + 2) {
       this.drawLink(rivets[i], rivets[i + 1], i);

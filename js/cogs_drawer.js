@@ -1,49 +1,84 @@
 import { BikeGearingPoint } from "./math.js";
+import BikeGearingState from "./state.js";
 
 const aup = (70 * Math.PI) / 180;
 const am = Math.PI - (60 * Math.PI) / 180;
 
+class BikeGearingCogs {
+  /**
+   * @param {Number} n
+   * @param {Number} r
+   * @param {Number} a
+   * @param {Number} da
+   */
+  constructor(n, r, a, da) {
+    /** Number of cogs */
+    this.n = n;
+    /** Radius */
+    this.r = r;
+    /**  Cogs angle */
+    this.a = a;
+    /** Angle between two cogs */
+    this.da = da;
+  }
+}
+
 class BikeGearingCogsDrawer {
+  /**
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {BikeGearingState} state
+   */
   constructor(ctx, state) {
     this.ctx = ctx;
     this.state = state;
   }
 
-  drawCog(cog) {
+  /**
+   * @param {BikeGearingCogs} cogs
+   * @param {Number} i
+   */
+  drawCog(cogs, i) {
     let ctx = this.ctx;
     // https://www.geogebra.org/geometry/xdgnvmz3
     // rear_tooth_2.png
     ctx.save();
 
-    ctx.rotate(cog.a);
+    ctx.rotate(cogs.a - i * cogs.da);
 
-    let c1 = BikeGearingPoint.getArcEnd(cog.r + 2, cog.da / 2);
-    let c2 = BikeGearingPoint.getArcEnd(cog.r + 2, -cog.da / 2);
-    let a = cog.da / 2;
+    let c1 = BikeGearingPoint.getArcEnd(cogs.r + 2, cogs.da / 2);
+    let c2 = BikeGearingPoint.getArcEnd(cogs.r + 2, -cogs.da / 2);
+    let a = cogs.da / 2;
 
     ctx.arc(c1.x, c1.y, 1.6, a, a - aup, true);
-    ctx.arc(cog.r, 0, 3.7, am, -am);
+    ctx.arc(cogs.r, 0, 3.7, am, -am);
     ctx.arc(c2.x, c2.y, 1.6, aup - a, -a, true);
 
     ctx.restore();
   }
 
-  drawCogDebug(cog) {
+  /**
+   * @param {BikeGearingCogs} cogs
+   * @param {Number} i
+   */
+  drawCogDebug(cogs, i) {
     let ctx = this.ctx;
 
     ctx.save();
-    ctx.rotate(cog.a);
-    ctx.fillText("" + cog.i, cog.r + 10, 0);
-    //  ctx.fillText("" + cog.i + " " + (cog.count - cog.i), cog.r + 10, 0);
+    ctx.rotate(cogs.a - i * cogs.da);
+    ctx.fillText("" + cogs.i, cogs.r + 10, 0);
+    //  ctx.fillText("" + cog.i + " " + (cog.n - cog.i), cog.r + 10, 0);
     ctx.beginPath();
-    ctx.lineTo(cog.r, 0);
-    let cog2 = BikeGearingPoint.getArcEnd(cog.r, cog.da);
+    ctx.lineTo(cogs.r, 0);
+    let cog2 = BikeGearingPoint.getArcEnd(cogs.r, cogs.da);
     ctx.lineTo(cog2.x, cog2.y);
     ctx.stroke();
     ctx.closePath();
     ctx.restore();
   }
 
+  /**
+   * @param {BikeGearingCogs} cogs
+   */
   drawCogsLabel(cogs) {
     let ctx = this.ctx;
     ctx.save();
@@ -58,6 +93,9 @@ class BikeGearingCogsDrawer {
     ctx.restore();
   }
 
+  /**
+   * @param {BikeGearingCogs} cogs
+   */
   drawCogsInternal(cogs) {
     let ctx = this.ctx;
     let debug = this.state.debug;
@@ -67,13 +105,7 @@ class BikeGearingCogsDrawer {
 
     ctx.beginPath();
     for (let i = 0; i < cogs.n; i++) {
-      this.drawCog({
-        count: cogs.n,
-        r: cogs.r,
-        i: i,
-        a: cogs.a - i * cogs.da,
-        da: cogs.da,
-      });
+      this.drawCog(cogs, i);
     }
     ctx.stroke();
     if (!debug) {
@@ -86,13 +118,7 @@ class BikeGearingCogsDrawer {
       ctx.strokeStyle = "#055";
       ctx.lineWidth = 0.1;
       for (let i = 0; i < cogs.n; i++) {
-        this.drawCogDebug({
-          count: cogs.n,
-          r: cogs.r,
-          i: i,
-          a: cogs.a - i * cogs.da,
-          da: cogs.da,
-        });
+        this.drawCogDebug(cogs, i);
       }
       ctx.restore();
     }
@@ -105,23 +131,17 @@ class BikeGearingCogsDrawer {
     let ctx = this.ctx;
     ctx.save();
     ctx.translate(state.cs, 0);
-    this.drawCogsInternal({
-      n: state.f,
-      r: state.fradius,
-      a: state.fa,
-      da: state.fda,
-    });
+    this.drawCogsInternal(
+      new BikeGearingCogs(state.f, state.fradius, state.fa, state.fda)
+    );
     ctx.restore();
   }
 
   drawRearCogs() {
     let state = this.state;
-    this.drawCogsInternal({
-      n: state.r,
-      r: state.rradius,
-      a: state.ra,
-      da: state.rda,
-    });
+    this.drawCogsInternal(
+      new BikeGearingCogs(state.r, state.rradius, state.ra, state.rda)
+    );
   }
 
   drawCogs() {

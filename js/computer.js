@@ -6,11 +6,18 @@ import {
   BikeGearingPoint,
   BikeGearingCircle,
 } from "./math.js";
+import BikeGearingRivetsCalculator from "./rivet_calculator.js";
+import BikeGearingState from "./state.js";
 
 class BikeGearingComputer {
+  /**
+   * @param {BikeGearingState} state
+   * @param {BikeGearingRivetsCalculator} rivetsCalculator
+   */
   constructor(state, rivetsCalculator) {
     this.state = state;
     this.rivetsCalculator = rivetsCalculator;
+    /** @type {BikeGearingPoint[]} */
     this.rivets = [];
 
     this.onceModified = false;

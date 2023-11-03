@@ -1,6 +1,12 @@
 import { BikeGearingPoint } from "./math.js";
 
 class BikeGearingCatenary {
+  /**
+   * @param {BikeGearingPoint} p1
+   * @param {BikeGearingPoint} p2
+   * @param {Number} l
+   * @return {BikeGearingPoint[]} l
+   */
   static getCatenaryPoints(p1, p2, l) {
     // https://math.stackexchange.com/a/3557768
     let x1, y1, x2, y2, inverted;
@@ -59,6 +65,12 @@ class BikeGearingCatenary {
     return points;
   }
 
+  /**
+   * @param {BikeGearingPoint} p1
+   * @param {BikeGearingPoint} p2
+   * @param {Number} l
+   * @param {Number} n
+   */
   static getCatenaryIntervals(p1, p2, l, n) {
     let points = BikeGearingCatenary.getCatenaryPoints(p1, p2, l);
 

@@ -1,5 +1,11 @@
+import BikeGearingMain from "./main.js";
+
 // inspired from https://codepen.io/chengarda/pen/wRxoyB
 class BikeGearingInteractive {
+  /**
+   * @param {HTMLCanvasElement} canvas
+   * @param {BikeGearingMain} main
+   */
   constructor(canvas, main) {
     this.canvas = canvas;
     this.main = main;
