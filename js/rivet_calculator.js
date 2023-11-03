@@ -1,3 +1,7 @@
+import { HALF_LINK } from "./constants.js";
+import { BikeGearingPoint } from "./math.js";
+import BikeGearingCatenary from "./catenary.js";
+
 class BikeGearingRivetsCalculator {
   constructor(state) {
     this.state = state;
@@ -18,7 +22,7 @@ class BikeGearingRivetsCalculator {
     let a = this.state.fa - c * this.state.fda;
     return new BikeGearingPoint(
       this.state.cs + this.state.fradius * Math.cos(a),
-      this.state.fradius * Math.sin(a)
+      this.state.fradius * Math.sin(a),
     );
   }
 
@@ -26,7 +30,7 @@ class BikeGearingRivetsCalculator {
     let a = this.state.ra - c * this.state.rda;
     return new BikeGearingPoint(
       this.state.rradius * Math.cos(a),
-      this.state.rradius * Math.sin(a)
+      this.state.rradius * Math.sin(a),
     );
   }
 
@@ -37,8 +41,8 @@ class BikeGearingRivetsCalculator {
     let points = BikeGearingCatenary.getCatenaryIntervals(
       s,
       e,
-      rc * BikeGearingState.HALF_LINK,
-      rc
+      rc * HALF_LINK,
+      rc,
     );
     for (let i = 0; i < points.length; i++) {
       rivets.push(points[i]);
@@ -61,8 +65,8 @@ class BikeGearingRivetsCalculator {
     let points = BikeGearingCatenary.getCatenaryIntervals(
       s,
       e,
-      rc * BikeGearingState.HALF_LINK,
-      rc
+      rc * HALF_LINK,
+      rc,
     );
     for (let i = 0; i < points.length; i++) {
       rivets.push(points[i]);
@@ -91,3 +95,5 @@ class BikeGearingRivetsCalculator {
     return result;
   }
 }
+
+export default BikeGearingRivetsCalculator;

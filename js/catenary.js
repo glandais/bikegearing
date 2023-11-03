@@ -1,3 +1,5 @@
+import { BikeGearingPoint } from "./math.js";
+
 class BikeGearingCatenary {
   static getCatenaryPoints(p1, p2, l) {
     // https://math.stackexchange.com/a/3557768
@@ -95,3 +97,5 @@ class BikeGearingCatenary {
     return result;
   }
 }
+
+export default BikeGearingCatenary;

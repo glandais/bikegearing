@@ -1,3 +1,9 @@
+import BikeGearingCogsDrawer from "./cogs_drawer.js";
+import BikeGearingRivetsDrawer from "./rivet_drawer.js";
+import BikeGearingWheelDrawer from "./wheel_drawer.js";
+import { roundHuman, toDegreesHuman } from "./math.js";
+import { TWO_PI, HALF_LINK } from "./constants.js";
+
 class BikeGearingDrawer {
   constructor(ctx, state, rivetsCalculator, interactive) {
     this.ctx = ctx;
@@ -13,7 +19,7 @@ class BikeGearingDrawer {
     let ctx = this.ctx;
     let debug = this.state.debug;
     ctx.beginPath();
-    ctx.arc(x, y, r, 0, BikeGearingMath.TWO_PI);
+    ctx.arc(x, y, r, 0, TWO_PI);
     if (fill && !debug) {
       ctx.fill();
     }
@@ -41,17 +47,14 @@ class BikeGearingDrawer {
 
   getCommonValues() {
     let state = this.state;
-    let wear = BikeGearingMath.roundHuman(
-      (100.0 * state.halfLinkChain) / BikeGearingState.HALF_LINK - 100.0,
-      1
-    );
+    let wear = roundHuman((100.0 * state.halfLinkChain) / HALF_LINK - 100.0, 1);
     return [
       "Single-legged skid patches: " + state.skidPatchesSingleLegged,
       "Ambidextrous skid patches: " + state.skidPatchesAmbidextrous,
-      "Speed (km/h): " + BikeGearingMath.roundHuman(state.speedkmh, 1),
-      "RPM: " + BikeGearingMath.roundHuman(state.rpm, 1) + "rpm",
+      "Speed (km/h): " + roundHuman(state.speedkmh, 1),
+      "RPM: " + roundHuman(state.rpm, 1) + "rpm",
       "",
-      "FPS: " + BikeGearingMath.roundHuman(state.fps, 0),
+      "FPS: " + roundHuman(state.fps, 0),
     ];
   }
 
@@ -60,27 +63,23 @@ class BikeGearingDrawer {
     let state = this.state;
     let debugValues = [
       "",
-      "t: " + BikeGearingMath.roundHuman(state.t, 5),
-      "fa: " + BikeGearingMath.toDegreesHuman(state.fa) + "°",
+      "t: " + roundHuman(state.t, 5),
+      "fa: " + toDegreesHuman(state.fa) + "°",
       "fcu: " + state.fcu,
       "fru: " + state.fru,
       "fcb: " + state.fcb,
       "frb: " + state.frb,
-      "ra: " + BikeGearingMath.toDegreesHuman(state.ra) + "°",
+      "ra: " + toDegreesHuman(state.ra) + "°",
       "rcu: " + state.rcu,
       "rru: " + state.rru,
       "rcb: " + state.rcb,
       "rrb: " + state.rrb,
       "computeLog: " + state.computeLog,
-      "Last draw: " + BikeGearingMath.roundHuman(state.drawDuration, 2) + "ms",
-      "cameraOffset.x: " +
-        BikeGearingMath.roundHuman(this.interactive.cameraOffset.x, 2),
-      "cameraOffset.y: " +
-        BikeGearingMath.roundHuman(this.interactive.cameraOffset.y, 2),
-      "cameraZoom: " +
-        BikeGearingMath.roundHuman(this.interactive.cameraZoom, 2),
-      "worldWidth: " +
-        BikeGearingMath.roundHuman(this.interactive.worldWidth, 2),
+      "Last draw: " + roundHuman(state.drawDuration, 2) + "ms",
+      "cameraOffset.x: " + roundHuman(this.interactive.cameraOffset.x, 2),
+      "cameraOffset.y: " + roundHuman(this.interactive.cameraOffset.y, 2),
+      "cameraZoom: " + roundHuman(this.interactive.cameraZoom, 2),
+      "worldWidth: " + roundHuman(this.interactive.worldWidth, 2),
     ];
     values.push(...debugValues);
     return values;
@@ -112,7 +111,7 @@ class BikeGearingDrawer {
 
     ctx.translate(
       this.interactive.cameraOffset.x,
-      this.interactive.cameraOffset.y
+      this.interactive.cameraOffset.y,
     );
     ctx.scale(this.interactive.cameraZoom, this.interactive.cameraZoom);
 
@@ -159,3 +158,5 @@ class BikeGearingDrawer {
     state.drawDuration = performance.now() - start;
   }
 }
+
+export default BikeGearingDrawer;

@@ -1,3 +1,12 @@
+import { TWO_PI, HALF_LINK } from "./constants.js";
+import {
+  toDegreesHuman,
+  comparableAngle,
+  roundHuman,
+  BikeGearingPoint,
+  BikeGearingCircle,
+} from "./math.js";
+
 class BikeGearingComputer {
   constructor(state, rivetsCalculator) {
     this.state = state;
@@ -24,8 +33,7 @@ class BikeGearingComputer {
     let rdr = Math.round(state.r / 2.0);
     state.rcu = 0;
     state.rcb = state.rcu + rdr;
-    let rdiff =
-      Math.round((state.cs * Math.cos(alpha)) / BikeGearingState.HALF_LINK) + 2;
+    let rdiff = Math.round((state.cs * Math.cos(alpha)) / HALF_LINK) + 2;
     if (state.rotationSpeed > 0) {
       state.rru = rdiff;
       state.rrb = state.rru + rdr;
@@ -38,7 +46,7 @@ class BikeGearingComputer {
     state.cl =
       1 +
       Math.ceil(
-        (2 * (state.cs * Math.cos(alpha))) / BikeGearingState.HALF_LINK +
+        (2 * (state.cs * Math.cos(alpha))) / HALF_LINK +
           state.f / 2.0 +
           state.r / 2.0
       );
@@ -54,24 +62,24 @@ class BikeGearingComputer {
           label +
           " - " +
           " mina: " +
-          BikeGearingMath.toDegreesHuman(mina) +
+          toDegreesHuman(mina) +
           " ra: " +
-          BikeGearingMath.toDegreesHuman(ra) +
+          toDegreesHuman(ra) +
           " maxa: " +
-          BikeGearingMath.toDegreesHuman(maxa)
+          toDegreesHuman(maxa),
       );
     }
   }
 
   moduloState() {
     let state = this.state;
-    state.fa = BikeGearingMath.comparableAngle(0, state.fa);
+    state.fa = comparableAngle(0, state.fa);
     state.fcu = (state.fcu + state.f) % state.f;
     state.fru = (state.fru + state.cl) % state.cl;
     state.fcb = (state.fcb + state.f) % state.f;
     state.frb = (state.frb + state.cl) % state.cl;
 
-    state.ra = BikeGearingMath.comparableAngle(0, state.ra);
+    state.ra = comparableAngle(0, state.ra);
     state.rcu = (state.rcu + state.r) % state.r;
     state.rru = (state.rru + state.cl) % state.cl;
     state.rcb = (state.rcb + state.r) % state.r;
@@ -112,7 +120,7 @@ class BikeGearingComputer {
       state.halfLinkChain * this.state.getRivetIndex(state.rru - state.fru);
     if (d >= maxDist) {
       let inter = new BikeGearingCircle(r1.x, r1.y, maxDist).intersection(
-        new BikeGearingCircle(0, 0, state.rradius)
+        new BikeGearingCircle(0, 0, state.rradius),
       );
       if (inter.intersectOccurs) {
         let pinter;
@@ -122,9 +130,9 @@ class BikeGearingComputer {
           pinter = inter.p2;
         }
         let currentRa = state.ra - state.rcu * state.rda;
-        let newRa = BikeGearingMath.comparableAngle(
+        let newRa = comparableAngle(
           currentRa,
-          BikeGearingPoint.ZERO.getAngle(pinter)
+          BikeGearingPoint.ZERO.getAngle(pinter),
         );
         if (Math.abs(newRa - currentRa) > 0.00001) {
           this.logCompute(["fixed chain tension, da : ", newRa - currentRa]);
@@ -149,7 +157,7 @@ class BikeGearingComputer {
       state.halfLinkChain * this.state.getRivetIndex(state.frb - state.rrb);
     if (d >= maxDist) {
       let inter = new BikeGearingCircle(r1.x, r1.y, maxDist).intersection(
-        new BikeGearingCircle(0, 0, state.rradius)
+        new BikeGearingCircle(0, 0, state.rradius),
       );
       if (inter.intersectOccurs) {
         let pinter;
@@ -159,9 +167,9 @@ class BikeGearingComputer {
           pinter = inter.p2;
         }
         let currentRa = state.ra - state.rcb * state.rda;
-        let newRa = BikeGearingMath.comparableAngle(
+        let newRa = comparableAngle(
           currentRa,
-          BikeGearingPoint.ZERO.getAngle(pinter)
+          BikeGearingPoint.ZERO.getAngle(pinter),
         );
         if (Math.abs(newRa - currentRa) > 0.00001) {
           this.logCompute(["fixed chain tension, da : ", newRa - currentRa]);
@@ -192,8 +200,8 @@ class BikeGearingComputer {
     }
 
     let ra = r1.getAngle(r2);
-    let cam1 = BikeGearingMath.comparableAngle(ra, pm1.getAngle(p));
-    let cap1 = BikeGearingMath.comparableAngle(ra, p.getAngle(pp1));
+    let cam1 = comparableAngle(ra, pm1.getAngle(p));
+    let cap1 = comparableAngle(ra, p.getAngle(pp1));
     let mina = Math.min(cap1, cam1);
     let maxa = Math.max(cap1, cam1);
 
@@ -246,7 +254,7 @@ class BikeGearingComputer {
         () => {
           state.fcu -= 1;
           state.fru -= 1;
-        }
+        },
       );
       this.fixRivet(
         "front bottom",
@@ -261,7 +269,7 @@ class BikeGearingComputer {
         () => {
           state.fcb -= 1;
           state.frb -= 1;
-        }
+        },
       );
       this.fixRivet(
         "rear bottom",
@@ -276,7 +284,7 @@ class BikeGearingComputer {
         () => {
           state.rcb -= 1;
           state.rrb -= 1;
-        }
+        },
       );
       this.fixRivet(
         "rear up",
@@ -291,7 +299,7 @@ class BikeGearingComputer {
         () => {
           state.rcu -= 1;
           state.rru -= 1;
-        }
+        },
       );
     } while (this.modified && !overflow);
   }
@@ -307,7 +315,7 @@ class BikeGearingComputer {
 
     let rpa = state.ra;
 
-    let fda = dt * ((state.rotationSpeed * BikeGearingMath.TWO_PI) / 60.0);
+    let fda = dt * ((state.rotationSpeed * TWO_PI) / 60.0);
     let fra = state.fa + fda;
 
     this.onceModified = false;
@@ -336,15 +344,15 @@ class BikeGearingComputer {
     }
     this.moduloState();
 
-    let rda = BikeGearingMath.comparableAngle(0, state.ra - rpa);
+    let rda = comparableAngle(0, state.ra - rpa);
 
-    let distchronokm = (2100 / (1000 * 1000)) * (rda / BikeGearingMath.TWO_PI);
+    let distchronokm = (2100 / (1000 * 1000)) * (rda / TWO_PI);
     let dtchronoh = dtchrono / (1000 * 3600);
     let speedkmh = distchronokm / dtchronoh;
 
     state.speedkmh = speedkmh;
 
-    let rotation = fda / BikeGearingMath.TWO_PI;
+    let rotation = fda / TWO_PI;
     let dtchronomin = dtchrono / (1000 * 60);
     let rpm = rotation / dtchronomin;
 
@@ -356,8 +364,10 @@ class BikeGearingComputer {
       " " +
       this.iterations +
       " " +
-      BikeGearingMath.roundHuman(computeDuration, 1) +
+      roundHuman(computeDuration, 1) +
       "ms";
     this.logCompute("end compute");
   }
 }
+
+export default BikeGearingComputer;

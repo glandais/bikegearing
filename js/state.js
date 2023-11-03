@@ -1,3 +1,6 @@
+import { HALF_LINK } from "./constants.js";
+import { reduce } from "./math.js";
+
 class BikeGearingState {
   constructor() {
     this.internalf = 51;
@@ -36,7 +39,7 @@ class BikeGearingState {
 
     this.doDrawWheel = true;
 
-    this.halfLinkChain = BikeGearingState.HALF_LINK;
+    this.halfLinkChain = HALF_LINK;
 
     this.t = 0.0;
   }
@@ -46,7 +49,7 @@ class BikeGearingState {
   set f(value) {
     this.internalf = value;
     this.fda = (2.0 * Math.PI) / this.internalf; // angle between two cogs
-    this.fradius = BikeGearingState.HALF_LINK / 2 / Math.sin(this.fda / 2.0); // radius to rivet - drawing1.jpg
+    this.fradius = HALF_LINK / 2 / Math.sin(this.fda / 2.0); // radius to rivet - drawing1.jpg
     this.computeSkidPatches();
   }
   get r() {
@@ -55,12 +58,12 @@ class BikeGearingState {
   set r(value) {
     this.internalr = value;
     this.rda = (2.0 * Math.PI) / this.internalr; // angle between two cogs
-    this.rradius = BikeGearingState.HALF_LINK / 2 / Math.sin(this.rda / 2.0); // radius to rivet - drawing1.jpg
+    this.rradius = HALF_LINK / 2 / Math.sin(this.rda / 2.0); // radius to rivet - drawing1.jpg
     this.computeSkidPatches();
   }
   computeSkidPatches() {
     // https://www.icebike.org/skid-patch-calculator/
-    let reduced = BikeGearingMath.reduce(this.f, this.r);
+    let reduced = reduce(this.f, this.r);
     this.skidPatchesSingleLegged = reduced[1];
     if (reduced[0] % 2 == 0) {
       this.skidPatchesAmbidextrous = reduced[1];
@@ -75,4 +78,5 @@ class BikeGearingState {
     return i % this.cl;
   }
 }
-BikeGearingState.HALF_LINK = 25.4 / 2.0;
+
+export default BikeGearingState;

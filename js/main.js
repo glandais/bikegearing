@@ -1,3 +1,8 @@
+import BikeGearingInteractive from "./interactive.js";
+import BikeGearingRivetsCalculator from "./rivet_calculator.js";
+import BikeGearingComputer from "./computer.js";
+import BikeGearingDrawer from "./drawer.js";
+
 class BikeGearingMain {
   constructor(state, canvasId, onReset) {
     this.canvas = document.getElementById(canvasId);
@@ -15,7 +20,7 @@ class BikeGearingMain {
       this.ctx,
       this.state,
       this.rivetsCalculator,
-      this.interactive
+      this.interactive,
     );
 
     this.onReset = onReset;
@@ -79,3 +84,5 @@ class BikeGearingMain {
     this.drawer.draw();
   }
 }
+
+export default BikeGearingMain;

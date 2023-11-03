@@ -1,3 +1,6 @@
+import { TWO_PI } from "./constants.js";
+import { BikeGearingPoint } from "./math.js";
+
 class BikeGearingWheelDrawer {
   constructor(ctx, state, drawer) {
     this.ctx = ctx;
@@ -97,12 +100,12 @@ class BikeGearingWheelDrawer {
     let ctx = this.ctx;
     let wheel = this.wheel;
     ctx.save();
-    ctx.rotate(BikeGearingMath.TWO_PI / (24 * 2));
+    ctx.rotate(TWO_PI / (24 * 2));
     ctx.strokeStyle = "#000";
     ctx.fillStyle = "#999";
     for (let i = 0; i < 24; i++) {
       ctx.save();
-      ctx.rotate((i * BikeGearingMath.TWO_PI) / 24);
+      ctx.rotate((i * TWO_PI) / 24);
       ctx.translate(wheel.rim - wheel.rimHeight, 0);
       ctx.rotate(Math.PI);
       this.drawValveRect(9, 3, 0);
@@ -120,7 +123,7 @@ class BikeGearingWheelDrawer {
         ctx.lineWidth = 0.1;
         ctx.strokeStyle = "#000";
         ctx.fillStyle = "#444";
-        ctx.rotate((i * BikeGearingMath.TWO_PI) / 24);
+        ctx.rotate((i * TWO_PI) / 24);
         this.drawer.drawCircle(wheel.hubSpoke, 0, 2, true);
         ctx.restore();
       }
@@ -129,7 +132,7 @@ class BikeGearingWheelDrawer {
         ctx.lineWidth = 0.1;
         ctx.strokeStyle = "#000";
         ctx.fillStyle = "#ddd";
-        ctx.rotate((i * BikeGearingMath.TWO_PI) / 24);
+        ctx.rotate((i * TWO_PI) / 24);
         this.drawer.drawCircle(wheel.hubSpoke, 0, 1.5, true);
         ctx.restore();
       }
@@ -140,20 +143,17 @@ class BikeGearingWheelDrawer {
         ctx.strokeStyle = "#000";
         ctx.lineWidth = 2;
 
-        ctx.rotate((i * BikeGearingMath.TWO_PI) / 24);
+        ctx.rotate((i * TWO_PI) / 24);
         let a;
         if (i % 2 == 0) {
-          a = (3.5 * BikeGearingMath.TWO_PI) / 24;
+          a = (3.5 * TWO_PI) / 24;
         } else {
-          a = (-2.5 * BikeGearingMath.TWO_PI) / 24;
+          a = (-2.5 * TWO_PI) / 24;
         }
 
         ctx.beginPath();
         ctx.moveTo(wheel.hubSpoke, 0);
-        let e = BikeGearingPoint.getArcEnd(
-          wheel.rim - wheel.rimHeight - 9,
-          a
-        );
+        let e = BikeGearingPoint.getArcEnd(wheel.rim - wheel.rimHeight - 9, a);
         ctx.lineTo(e.x, e.y);
 
         ctx.stroke();
@@ -187,22 +187,24 @@ class BikeGearingWheelDrawer {
       wheel.rim + 4,
       "#fff",
       "My drinking team has a cycling problem",
-      Math.PI
+      Math.PI,
     );
 
     this.drawLogo(
       wheel.rim - wheel.rimHeight + 2,
       "#000",
       "Fonderies",
-      Math.PI / 2
+      Math.PI / 2,
     );
     this.drawLogo(
       wheel.rim - wheel.rimHeight + 2,
       "#000",
       "Mercredi 20h30",
-      -Math.PI / 2
+      -Math.PI / 2,
     );
 
     ctx.restore();
   }
 }
+
+export default BikeGearingWheelDrawer;

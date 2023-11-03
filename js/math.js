@@ -1,36 +1,4 @@
-class BikeGearingMath {
-  static roundHuman(v, d) {
-    return Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
-  }
-
-  static toDegreesHuman(a) {
-    return BikeGearingMath.roundHuman((180.0 * a) / Math.PI, 1);
-  }
-
-  static comparableAngle(a1, a2) {
-    let a = a2;
-    let minA = a1 - Math.PI / 2 - 0.01;
-    while (a < minA) {
-      a = a + BikeGearingMath.TWO_PI;
-    }
-    let maxA = a1 + Math.PI / 2 + 0.01;
-    while (a > maxA) {
-      a = a - BikeGearingMath.TWO_PI;
-    }
-    return a;
-  }
-
-  // https://stackoverflow.com/a/4652513
-  // Reduce a fraction by finding the Greatest Common Divisor and dividing by it.
-  static reduce(numerator, denominator) {
-    var gcd = function gcd(a, b) {
-      return b ? gcd(b, a % b) : a;
-    };
-    gcd = gcd(numerator, denominator);
-    return [numerator / gcd, denominator / gcd];
-  }
-}
-BikeGearingMath.TWO_PI = 2 * Math.PI;
+import { TWO_PI } from "./constants.js";
 
 class BikeGearingPoint {
   constructor(x, y) {
@@ -49,7 +17,7 @@ class BikeGearingPoint {
   ratio(p, r) {
     return new BikeGearingPoint(
       this.x + r * (p.x - this.x),
-      this.y + r * (p.y - this.y)
+      this.y + r * (p.y - this.y),
     );
   }
 
@@ -153,3 +121,42 @@ class BikeGearingCircle {
     return result;
   }
 }
+function roundHuman(v, d) {
+  return Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
+}
+
+function toDegreesHuman(a) {
+  return roundHuman((180.0 * a) / Math.PI, 1);
+}
+
+function comparableAngle(a1, a2) {
+  let a = a2;
+  let minA = a1 - Math.PI / 2 - 0.01;
+  while (a < minA) {
+    a = a + TWO_PI;
+  }
+  let maxA = a1 + Math.PI / 2 + 0.01;
+  while (a > maxA) {
+    a = a - TWO_PI;
+  }
+  return a;
+}
+
+// https://stackoverflow.com/a/4652513
+// Reduce a fraction by finding the Greatest Common Divisor and dividing by it.
+function reduce(numerator, denominator) {
+  var gcd = function gcd(a, b) {
+    return b ? gcd(b, a % b) : a;
+  };
+  gcd = gcd(numerator, denominator);
+  return [numerator / gcd, denominator / gcd];
+}
+
+export {
+  BikeGearingPoint,
+  BikeGearingCircle,
+  roundHuman,
+  toDegreesHuman,
+  comparableAngle,
+  reduce,
+};

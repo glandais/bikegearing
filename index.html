@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -6,22 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>bikegearing</title>
     <link rel="stylesheet" href="css/main.css" />
-    <script src="js/state.js"></script>
-    <script src="js/math.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/catenary.js"></script>
-    <script src="js/interactive.js"></script>
-    <script src="js/cogs_drawer.js"></script>
-    <script src="js/rivet_calculator.js"></script>
-    <script src="js/rivet_drawer.js"></script>
-    <script src="js/wheel_drawer.js"></script>
-    <script src="js/drawer.js"></script>
-    <script src="js/computer.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/init.js"></script>
+    <script type="module" src="js/init.js"></script>
   </head>
 
-  <body onload="init()">
+  <body onload="initBikeGearing()">
     <div id="sidebar">
       <div id="sidebar-btn">X&nbsp;</div>
       Chain wear : <span id="halfLinkChainValue"></span>

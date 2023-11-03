@@ -108,13 +108,13 @@ function createWorld(chainring, cog, chainstay) {
 
   for (let index = 0; index < links.length; index++) {
     if (index == links.length - 1) {
-        createJoint(links[index], links[0]);
-        createJoint(links[index], links[0]);
-        createJoint(links[index], links[0]);
+      createJoint(links[index], links[0]);
+      createJoint(links[index], links[0]);
+      createJoint(links[index], links[0]);
     } else {
-        createJoint(links[index], links[index + 1]);
-        createJoint(links[index], links[index + 1]);
-        createJoint(links[index], links[index + 1]);
+      createJoint(links[index], links[index + 1]);
+      createJoint(links[index], links[index + 1]);
+      createJoint(links[index], links[index + 1]);
     }
   }
 
@@ -165,7 +165,7 @@ function init() {
   engine = Engine.create({
     constraintIterations: 100,
     positionIterations: 100,
-    velocityIterations: 100
+    velocityIterations: 100,
   });
 
   render = Render.create({
@@ -181,7 +181,7 @@ function init() {
   //engine.timing.timeScale = 0.01;
 
   createWorld(50, 15, 409);
-//  createWorld(50, 50, 254);
+  //  createWorld(50, 50, 254);
 
   // run the renderer
   Render.run(render);

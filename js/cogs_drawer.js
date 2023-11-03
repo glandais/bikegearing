@@ -1,3 +1,8 @@
+import { BikeGearingPoint } from "./math.js";
+
+const aup = (70 * Math.PI) / 180;
+const am = Math.PI - (60 * Math.PI) / 180;
+
 class BikeGearingCogsDrawer {
   constructor(ctx, state) {
     this.ctx = ctx;
@@ -15,9 +20,6 @@ class BikeGearingCogsDrawer {
     let c1 = BikeGearingPoint.getArcEnd(cog.r + 2, cog.da / 2);
     let c2 = BikeGearingPoint.getArcEnd(cog.r + 2, -cog.da / 2);
     let a = cog.da / 2;
-
-    let aup = (70 * Math.PI) / 180;
-    let am = Math.PI - (60 * Math.PI) / 180;
 
     ctx.arc(c1.x, c1.y, 1.6, a, a - aup, true);
     ctx.arc(cog.r, 0, 3.7, am, -am);
@@ -127,3 +129,5 @@ class BikeGearingCogsDrawer {
     this.drawRearCogs();
   }
 }
+
+export default BikeGearingCogsDrawer;

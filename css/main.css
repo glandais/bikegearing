@@ -16,8 +16,8 @@ body {
 }
 
 #sidebar-btn {
-    text-align: right;
-    cursor: pointer;
+  text-align: right;
+  cursor: pointer;
 }
 
 #sidebar input[type="range"] {
@@ -35,5 +35,5 @@ body {
 }
 
 #canvas {
-    overscroll-behavior: contain;
+  overscroll-behavior: contain;
 }

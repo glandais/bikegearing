@@ -1,3 +1,5 @@
+import { HALF_LINK } from "./constants.js";
+
 class BikeGearingRivetsDrawer {
   constructor(ctx, state, drawer) {
     this.ctx = ctx;
@@ -8,43 +10,36 @@ class BikeGearingRivetsDrawer {
   drawRawRivet() {
     let ctx = this.ctx;
     let r = 5;
-    let dcx1 = BikeGearingState.HALF_LINK / 8;
-    let dcx2 = BikeGearingState.HALF_LINK / 4;
+    let dcx1 = HALF_LINK / 8;
+    let dcx2 = HALF_LINK / 4;
     let dy = 1;
     ctx.arc(0, 0, r, Math.PI / 2, (3 * Math.PI) / 2);
     ctx.bezierCurveTo(
       dcx1,
       -r,
-      BikeGearingState.HALF_LINK / 2 - dcx2,
+      HALF_LINK / 2 - dcx2,
       -r + dy,
-      BikeGearingState.HALF_LINK / 2,
-      -r + dy
+      HALF_LINK / 2,
+      -r + dy,
     );
     ctx.bezierCurveTo(
-      BikeGearingState.HALF_LINK / 2 + dcx2,
+      HALF_LINK / 2 + dcx2,
       -r + dy,
-      BikeGearingState.HALF_LINK - dcx1,
+      HALF_LINK - dcx1,
       -r,
-      BikeGearingState.HALF_LINK,
-      -r
+      HALF_LINK,
+      -r,
     );
-    ctx.arc(BikeGearingState.HALF_LINK, 0, r, -Math.PI / 2, Math.PI / 2);
+    ctx.arc(HALF_LINK, 0, r, -Math.PI / 2, Math.PI / 2);
     ctx.bezierCurveTo(
-      BikeGearingState.HALF_LINK - dcx1,
+      HALF_LINK - dcx1,
       r,
-      BikeGearingState.HALF_LINK / 2 + dcx2,
+      HALF_LINK / 2 + dcx2,
       r - dy,
-      BikeGearingState.HALF_LINK / 2,
-      r - dy
-    );
-    ctx.bezierCurveTo(
-      BikeGearingState.HALF_LINK / 2 - dcx2,
+      HALF_LINK / 2,
       r - dy,
-      dcx1,
-      r,
-      0,
-      r
     );
+    ctx.bezierCurveTo(HALF_LINK / 2 - dcx2, r - dy, dcx1, r, 0, r);
   }
 
   drawLink(r1, r2, i) {
@@ -58,8 +53,8 @@ class BikeGearingRivetsDrawer {
     ctx.rotate(a);
 
     let stretch = 0;
-    if (d < BikeGearingState.HALF_LINK) {
-      stretch = (d - BikeGearingState.HALF_LINK) / d;
+    if (d < HALF_LINK) {
+      stretch = (d - HALF_LINK) / d;
     } else if (d > this.state.halfLinkChain) {
       stretch = (d - this.state.halfLinkChain) / d;
     }
@@ -89,17 +84,17 @@ class BikeGearingRivetsDrawer {
       } else {
         dy = -1;
       }
-      ctx.moveTo((d - BikeGearingState.HALF_LINK) / 2, dy);
-      ctx.lineTo((d - BikeGearingState.HALF_LINK) / 2, 0);
-      ctx.lineTo(d - (d - BikeGearingState.HALF_LINK) / 2, 0);
-      ctx.lineTo(d - (d - BikeGearingState.HALF_LINK) / 2, dy);
+      ctx.moveTo((d - HALF_LINK) / 2, dy);
+      ctx.lineTo((d - HALF_LINK) / 2, 0);
+      ctx.lineTo(d - (d - HALF_LINK) / 2, 0);
+      ctx.lineTo(d - (d - HALF_LINK) / 2, dy);
       ctx.stroke();
       ctx.closePath();
 
       ctx.restore();
     }
 
-    ctx.translate((d - BikeGearingState.HALF_LINK) / 2, 0);
+    ctx.translate((d - HALF_LINK) / 2, 0);
 
     let astretch = Math.abs(stretch);
     if (astretch > 0.0001) {
@@ -144,3 +139,5 @@ class BikeGearingRivetsDrawer {
     }
   }
 }
+
+export default BikeGearingRivetsDrawer;

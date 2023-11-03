@@ -28,15 +28,15 @@ class BikeGearingInteractive {
     addEventListener("resize", (e) => this.onResize());
     canvas.addEventListener("mousedown", (e) => this.onPointerDown(e));
     canvas.addEventListener("touchstart", (e) =>
-      this.handleTouch(e, (c) => this.onPointerDown(c))
+      this.handleTouch(e, (c) => this.onPointerDown(c)),
     );
     canvas.addEventListener("mouseup", (e) => this.onPointerUp(e));
     canvas.addEventListener("touchend", (e) =>
-      this.handleTouch(e, (c) => this.onPointerUp(c))
+      this.handleTouch(e, (c) => this.onPointerUp(c)),
     );
     canvas.addEventListener("mousemove", (e) => this.onPointerMove(e));
     canvas.addEventListener("touchmove", (e) =>
-      this.handleTouch(e, (c) => this.onPointerMove(c))
+      this.handleTouch(e, (c) => this.onPointerMove(c)),
     );
     canvas.addEventListener("wheel", (e) => this.adjustZoomWheel(e));
   }
@@ -114,7 +114,7 @@ class BikeGearingInteractive {
         eventLocation.x,
         eventLocation.y,
         this.cameraOffset,
-        this.cameraZoom
+        this.cameraZoom,
       );
 
       let sens = e.deltaY / 1000.0;
@@ -128,7 +128,7 @@ class BikeGearingInteractive {
         eventLocation.x,
         eventLocation.y,
         worldPosition,
-        this.cameraZoom * scale
+        this.cameraZoom * scale,
       );
     }
   }
@@ -185,7 +185,7 @@ class BikeGearingInteractive {
         touchCenter.x,
         touchCenter.y,
         this.cameraOffset,
-        this.cameraZoom
+        this.cameraZoom,
       );
       this.initialPinchZoom = this.cameraZoom;
     } else {
@@ -193,8 +193,10 @@ class BikeGearingInteractive {
         touchCenter.x,
         touchCenter.y,
         this.initialPinchWorldPosition,
-        this.initialPinchZoom * (currentDistance / this.initialPinchDistance)
+        this.initialPinchZoom * (currentDistance / this.initialPinchDistance),
       );
     }
   }
 }
+
+export default BikeGearingInteractive;
