@@ -36,7 +36,7 @@ class BikeGearingRivetsCalculator {
     let a = this.state.fa - c * this.state.fda;
     return new BikeGearingPoint(
       this.state.cs + this.state.fradius * Math.cos(a),
-      this.state.fradius * Math.sin(a)
+      this.state.fradius * Math.sin(a),
     );
   }
 
@@ -48,7 +48,7 @@ class BikeGearingRivetsCalculator {
     let a = this.state.ra - c * this.state.rda;
     return new BikeGearingPoint(
       this.state.rradius * Math.cos(a),
-      this.state.rradius * Math.sin(a)
+      this.state.rradius * Math.sin(a),
     );
   }
 
@@ -63,7 +63,7 @@ class BikeGearingRivetsCalculator {
       s,
       e,
       rc * HALF_LINK,
-      rc
+      rc,
     );
     for (let i = 0; i < points.length; i++) {
       rivets.push(points[i]);
@@ -93,7 +93,7 @@ class BikeGearingRivetsCalculator {
       s,
       e,
       rc * HALF_LINK,
-      rc
+      rc,
     );
     for (let i = 0; i < points.length; i++) {
       rivets.push(points[i]);

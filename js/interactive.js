@@ -31,7 +31,7 @@ class BikeGearingInteractive {
   initInteractive() {
     let canvas = this.canvas;
 
-    addEventListener("resize", (e) => this.onResize());
+    window.addEventListener("resize", (e) => this.onResize());
     canvas.addEventListener("mousedown", (e) => this.onPointerDown(e));
     canvas.addEventListener("touchstart", (e) =>
       this.handleTouch(e, (c) => this.onPointerDown(c)),

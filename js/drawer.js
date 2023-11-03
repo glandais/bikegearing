@@ -125,7 +125,7 @@ class BikeGearingDrawer {
 
     ctx.translate(
       this.interactive.cameraOffset.x,
-      this.interactive.cameraOffset.y
+      this.interactive.cameraOffset.y,
     );
     ctx.scale(this.interactive.cameraZoom, this.interactive.cameraZoom);
 

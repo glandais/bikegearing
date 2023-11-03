@@ -11,74 +11,78 @@
 
   <body onload="initBikeGearing()">
     <div id="sidebar">
-      <div id="sidebar-btn">X&nbsp;</div>
-      Chain wear : <span id="halfLinkChainValue"></span>
-      <br />
-      <input
-        type="range"
-        min="0"
-        max="2"
-        step="0.1"
-        value="0"
-        id="halfLinkChain"
-      />
-      <br />
-      Simulation speed : <span id="simulationSpeedValue"></span>
-      <br />
-      <input
-        type="range"
-        min="0"
-        max="2.00"
-        step="0.02"
-        value="10"
-        id="simulationSpeed"
-      />
-      <br />
-      Crankset RPM : <span id="rotationSpeedValue"></span>
-      <br />
-      <input
-        type="range"
-        min="-120.0"
-        max="120.0"
-        step="1.0"
-        value="80.0"
-        id="rotationSpeed"
-      />
-      <br />
-      Chainring cogs : <span id="fValue"></span>
-      <br />
-      <input type="range" min="32" max="60" value="50" id="f" />
-      <br />
-      Sprocket cogs : <span id="rValue"></span>
-      <br />
-      <input type="range" min="10" max="20" value="15" id="r" />
-      <br />
-      Chainstay length (mm) : <span id="csValue"></span>
-      <br />
-      <input type="range" min="380" max="430" step="1" value="409" id="cs1" />
-      <br />
-      Chainstay length (1/100 mm) :
-      <br />
-      <input type="range" min="0" max="99" step="1" value="0" id="cs2" />
-      <br />
-      Chain links : <span id="clValue"></span>
-      <br />
-      <input type="range" min="86" max="110" value="100" id="cl" />
-      <br />
-      <br />
-      <input type="checkbox" id="doDrawWheel" name="doDrawWheel" />
-      <label for="doDrawWheel">Draw wheel</label>
-      <br />
-      <input type="checkbox" id="switchPause" name="switchPause" />
-      <label for="switchPause">Paused</label>
-      <br />
-      <input type="checkbox" id="switchDebug" name="switchDebug" />
-      <label for="switchDebug">Debug</label>
-      <br />
-      <input type="checkbox" id="followRivet" name="followRivet" />
-      <label for="followRivet">Follow rivet</label>
-      <br />
-      <button id="resetState">Reset</button>
+      <div id="sidebar-header">
+        <div id="sidebar-header-title">Settings</div>
+        <div id="sidebar-header-button">▲</div>
+      </div>
+      <div id="sidebar-content">
+        Chain wear : <span id="halfLinkChainValue"></span>
+        <br />
+        <input
+          type="range"
+          min="0"
+          max="2"
+          step="0.1"
+          value="0"
+          id="halfLinkChain"
+        />
+        <br />
+        Simulation speed : <span id="simulationSpeedValue"></span>
+        <br />
+        <input
+          type="range"
+          min="0"
+          max="200"
+          step="2"
+          value="10"
+          id="simulationSpeed"
+        />
+        <br />
+        Crankset RPM : <span id="rotationSpeedValue"></span>
+        <br />
+        <input
+          type="range"
+          min="-120.0"
+          max="120.0"
+          step="1.0"
+          value="80.0"
+          id="rotationSpeed"
+        />
+        <br />
+        Chainring cogs : <span id="fValue"></span>
+        <br />
+        <input type="range" min="32" max="60" value="50" id="f" />
+        <br />
+        Sprocket cogs : <span id="rValue"></span>
+        <br />
+        <input type="range" min="10" max="20" value="15" id="r" />
+        <br />
+        Chainstay length (mm) : <span id="cs1Value"></span>
+        <br />
+        <input type="range" min="380" max="430" step="1" value="409" id="cs1" />
+        <br />
+        Chainstay length (1/100 mm) :
+        <br />
+        <input type="range" min="0" max="99" step="1" value="0" id="cs2" />
+        <br />
+        Chain links : <span id="clValue"></span>
+        <br />
+        <input type="range" min="86" max="110" value="100" id="cl" />
+        <br />
+        <input type="checkbox" id="doDrawWheel" name="doDrawWheel" />
+        <label for="doDrawWheel">Draw wheel</label>
+        <br />
+        <input type="checkbox" id="switchPause" name="switchPause" />
+        <label for="switchPause">Paused</label>
+        <br />
+        <input type="checkbox" id="switchDebug" name="switchDebug" />
+        <label for="switchDebug">Debug</label>
+        <br />
+        <input type="checkbox" id="followRivet" name="followRivet" />
+        <label for="followRivet">Follow rivet</label>
+        <br />
+        <button id="resetState">Reset</button>
+      </div>
     </div>
     <div id="main">
       <canvas id="canvas"></canvas>

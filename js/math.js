@@ -33,7 +33,7 @@ class BikeGearingPoint {
   ratio(p, r) {
     return new BikeGearingPoint(
       this.x + r * (p.x - this.x),
-      this.y + r * (p.y - this.y)
+      this.y + r * (p.y - this.y),
     );
   }
 

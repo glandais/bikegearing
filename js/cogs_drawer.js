@@ -132,7 +132,7 @@ class BikeGearingCogsDrawer {
     ctx.save();
     ctx.translate(state.cs, 0);
     this.drawCogsInternal(
-      new BikeGearingCogs(state.f, state.fradius, state.fa, state.fda)
+      new BikeGearingCogs(state.f, state.fradius, state.fa, state.fda),
     );
     ctx.restore();
   }
@@ -140,7 +140,7 @@ class BikeGearingCogsDrawer {
   drawRearCogs() {
     let state = this.state;
     this.drawCogsInternal(
-      new BikeGearingCogs(state.r, state.rradius, state.ra, state.rda)
+      new BikeGearingCogs(state.r, state.rradius, state.ra, state.rda),
     );
   }
 

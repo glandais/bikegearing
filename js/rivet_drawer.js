@@ -28,7 +28,7 @@ class BikeGearingRivetsDrawer {
       HALF_LINK / 2 - dcx2,
       -r + dy,
       HALF_LINK / 2,
-      -r + dy
+      -r + dy,
     );
     ctx.bezierCurveTo(
       HALF_LINK / 2 + dcx2,
@@ -36,7 +36,7 @@ class BikeGearingRivetsDrawer {
       HALF_LINK - dcx1,
       -r,
       HALF_LINK,
-      -r
+      -r,
     );
     ctx.arc(HALF_LINK, 0, r, -Math.PI / 2, Math.PI / 2);
     ctx.bezierCurveTo(
@@ -45,7 +45,7 @@ class BikeGearingRivetsDrawer {
       HALF_LINK / 2 + dcx2,
       r - dy,
       HALF_LINK / 2,
-      r - dy
+      r - dy,
     );
     ctx.bezierCurveTo(HALF_LINK / 2 - dcx2, r - dy, dcx1, r, 0, r);
   }
