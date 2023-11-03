@@ -150,7 +150,7 @@ class BikeGearingWheelDrawer {
 
         ctx.beginPath();
         ctx.moveTo(wheel.hubSpoke, 0);
-        let e = BikeGearingMath.getArcEnd(
+        let e = BikeGearingPoint.getArcEnd(
           wheel.rim - wheel.rimHeight - 9,
           a
         );

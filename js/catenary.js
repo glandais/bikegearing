@@ -49,7 +49,7 @@ class BikeGearingCatenary {
     for (let i = 0; i <= nPoints; i++) {
       let x = x1 + (i * (x2 - x1)) / nPoints;
       let y = -(c + a * Math.cosh((x - b) / a));
-      points.push({ x, y });
+      points.push(new BikeGearingPoint(x, y));
     }
     if (inverted) {
       points.reverse();
@@ -63,7 +63,7 @@ class BikeGearingCatenary {
     let dseg = [];
     let dtot = 0;
     for (let i = 0; i < points.length - 1; i++) {
-      let d = BikeGearingMath.dist(points[i], points[i + 1]);
+      let d = points[i].dist(points[i + 1]);
       dtot = dtot + d;
       dseg.push(d);
     }
@@ -81,7 +81,7 @@ class BikeGearingCatenary {
       do {
         if (d - 0.001 <= iseg * dl && iseg * dl <= nd + 0.001) {
           let r = (iseg * dl - d) / (nd - d);
-          let p = BikeGearingMath.ratio(points[i], points[i + 1], r);
+          let p = points[i].ratio(points[i + 1], r);
           result.push(p);
           iseg++;
           added = true;

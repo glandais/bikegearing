@@ -107,33 +107,24 @@ class BikeGearingComputer {
     let rivets = this.rivets;
     let r1 = this.rivetsCalculator.getRivet(rivets, state.fru);
     let r2 = this.rivetsCalculator.getRivet(rivets, state.rru);
-    let d = BikeGearingMath.dist(r1, r2);
+    let d = r1.dist(r2);
     let maxDist =
       state.halfLinkChain * this.state.getRivetIndex(state.rru - state.fru);
     if (d >= maxDist) {
-      let inter = BikeGearingMath.intersection(
-        {
-          x: r1.x,
-          y: r1.y,
-          r: maxDist,
-        },
-        {
-          x: 0,
-          y: 0,
-          r: state.rradius,
-        }
+      let inter = new BikeGearingCircle(r1.x, r1.y, maxDist).intersection(
+        new BikeGearingCircle(0, 0, state.rradius)
       );
-      if (inter.intersect_occurs) {
+      if (inter.intersectOccurs) {
         let pinter;
-        if (inter.point_1.y < 0) {
-          pinter = inter.point_1;
+        if (inter.p1.y < 0) {
+          pinter = inter.p1;
         } else {
-          pinter = inter.point_2;
+          pinter = inter.p2;
         }
         let currentRa = state.ra - state.rcu * state.rda;
         let newRa = BikeGearingMath.comparableAngle(
           currentRa,
-          BikeGearingMath.getAngle({ x: 0, y: 0 }, pinter)
+          BikeGearingPoint.ZERO.getAngle(pinter)
         );
         if (Math.abs(newRa - currentRa) > 0.00001) {
           this.logCompute(["fixed chain tension, da : ", newRa - currentRa]);
@@ -153,33 +144,24 @@ class BikeGearingComputer {
     let rivets = this.rivets;
     let r1 = this.rivetsCalculator.getRivet(rivets, state.frb);
     let r2 = this.rivetsCalculator.getRivet(rivets, state.rrb);
-    let d = BikeGearingMath.dist(r1, r2);
+    let d = r1.dist(r2);
     let maxDist =
       state.halfLinkChain * this.state.getRivetIndex(state.frb - state.rrb);
     if (d >= maxDist) {
-      let inter = BikeGearingMath.intersection(
-        {
-          x: r1.x,
-          y: r1.y,
-          r: maxDist,
-        },
-        {
-          x: 0,
-          y: 0,
-          r: state.rradius,
-        }
+      let inter = new BikeGearingCircle(r1.x, r1.y, maxDist).intersection(
+        new BikeGearingCircle(0, 0, state.rradius)
       );
-      if (inter.intersect_occurs) {
+      if (inter.intersectOccurs) {
         let pinter;
-        if (inter.point_1.y > 0) {
-          pinter = inter.point_1;
+        if (inter.p1.y > 0) {
+          pinter = inter.p1;
         } else {
-          pinter = inter.point_2;
+          pinter = inter.p2;
         }
         let currentRa = state.ra - state.rcb * state.rda;
         let newRa = BikeGearingMath.comparableAngle(
           currentRa,
-          BikeGearingMath.getAngle({ x: 0, y: 0 }, pinter)
+          BikeGearingPoint.ZERO.getAngle(pinter)
         );
         if (Math.abs(newRa - currentRa) > 0.00001) {
           this.logCompute(["fixed chain tension, da : ", newRa - currentRa]);
@@ -209,15 +191,9 @@ class BikeGearingComputer {
       pp1 = this.rivetsCalculator.getRearCogPoint(c + 1);
     }
 
-    let ra = BikeGearingMath.getAngle(r1, r2);
-    let cam1 = BikeGearingMath.comparableAngle(
-      ra,
-      BikeGearingMath.getAngle(pm1, p)
-    );
-    let cap1 = BikeGearingMath.comparableAngle(
-      ra,
-      BikeGearingMath.getAngle(p, pp1)
-    );
+    let ra = r1.getAngle(r2);
+    let cam1 = BikeGearingMath.comparableAngle(ra, pm1.getAngle(p));
+    let cap1 = BikeGearingMath.comparableAngle(ra, p.getAngle(pp1));
     let mina = Math.min(cap1, cam1);
     let maxa = Math.max(cap1, cam1);
 
@@ -362,8 +338,7 @@ class BikeGearingComputer {
 
     let rda = BikeGearingMath.comparableAngle(0, state.ra - rpa);
 
-    let distchronokm =
-      (2100 / (1000 * 1000)) * (rda / BikeGearingMath.TWO_PI);
+    let distchronokm = (2100 / (1000 * 1000)) * (rda / BikeGearingMath.TWO_PI);
     let dtchronoh = dtchrono / (1000 * 3600);
     let speedkmh = distchronokm / dtchronoh;
 

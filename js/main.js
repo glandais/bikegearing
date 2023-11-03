@@ -1,8 +1,4 @@
-class BikeGearingCogsMain {
-  static get aup() {
-    return (70 * Math.PI) / 180;
-  }
-
+class BikeGearingMain {
   constructor(state, canvasId, onReset) {
     this.canvas = document.getElementById(canvasId);
     this.ctx = this.canvas.getContext("2d");

@@ -72,9 +72,7 @@ class BikeGearingDrawer {
       "rcb: " + state.rcb,
       "rrb: " + state.rrb,
       "computeLog: " + state.computeLog,
-      "Last draw: " +
-        BikeGearingMath.roundHuman(state.drawDuration, 2) +
-        "ms",
+      "Last draw: " + BikeGearingMath.roundHuman(state.drawDuration, 2) + "ms",
       "cameraOffset.x: " +
         BikeGearingMath.roundHuman(this.interactive.cameraOffset.x, 2),
       "cameraOffset.y: " +
@@ -124,7 +122,7 @@ class BikeGearingDrawer {
       r1 = this.rivetsCalculator.getRivet(rivets, 0);
       r2 = this.rivetsCalculator.getRivet(rivets, 1);
       if (r1 && r2) {
-        let rivetAngle = BikeGearingMath.getAngle(r1, r2);
+        let rivetAngle = r1.getAngle(r2);
         ctx.rotate(Math.PI - rivetAngle);
         ctx.translate(-r1.x, -r1.y);
       }

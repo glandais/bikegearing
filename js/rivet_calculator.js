@@ -16,18 +16,18 @@ class BikeGearingRivetsCalculator {
 
   getFrontCogPoint(c) {
     let a = this.state.fa - c * this.state.fda;
-    return {
-      x: this.state.cs + this.state.fradius * Math.cos(a),
-      y: this.state.fradius * Math.sin(a),
-    };
+    return new BikeGearingPoint(
+      this.state.cs + this.state.fradius * Math.cos(a),
+      this.state.fradius * Math.sin(a)
+    );
   }
 
   getRearCogPoint(c) {
     let a = this.state.ra - c * this.state.rda;
-    return {
-      x: this.state.rradius * Math.cos(a),
-      y: this.state.rradius * Math.sin(a),
-    };
+    return new BikeGearingPoint(
+      this.state.rradius * Math.cos(a),
+      this.state.rradius * Math.sin(a)
+    );
   }
 
   getRivetsUp(rivets) {

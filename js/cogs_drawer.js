@@ -12,13 +12,16 @@ class BikeGearingCogsDrawer {
 
     ctx.rotate(cog.a);
 
-    let c1 = BikeGearingMath.getArcEnd(cog.r + 2, cog.da / 2);
-    let c2 = BikeGearingMath.getArcEnd(cog.r + 2, -cog.da / 2);
+    let c1 = BikeGearingPoint.getArcEnd(cog.r + 2, cog.da / 2);
+    let c2 = BikeGearingPoint.getArcEnd(cog.r + 2, -cog.da / 2);
     let a = cog.da / 2;
 
-    ctx.arc(c1.x, c1.y, 1.6, a, a - BikeGearingCogsDrawer.aup, true);
-    ctx.arc(cog.r, 0, 3.7, BikeGearingCogsDrawer.am, -BikeGearingCogsDrawer.am);
-    ctx.arc(c2.x, c2.y, 1.6, BikeGearingCogsDrawer.aup - a, -a, true);
+    let aup = (70 * Math.PI) / 180;
+    let am = Math.PI - (60 * Math.PI) / 180;
+
+    ctx.arc(c1.x, c1.y, 1.6, a, a - aup, true);
+    ctx.arc(cog.r, 0, 3.7, am, -am);
+    ctx.arc(c2.x, c2.y, 1.6, aup - a, -a, true);
 
     ctx.restore();
   }
@@ -32,7 +35,7 @@ class BikeGearingCogsDrawer {
     //  ctx.fillText("" + cog.i + " " + (cog.count - cog.i), cog.r + 10, 0);
     ctx.beginPath();
     ctx.lineTo(cog.r, 0);
-    let cog2 = BikeGearingMath.getArcEnd(cog.r, cog.da);
+    let cog2 = BikeGearingPoint.getArcEnd(cog.r, cog.da);
     ctx.lineTo(cog2.x, cog2.y);
     ctx.stroke();
     ctx.closePath();
@@ -124,6 +127,3 @@ class BikeGearingCogsDrawer {
     this.drawRearCogs();
   }
 }
-
-BikeGearingCogsDrawer.aup = (70 * Math.PI) / 180;
-BikeGearingCogsDrawer.am = Math.PI - (60 * Math.PI) / 180;
