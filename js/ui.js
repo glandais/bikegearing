@@ -1,86 +1,74 @@
+import BikeGearingInteractive from "./interactive.js";
 import BikeGearingMain from "./main.js";
 import { roundHuman } from "./math.js";
 import BikeGearingState from "./state.js";
-
-class BikeGearingInput {
-  constructor(
-    id,
-    toHuman,
-    valueGetter,
-    valueSetter,
-    valueFromInput = (v) => v,
-    valueToInput = (v) => v,
-  ) {
-    this.inputElement = document.getElementById(id);
-    this.spanElement = document.getElementById(id + "Value");
-    this.toHuman = toHuman;
-    this.valueSetter = valueSetter;
-    this.valueGetter = valueGetter;
-    this.valueFromInput = valueFromInput;
-    this.valueToInput = valueToInput;
-
-    this.inputElement.addEventListener("input", (e) => this.onInput(e));
-  }
-
-  onInput(e) {
-    this.valueSetter(this.valueFromInput(1.0 * e.target.value));
-    this.setTextValue();
-  }
-  setInputValue() {
-    this.inputElement.value = this.valueToInput(this.valueGetter());
-  }
-  setTextValue() {
-    if (this.spanElement) {
-      this.spanElement.innerText = this.toHuman(this.inputElement.value);
-    }
-  }
-  reset() {
-    this.setInputValue();
-    this.setTextValue();
-  }
-}
-
-class BikeGearingCheckbox {
-  constructor(id, valueGetter, valueSetter) {
-    this.inputElement = document.getElementById(id);
-    this.valueSetter = valueSetter;
-    this.valueGetter = valueGetter;
-
-    this.inputElement.addEventListener("change", (e) =>
-      this.valueSetter(e.target.checked),
-    );
-  }
-  reset() {
-    this.inputElement.checked = this.valueGetter();
-  }
-}
+import { BikeGearingInputCheckbox, BikeGearingInputRange } from "./ui_input.js";
 
 class BikeGearingUi {
   /**
    * @param {BikeGearingState} state
    * @param {BikeGearingMain} main
+   * @param {BikeGearingInteractive} interactive
    */
-  constructor(state, main) {
+  constructor(state, main, interactive) {
     this.state = state;
     this.main = main;
+    this.interactive = interactive;
+
+    this.inputs = [];
+  }
+
+  init() {
+    this.initInputs();
+    document
+      .getElementById("resetState")
+      .addEventListener("click", () => this.resetState());
 
     this.sidebar = document.getElementById("sidebar");
     this.sidebarHeader = document.getElementById("sidebar-header");
+    this.sidebarContent = document.getElementById("sidebar-content");
+    this.sideBarVisible = true;
+
     this.sidebarHeader.addEventListener("mousedown", (e) =>
       this.onSidebarDown(e),
     );
     this.sidebarHeader.addEventListener("touchstart", (e) =>
       this.onSidebarDown(e),
     );
+    this.sidebarHeaderButton = document.getElementById("sidebar-header-button");
+    this.sidebarHeaderButton.addEventListener("click", () =>
+      this.switchSidebar(),
+    );
+    this.sidebarHeaderButton.addEventListener("touchend", () =>
+      this.switchSidebar(),
+    );
 
-    this.sideBarVisible = true;
-    document
-      .getElementById("sidebar-header-button")
-      .addEventListener("click", () => this.switchSidebar());
+    window.addEventListener("resize", (e) => this.onResize());
 
-    this.inputs = [];
+    let sidebarContentRect = this.sidebarContent.getBoundingClientRect();
+    this.initialSidebarContentHeight = sidebarContentRect.height;
+    this.initialSidebarContentWidth = sidebarContentRect.width;
+    let sidebarRect = this.sidebar.getBoundingClientRect();
+    this.initialSidebarHeight = sidebarRect.height;
+    this.sidebarContent.style.height = this.initialSidebarContentHeight + "px";
+
+    let bodyRect = document.body.getBoundingClientRect();
+    if (bodyRect.height < this.initialSidebarContentHeight) {
+      this.sideBarVisible = false;
+    }
+    if (bodyRect.width < 2 * this.initialSidebarContentWidth) {
+      this.sideBarVisible = false;
+      this.sidebar.style.top = bodyRect.height + "px";
+    }
+    this.onSidebarVisibleChanged();
+    if (this.sideBarVisible) {
+      this.interactive.onSidebar(sidebarRect.width);
+    }
+  }
+
+  initInputs() {
     this.inputs.push(
-      new BikeGearingInput(
+      new BikeGearingInputRange(
         "halfLinkChain",
         (v) => roundHuman(v, 1) + "%",
         () => this.state.halfLinkChain,
@@ -93,7 +81,7 @@ class BikeGearingUi {
       ),
     );
     this.inputs.push(
-      new BikeGearingInput(
+      new BikeGearingInputRange(
         "simulationSpeed",
         (v) => roundHuman(v, 0) + "%",
         () => this.state.simulationSpeed,
@@ -104,7 +92,7 @@ class BikeGearingUi {
     );
 
     this.inputs.push(
-      new BikeGearingInput(
+      new BikeGearingInputRange(
         "rotationSpeed",
         (v) => roundHuman(v, 1) + "rpm",
         () => this.state.rotationSpeed,
@@ -112,7 +100,7 @@ class BikeGearingUi {
       ),
     );
     this.inputs.push(
-      new BikeGearingInput(
+      new BikeGearingInputRange(
         "f",
         (v) => "" + v,
         () => this.state.f,
@@ -123,7 +111,7 @@ class BikeGearingUi {
       ),
     );
     this.inputs.push(
-      new BikeGearingInput(
+      new BikeGearingInputRange(
         "r",
         (v) => "" + v,
         () => this.state.r,
@@ -135,7 +123,7 @@ class BikeGearingUi {
     );
 
     this.inputs.push(
-      new BikeGearingInput(
+      new BikeGearingInputRange(
         "cl",
         (v) => "" + v,
         () => this.state.cl,
@@ -143,9 +131,10 @@ class BikeGearingUi {
       ),
     );
 
-    let cs1 = new BikeGearingInput(
+    let cs1, cs2;
+    cs1 = new BikeGearingInputRange(
       "cs1",
-      (v) => roundHuman(state.cs, 2) + "mm",
+      (v) => roundHuman(this.state.cs, 2) + "mm",
       () => Math.floor(this.state.cs),
       (v) => {
         this.state.cs = v;
@@ -153,10 +142,10 @@ class BikeGearingUi {
         this.main.compute0();
       },
     );
-    let cs2 = new BikeGearingInput(
+    cs2 = new BikeGearingInputRange(
       "cs2",
-      (v) => roundHuman(state.cs, 2) + "mm",
-      () => 100.0 * (state.cs - Math.floor(state.cs)),
+      (v) => roundHuman(this.state.cs, 2) + "mm",
+      () => 100.0 * (this.state.cs - Math.floor(this.state.cs)),
       (v) => {
         this.state.cs = Math.floor(this.state.cs) + v / 100;
         cs1.reset();
@@ -166,7 +155,7 @@ class BikeGearingUi {
     this.inputs.push(cs1, cs2);
 
     this.inputs.push(
-      new BikeGearingCheckbox(
+      new BikeGearingInputCheckbox(
         "doDrawWheel",
         () => this.state.doDrawWheel,
         (v) => {
@@ -176,7 +165,7 @@ class BikeGearingUi {
       ),
     );
     this.inputs.push(
-      new BikeGearingCheckbox(
+      new BikeGearingInputCheckbox(
         "switchPause",
         () => this.state.paused,
         (v) => {
@@ -189,7 +178,7 @@ class BikeGearingUi {
       ),
     );
     this.inputs.push(
-      new BikeGearingCheckbox(
+      new BikeGearingInputCheckbox(
         "switchDebug",
         () => this.state.debug,
         (v) => {
@@ -199,7 +188,7 @@ class BikeGearingUi {
       ),
     );
     this.inputs.push(
-      new BikeGearingCheckbox(
+      new BikeGearingInputCheckbox(
         "followRivet",
         () => this.state.followRivet,
         (v) => {
@@ -208,9 +197,6 @@ class BikeGearingUi {
         },
       ),
     );
-    document
-      .getElementById("resetState")
-      .addEventListener("click", () => this.resetState());
   }
 
   update() {
@@ -253,12 +239,47 @@ class BikeGearingUi {
     }
   }
 
+  onResize() {
+    this.computeSideBarBounds();
+    let left = this.sidebar.offsetLeft;
+    let top = this.sidebar.offsetTop;
+    left = Math.max(this.sidebarMinLeft, Math.min(this.sidebarMaxLeft, left));
+    top = Math.max(this.sidebarMinTop, Math.min(this.sidebarMaxTop, top));
+    this.sidebar.style.left = left + "px";
+    this.sidebar.style.top = top + "px";
+
+    if (this.sideBarVisible) {
+      if (this.bodyHeight < this.initialSidebarHeight) {
+        let sidebarContentHeight =
+          this.initialSidebarContentHeight -
+          (this.initialSidebarHeight - this.bodyHeight);
+        this.sidebarContent.style.height = sidebarContentHeight + "px";
+      } else {
+        this.sidebarContent.style.height =
+          this.initialSidebarContentHeight + "px";
+      }
+    }
+  }
+
+  computeSideBarBounds() {
+    let bodyRect = document.body.getBoundingClientRect();
+    let sidebarRect = this.sidebar.getBoundingClientRect();
+    this.bodyHeight = bodyRect.height;
+    this.sidebarMinLeft = bodyRect.x;
+    this.sidebarMaxLeft = bodyRect.x + bodyRect.width - sidebarRect.width;
+    this.sidebarMinTop = bodyRect.y;
+    this.sidebarMaxTop = bodyRect.y + bodyRect.height - sidebarRect.height;
+  }
+
   onSidebarDown(e) {
     e.preventDefault();
     this.dragStart = this.getEventLocation(e);
+    this.computeSideBarBounds();
     if (this.dragStart) {
-      document.onmouseup = (e) => this.onWindowMousUp(e);
+      document.onmouseup = (e) => this.onWindowMouseUp(e);
+      document.ontouchend = (e) => this.onWindowMouseUp(e);
       document.onmousemove = (e) => this.onWindowMouseMove(e);
+      document.ontouchmove = (e) => this.onWindowMouseMove(e);
     }
   }
 
@@ -266,28 +287,40 @@ class BikeGearingUi {
     e.preventDefault();
     let dragEnd = this.getEventLocation(e);
     if (dragEnd) {
-      this.sidebar.style.left =
-        this.sidebar.offsetLeft + dragEnd.x - this.dragStart.x + "px";
-      this.sidebar.style.top =
-        this.sidebar.offsetTop + dragEnd.y - this.dragStart.y + "px";
+      let left = this.sidebar.offsetLeft + dragEnd.x - this.dragStart.x;
+      let top = this.sidebar.offsetTop + dragEnd.y - this.dragStart.y;
+      left = Math.max(this.sidebarMinLeft, Math.min(this.sidebarMaxLeft, left));
+      top = Math.max(this.sidebarMinTop, Math.min(this.sidebarMaxTop, top));
+      this.sidebar.style.left = left + "px";
+      this.sidebar.style.top = top + "px";
       this.dragStart = dragEnd;
     }
   }
 
-  onWindowMousUp() {
+  onWindowMouseUp() {
     document.onmouseup = null;
+    document.ontouchend = null;
     document.onmousemove = null;
+    document.ontouchmove = null;
   }
 
   switchSidebar() {
     this.sideBarVisible = !this.sideBarVisible;
+    this.onSidebarVisibleChanged();
+  }
+
+  onSidebarVisibleChanged() {
     if (this.sideBarVisible) {
-      document.getElementById("sidebar-content").style.height = "100%";
-      document.getElementById("sidebar-header-button").innerText = "▲";
+      this.sidebarContent.style.height = "100%";
+      this.sidebarHeaderButton.innerText = "▲";
+      this.sidebarContent.style.height =
+        this.initialSidebarContentHeight + "px";
     } else {
-      document.getElementById("sidebar-content").style.height = "0px";
-      document.getElementById("sidebar-header-button").innerText = "▼";
+      this.sidebarContent.style.height = "0px";
+      this.sidebarHeaderButton.innerText = "▼";
+      this.sidebarContent.style.height = "0px";
     }
+    this.onResize();
   }
 }
 

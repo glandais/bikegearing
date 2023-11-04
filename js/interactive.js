@@ -54,8 +54,20 @@ class BikeGearingInteractive {
     this.onResize();
   }
 
+  onSidebar(width) {
+    let worldPosition = this.getWorldPosition(
+      0,
+      0,
+      this.cameraOffset,
+      this.cameraZoom,
+    );
+    this.cameraZoom =
+      (this.cameraZoom * (this.canvas.width - width)) / this.canvas.width;
+    this.cameraOffset.x = width - worldPosition.x * this.cameraZoom;
+  }
+
   onResize() {
-    var parent = canvas.parentNode,
+    var parent = this.canvas.parentNode,
       styles = getComputedStyle(parent),
       w = parseInt(styles.getPropertyValue("width"), 10),
       h = parseInt(styles.getPropertyValue("height"), 10);

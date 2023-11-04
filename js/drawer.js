@@ -9,12 +9,14 @@ import BikeGearingInteractive from "./interactive.js";
 
 class BikeGearingDrawer {
   /**
+   * @param {HTMLCanvasElement} ctx
    * @param {CanvasRenderingContext2D} ctx
    * @param {BikeGearingState} state
    * @param {BikeGearingRivetsCalculator} rivetsCalculator
    * @param {BikeGearingInteractive} interactive
    */
-  constructor(ctx, state, rivetsCalculator, interactive) {
+  constructor(canvas, ctx, state, rivetsCalculator, interactive) {
+    this.canvas = canvas;
     this.ctx = ctx;
     this.state = state;
     this.rivetsCalculator = rivetsCalculator;
@@ -52,10 +54,11 @@ class BikeGearingDrawer {
     for (let i = 0; i < values.length; i++) {
       maxWidth = Math.max(maxWidth, ctx.measureText(values[i]).width);
     }
-    ctx.fillRect(10, 4, maxWidth, 17 * values.length);
+    let x = this.canvas.width - maxWidth - 10;
+    ctx.fillRect(x, 4, maxWidth, 17 * values.length);
     ctx.fillStyle = "#000";
     for (let i = 0; i < values.length; i++) {
-      ctx.fillText(values[i], 10, 20 + 17 * i);
+      ctx.fillText(values[i], x, 20 + 17 * i);
     }
     ctx.restore();
   }

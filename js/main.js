@@ -25,6 +25,7 @@ class BikeGearingMain {
 
     this.computer = new BikeGearingComputer(this.state, rivetsCalculator);
     this.drawer = new BikeGearingDrawer(
+      this.canvas,
       ctx,
       this.state,
       rivetsCalculator,
