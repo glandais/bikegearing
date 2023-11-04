@@ -16,10 +16,10 @@ class BikeGearingUi {
     this.interactive = interactive;
 
     this.inputs = [];
+    this.initInputs();
   }
 
   init() {
-    this.initInputs();
     document
       .getElementById("resetState")
       .addEventListener("click", () => this.resetState());
