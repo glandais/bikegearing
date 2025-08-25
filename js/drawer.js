@@ -105,8 +105,8 @@ class BikeGearingDrawer {
   draw() {
     let ctx = this.ctx;
     let state = this.state;
-    let debug = this.state.debug;
-    let paused = this.state.paused;
+    let debug = state.debug;
+    let paused = state.paused;
 
     let start = performance.now();
     ctx.save();
@@ -116,7 +116,7 @@ class BikeGearingDrawer {
     } else {
       ctx.fillStyle = "rgba(255,255,255,0.7)";
     }
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     ctx.restore();
 
     ctx.save();
@@ -168,9 +168,9 @@ class BikeGearingDrawer {
     ctx.restore();
 
     if (debug) {
-      this.printStateValues(this.getDebugValues(state));
+      this.printStateValues(this.getDebugValues());
     } else {
-      this.printStateValues(this.getCommonValues(state));
+      this.printStateValues(this.getCommonValues());
     }
     state.drawDuration = performance.now() - start;
   }

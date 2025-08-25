@@ -1,4 +1,4 @@
-import { TWO_PI, HALF_LINK } from "./constants.js";
+import { TWO_PI, HALF_LINK, PHYSICS_CONSTANTS } from "./constants.js";
 import {
   toDegreesHuman,
   comparableAngle,
@@ -141,7 +141,7 @@ class BikeGearingComputer {
           currentRa,
           BikeGearingPoint.ZERO.getAngle(pinter),
         );
-        if (Math.abs(newRa - currentRa) > 0.00001) {
+        if (Math.abs(newRa - currentRa) > PHYSICS_CONSTANTS.COLLISION_TOLERANCE) {
           this.logCompute(["fixed chain tension, da : ", newRa - currentRa]);
           state.ra = state.ra + (newRa - currentRa);
           this.setModified();
@@ -178,7 +178,7 @@ class BikeGearingComputer {
           currentRa,
           BikeGearingPoint.ZERO.getAngle(pinter),
         );
-        if (Math.abs(newRa - currentRa) > 0.00001) {
+        if (Math.abs(newRa - currentRa) > PHYSICS_CONSTANTS.COLLISION_TOLERANCE) {
           this.logCompute(["fixed chain tension, da : ", newRa - currentRa]);
           state.ra = state.ra + (newRa - currentRa);
           this.setModified();
@@ -212,11 +212,11 @@ class BikeGearingComputer {
     let mina = Math.min(cap1, cam1);
     let maxa = Math.max(cap1, cam1);
 
-    if (ra < mina - 0.001) {
+    if (ra < mina - PHYSICS_CONSTANTS.COLLISION_TOLERANCE) {
       this.debugAngles(label + " ra < mina", mina, ra, maxa);
       f1();
       this.setModified();
-    } else if (ra > maxa + 0.001) {
+    } else if (ra > maxa + PHYSICS_CONSTANTS.COLLISION_TOLERANCE) {
       this.debugAngles(label + " ra > maxa", mina, ra, maxa);
       f2();
       this.setModified();
@@ -238,8 +238,8 @@ class BikeGearingComputer {
       this.iterations++;
       stepIterations++;
       this.modified = false;
-      if (stepIterations == 50) {
-        console.log("overflow");
+      if (stepIterations >= PHYSICS_CONSTANTS.MAX_ITERATIONS) {
+        console.warn(`Physics computation overflow after ${PHYSICS_CONSTANTS.MAX_ITERATIONS} iterations`);
         overflow = true;
       }
       this.checkState();
@@ -334,14 +334,14 @@ class BikeGearingComputer {
     if (dtchrono == 0) {
       forced = true;
     }
-    while (!this.broken && (Math.abs(state.fa - fra) > 0.00000001 || forced)) {
+    while (!this.broken && (Math.abs(state.fa - fra) > PHYSICS_CONSTANTS.ANGLE_TOLERANCE || forced)) {
       if (fda > 0) {
-        state.fa = state.fa + 0.01;
+        state.fa = state.fa + PHYSICS_CONSTANTS.ANGLE_STEP;
         if (state.fa > fra) {
           state.fa = fra;
         }
       } else {
-        state.fa = state.fa - 0.01;
+        state.fa = state.fa - PHYSICS_CONSTANTS.ANGLE_STEP;
         if (state.fa < fra) {
           state.fa = fra;
         }

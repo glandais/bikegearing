@@ -170,7 +170,7 @@ class BikeGearingInteractive {
       this.cameraOffset.x = clientX - worldPosition.x * this.cameraZoom;
       this.cameraOffset.y = clientY - worldPosition.y * this.cameraZoom;
 
-      this.worldWidth = canvas.width / this.cameraZoom;
+      this.worldWidth = this.canvas.width / this.cameraZoom;
 
       this.main.drawIfPaused();
     }

@@ -1,4 +1,5 @@
 import { BikeGearingPoint } from "./math.js";
+import { PHYSICS_CONSTANTS } from "./constants.js";
 
 class BikeGearingCatenary {
   /**
@@ -46,13 +47,13 @@ class BikeGearingCatenary {
     do {
       A = A - (Math.sinh(A) - r * A) / (Math.cosh(A) - r);
       diff = Math.abs(r - Math.sinh(A) / A);
-    } while (diff > 0.0000001);
+    } while (diff > PHYSICS_CONSTANTS.CATENARY_TOLERANCE);
 
     let a = dx / (2 * A);
     let b = ax - a * Math.atanh(dy / l);
     let c = ay - l / (2 * Math.tanh(A));
 
-    let nPoints = 100;
+    let nPoints = PHYSICS_CONSTANTS.CATENARY_POINTS;
     let points = [];
     for (let i = 0; i <= nPoints; i++) {
       let x = x1 + (i * (x2 - x1)) / nPoints;

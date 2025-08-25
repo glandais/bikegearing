@@ -13,8 +13,14 @@ class BikeGearingMain {
   constructor(state, canvasId, onReset) {
     /** @type {HTMLCanvasElement} */
     this.canvas = document.getElementById(canvasId);
+    if (!this.canvas) {
+      throw new Error(`Canvas element with id '${canvasId}' not found`);
+    }
     /** @type {CanvasRenderingContext2D} */
     let ctx = this.canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error('Failed to get 2D rendering context');
+    }
 
     this.interactive = new BikeGearingInteractive(this.canvas, this);
     this.interactive.initInteractive();
@@ -55,8 +61,9 @@ class BikeGearingMain {
       try {
         this.computer.compute(dchrono);
       } catch (e) {
-        console.log(e);
+        console.error('Physics computation error:', e);
         this.computer.reset();
+        this.state.paused = true;
       }
       this.drawer.draw();
     } else {

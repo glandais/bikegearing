@@ -19,15 +19,27 @@ class BikeGearingInputRange {
   }
 
   onInput(e) {
-    this.valueSetter(this.valueFromInput(1.0 * e.target.value));
-    this.setTextValue();
+    try {
+      const inputValue = parseFloat(e.target.value);
+      if (!isNaN(inputValue)) {
+        this.valueSetter(this.valueFromInput(inputValue));
+        this.setTextValue();
+      }
+    } catch (error) {
+      console.error('Input validation error:', error);
+    }
   }
   setInputValue() {
     this.inputElement.value = this.valueToInput(this.valueGetter());
   }
   setTextValue() {
     if (this.spanElement) {
-      this.spanElement.innerText = this.toHuman(this.inputElement.value);
+      try {
+        this.spanElement.innerText = this.toHuman(this.inputElement.value);
+      } catch (error) {
+        console.error('Text display error:', error);
+        this.spanElement.innerText = 'Error';
+      }
     }
   }
   reset() {

@@ -209,7 +209,7 @@ class BikeGearingUi {
     let df = this.state.getRivetIndex(state.fru - state.frb);
     let dr = this.state.getRivetIndex(state.rrb - state.rru);
     state.cl = cl;
-    if (rotationSpeed > 0) {
+    if (state.rotationSpeed > 0) {
       state.frb = state.frb + dcl;
       state.fru = state.frb + df;
       state.rru = state.rrb - dr;
@@ -298,6 +298,13 @@ class BikeGearingUi {
   }
 
   onWindowMouseUp() {
+    // Clean up event listeners to prevent memory leaks
+    document.removeEventListener('mouseup', this.onWindowMouseUp);
+    document.removeEventListener('touchend', this.onWindowMouseUp);
+    document.removeEventListener('mousemove', this.onWindowMouseMove);
+    document.removeEventListener('touchmove', this.onWindowMouseMove);
+    
+    // Legacy cleanup for older event handling
     document.onmouseup = null;
     document.ontouchend = null;
     document.onmousemove = null;
