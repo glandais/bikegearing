@@ -1,6 +1,6 @@
 import { findChainringCombos } from "./ratio_finder.js";
 import BikeGearingState from "./state.js";
-import type { FinderInputs, RangeInputConfig, ChainringCombo, Point } from "./types.js";
+import type { FinderInputs, RangeInputConfig, Point, ChainringsCombo } from "./types.js";
 
 // Forward reference for BikeGearingMain to avoid circular dependency
 interface MainInterface {
@@ -460,7 +460,7 @@ export default class RatioFinderUi {
     this.renderResults(results);
   }
 
-  renderResults(results: ChainringCombo[]): void {
+  renderResults(results: ChainringsCombo[]): void {
     if (!this.resultsContainer) return;
 
     if (results.length === 0) {
@@ -478,6 +478,7 @@ export default class RatioFinderUi {
             <th>Links</th>
             <th>Ratios</th>
             <th>Score</th>
+            <th>Max gap</th>
           </tr>
         </thead>
         <tbody>
@@ -502,14 +503,15 @@ export default class RatioFinderUi {
 
       html += `
         <tr class="result-row" data-row-id="${rowId}"
-            data-chainring="${combo.chainring}"
+            data-chainrings="${combo.chainrings}"
             data-chainlinks="${combo.chainLinks}"
             data-index="${i}">
           <td><span class="expand-icon">\u25B6</span></td>
-          <td>${combo.chainring}T</td>
+          <td>${combo.chainrings.join(",")}T</td>
           <td>${combo.chainLinks}</td>
           <td>${ratiosDisplay}</td>
           <td>${combo.score.toFixed(1)}</td>
+          <td>${combo.maxGap.toFixed(2)}</td>
         </tr>
       `;
 
@@ -518,13 +520,13 @@ export default class RatioFinderUi {
         html += `
           <tr class="cog-details cog-detail-row"
               data-parent="${rowId}"
-              data-chainring="${combo.chainring}"
+              data-chainring="${cog.chainring}"
               data-chainlinks="${combo.chainLinks}"
               data-cog="${cog.cog}"
               data-chainstay="${cog.chainstay.toFixed(2)}"
               data-chainstayWeared="${cog.chainstayWeared.toFixed(2)}">
-            <td colspan="5">
-              ${cog.cog}T: ratio ${cog.ratio.toFixed(2)} (cs: ${cog.chainstay.toFixed(1)}mm \u2192 ${cog.chainstayWeared.toFixed(1)}mm (weared))
+            <td colspan="6">
+              ${cog.chainring}x${cog.cog}T: ratio ${cog.ratio.toFixed(2)} (cs: ${cog.chainstay.toFixed(1)}mm \u2192 ${cog.chainstayWeared.toFixed(1)}mm (weared))
             </td>
           </tr>
         `;

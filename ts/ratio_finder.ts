@@ -1,5 +1,10 @@
 import { HALF_LINK } from "./constants.js";
-import type { FinderInputs, ValidCog, ChainringCombo, ScoreResult } from "./types.js";
+import type {
+  FinderInputs,
+  ValidCog,
+  ChainringCombo,
+  ChainringsCombo,
+} from "./types.js";
 
 /**
  * Calculate required chainstay length for given chainring, cog, and chain length
@@ -72,6 +77,7 @@ export function findValidCogs(
       continue;
 
     validCogs.push({
+      chainring,
       cog,
       ratio,
       chainstay,
@@ -89,38 +95,88 @@ export function findValidCogs(
  * Calculate score for a chainring/chain combo
  */
 export function calculateScore(
-  validCogs: ValidCog[],
+  chainLinks: number,
+  chainringComboList: ChainringCombo[],
   inputs: FinderInputs
-): ScoreResult {
-  const ratioCount = validCogs.length;
-
-  if (ratioCount === 0) {
-    return { score: 0, ratioCount: 0, ratioCoverage: 0 };
-  }
-
+): ChainringsCombo {
+  const validCogs = chainringComboList.flatMap((c) => c.validCogs);
   // Calculate ratio range coverage
+  if (validCogs.length === 0) {
+    return {
+      chainLinks,
+      chainrings: [],
+      score: 0,
+      maxGap: 0,
+      ratioCount: 0,
+      ratioCoverage: 0,
+      validCogs,
+    };
+  }
+  validCogs.sort((a, b) => a.ratio - b.ratio);
   const ratios = validCogs.map((c) => c.ratio);
+  let maxGap = 0;
+  for (let i = 1; i < ratios.length; i++) {
+    const gap = ratios[i] - ratios[i - 1];
+    if (gap > maxGap) {
+      maxGap = gap;
+    }
+  }
   const minRatio = Math.min(...ratios);
   const maxRatio = Math.max(...ratios);
   const targetRange = inputs.ratioMax - inputs.ratioMin;
   const achievedRange = maxRatio - minRatio;
   const ratioCoverage = targetRange > 0 ? achievedRange / targetRange : 1;
 
-  return { score: ratioCoverage, ratioCount, ratioCoverage };
+  const score = ratioCoverage;
+
+  return {
+    chainLinks,
+    chainrings: chainringComboList.map(
+      (chainringCombo) => chainringCombo.chainring
+    ),
+    score,
+    ratioCount: ratios.length,
+    ratioCoverage,
+    maxGap,
+    validCogs,
+  };
+}
+
+function combinations<T>(arr: T[], n: number): T[][] {
+  if (n === 0) return [[]];
+  if (n > arr.length) return [];
+
+  const result: T[][] = [];
+
+  function helper(start: number, combo: T[]) {
+    if (combo.length === n) {
+      result.push([...combo]);
+      return;
+    }
+
+    for (let i = start; i < arr.length; i++) {
+      combo.push(arr[i]);
+      helper(i + 1, combo);
+      combo.pop();
+    }
+  }
+
+  helper(0, []);
+  return result;
 }
 
 /**
  * Main finder function - find all chainring/chain combinations
  */
-export function findChainringCombos(inputs: FinderInputs): ChainringCombo[] {
-  const results: ChainringCombo[] = [];
+export function findChainringCombos(inputs: FinderInputs): ChainringsCombo[] {
+  const results: ChainringsCombo[] = [];
 
   // Determine chain link iteration based on half-link option
   const startLinks = inputs.allowHalfLink
     ? inputs.chainLinksMin
     : inputs.chainLinksMin % 2 === 0
-      ? inputs.chainLinksMin
-      : inputs.chainLinksMin + 1;
+    ? inputs.chainLinksMin
+    : inputs.chainLinksMin + 1;
 
   const linkStep = inputs.allowHalfLink ? 1 : 2;
 
@@ -129,6 +185,8 @@ export function findChainringCombos(inputs: FinderInputs): ChainringCombo[] {
     chainLinks <= inputs.chainLinksMax;
     chainLinks += linkStep
   ) {
+    const chainrings: ChainringCombo[] = [];
+
     for (
       let chainring = inputs.chainringMin;
       chainring <= inputs.chainringMax;
@@ -138,21 +196,21 @@ export function findChainringCombos(inputs: FinderInputs): ChainringCombo[] {
 
       if (validCogs.length === 0) continue;
 
-      const { score, ratioCount, ratioCoverage } = calculateScore(
-        validCogs,
-        inputs
-      );
-
       // Only include if at least one ratio is in target range
-      if (ratioCount > 0) {
-        results.push({
-          chainring,
-          chainLinks,
-          validCogs,
-          score,
-          ratioCount,
-          ratioCoverage,
-        });
+      chainrings.push({
+        chainring,
+        validCogs,
+      });
+    }
+
+    if (chainrings.length > 0) {
+      const chainringComboListList = combinations(
+        chainrings,
+        inputs.chainringCount
+      );
+      for (const chainringComboList of chainringComboListList) {
+        chainringComboList.sort((a, b) => a.chainring - b.chainring);
+        results.push(calculateScore(chainLinks, chainringComboList, inputs));
       }
     }
   }
