@@ -68,3 +68,260 @@ body {
 #canvas {
   overscroll-behavior: contain;
 }
+
+/* Ratio Finder Modal Styles */
+.ratio-finder-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  display: none;
+}
+
+.ratio-finder-overlay.visible {
+  display: block;
+}
+
+.ratio-finder-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 101;
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ratio-finder-modal.visible {
+  display: flex;
+}
+
+.ratio-finder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #2196f3;
+  color: white;
+  cursor: move;
+}
+
+.ratio-finder-header h2 {
+  margin: 0;
+  font-size: 1.1em;
+  font-weight: normal;
+}
+
+.ratio-finder-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.4em;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.ratio-finder-close:hover {
+  opacity: 0.8;
+}
+
+.ratio-finder-inputs {
+  padding: 16px;
+  border-bottom: 1px solid #ddd;
+  background-color: #f9f9f9;
+}
+
+.ratio-finder-input-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.ratio-finder-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ratio-finder-input-row label {
+  min-width: 130px;
+  font-size: 0.9em;
+}
+
+.range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.range-inputs input[type="number"] {
+  width: 60px;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.range-inputs span {
+  color: #666;
+  font-size: 0.85em;
+}
+
+.ratio-finder-input-row input[type="checkbox"] {
+  margin: 0;
+}
+
+.hint {
+  color: #666;
+  font-size: 0.8em;
+}
+
+.ratio-finder-results {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  min-height: 150px;
+  max-height: 350px;
+}
+
+.ratio-finder-results .placeholder,
+.ratio-finder-results .no-results {
+  color: #666;
+  text-align: center;
+  padding: 30px;
+  font-size: 0.9em;
+}
+
+.ratio-finder-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85em;
+}
+
+.ratio-finder-table th,
+.ratio-finder-table td {
+  padding: 6px 8px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.ratio-finder-table th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+}
+
+.ratio-finder-table .result-row {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.ratio-finder-table .result-row:hover {
+  background-color: #e3f2fd;
+}
+
+.ratio-finder-table .result-row td:first-child {
+  font-weight: bold;
+}
+
+.ratio-finder-table .expand-icon {
+  display: inline-block;
+  width: 16px;
+  transition: transform 0.2s;
+}
+
+.ratio-finder-table .result-row.expanded .expand-icon {
+  transform: rotate(90deg);
+}
+
+.ratio-finder-table .cog-details {
+  display: none;
+  background-color: #fafafa;
+}
+
+.ratio-finder-table .cog-details.visible {
+  display: table-row;
+}
+
+.ratio-finder-table .cog-details td {
+  padding: 4px 8px 4px 32px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ratio-finder-table .cog-detail-row {
+  cursor: pointer;
+}
+
+.ratio-finder-table .cog-detail-row:hover {
+  background-color: #e8f5e9;
+}
+
+.ratio-finder-table .cog-detail-row.out-of-range {
+  color: #999;
+}
+
+.more-results {
+  text-align: center;
+  color: #666;
+  font-size: 0.8em;
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.ratio-finder-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: #f5f5f5;
+  border-top: 1px solid #ddd;
+}
+
+.ratio-finder-btn {
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #fff;
+  font-size: 0.9em;
+}
+
+.ratio-finder-btn.primary {
+  background-color: #2196f3;
+  border-color: #2196f3;
+  color: white;
+}
+
+.ratio-finder-btn:hover {
+  opacity: 0.9;
+}
+
+.ratio-finder-open-btn {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.ratio-finder-open-btn:hover {
+  background-color: #45a049;
+}

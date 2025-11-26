@@ -3,6 +3,7 @@ import BikeGearingMain from "./main.js";
 import { roundHuman } from "./math.js";
 import BikeGearingState from "./state.js";
 import { BikeGearingInputCheckbox, BikeGearingInputRange } from "./ui_input.js";
+import RatioFinderUi from "./ratio_finder_ui.js";
 
 class BikeGearingUi {
   /**
@@ -17,6 +18,8 @@ class BikeGearingUi {
 
     this.inputs = [];
     this.initInputs();
+
+    this.ratioFinder = new RatioFinderUi(state, main, () => this.update());
   }
 
   init() {
@@ -44,6 +47,9 @@ class BikeGearingUi {
     );
 
     window.addEventListener("resize", (e) => this.onResize());
+
+    // Initialize ratio finder modal before measuring sidebar dimensions
+    this.ratioFinder.init();
 
     let sidebarContentRect = this.sidebarContent.getBoundingClientRect();
     this.initialSidebarContentHeight = sidebarContentRect.height;
@@ -134,7 +140,7 @@ class BikeGearingUi {
     let cs1, cs2;
     cs1 = new BikeGearingInputRange(
       "cs1",
-      (v) => roundHuman(this.state.cs, 2) + "mm",
+      (_) => roundHuman(this.state.cs, 2) + "mm",
       () => Math.floor(this.state.cs),
       (v) => {
         this.state.cs = v;
@@ -144,7 +150,7 @@ class BikeGearingUi {
     );
     cs2 = new BikeGearingInputRange(
       "cs2",
-      (v) => roundHuman(this.state.cs, 2) + "mm",
+      (_) => roundHuman(this.state.cs, 2) + "mm",
       () => 100.0 * (this.state.cs - Math.floor(this.state.cs)),
       (v) => {
         this.state.cs = Math.floor(this.state.cs) + v / 100;
