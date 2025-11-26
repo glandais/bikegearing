@@ -61,6 +61,8 @@ export interface ValidCog {
   ratio: number;
   chainstay: number;
   chainstayWeared: number;
+  skidPatchesSingleLegged: number;
+  skidPatchesAmbidextrous: number;
 }
 
 export interface ChainringCombo {
@@ -76,6 +78,10 @@ export interface ChainringsCombo {
   ratioCount: number;
   ratioCoverage: number;
   maxGap: number;
+  // Score components
+  coverageScore: number;
+  countScore: number;
+  evennessScore: number;
 }
 
 // Range input configuration for ratio finder UI

@@ -1,5 +1,5 @@
 import { HALF_LINK } from "./constants.js";
-import { reduce } from "./math.js";
+import { computeSkidPatches } from "./math.js";
 
 export default class BikeGearingState {
   private internalf: number = 51;
@@ -127,7 +127,7 @@ export default class BikeGearingState {
     this.fda = (2.0 * Math.PI) / this.internalf;
     /** radius to rivet - front - drawing1.jpg */
     this.fradius = HALF_LINK / 2 / Math.sin(this.fda / 2.0);
-    this.computeSkidPatches();
+    this.updateSkidPatches();
   }
 
   /** Number of teeth cogs rear */
@@ -142,18 +142,13 @@ export default class BikeGearingState {
     this.rda = (2.0 * Math.PI) / this.internalr;
     /** radius to rivet - rear - drawing1.jpg */
     this.rradius = HALF_LINK / 2 / Math.sin(this.rda / 2.0);
-    this.computeSkidPatches();
+    this.updateSkidPatches();
   }
 
-  computeSkidPatches(): void {
-    // https://www.icebike.org/skid-patch-calculator/
-    const reduced = reduce(this.f, this.r);
-    this.skidPatchesSingleLegged = reduced[1];
-    if (reduced[0] % 2 === 0) {
-      this.skidPatchesAmbidextrous = reduced[1];
-    } else {
-      this.skidPatchesAmbidextrous = reduced[1] * 2;
-    }
+  updateSkidPatches(): void {
+    const skidPatched = computeSkidPatches(this.f, this.r)
+    this.skidPatchesSingleLegged = skidPatched[0];
+    this.skidPatchesAmbidextrous = skidPatched[1];
   }
 
   getRivetIndex(i: number): number {

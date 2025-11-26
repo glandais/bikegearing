@@ -165,3 +165,13 @@ export function reduce(numerator: number, denominator: number): [number, number]
   const gcd = gcdFn(numerator, denominator);
   return [numerator / gcd, denominator / gcd];
 }
+
+export function computeSkidPatches(f: number, r: number): [number, number] {
+    // https://www.icebike.org/skid-patch-calculator/
+    const reduced = reduce(f, r);
+    if (reduced[0] % 2 === 0) {
+      return [reduced[1], reduced[1]];
+    } else {
+      return [reduced[1], reduced[1] * 2];
+    }
+}

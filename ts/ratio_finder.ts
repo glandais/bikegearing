@@ -1,4 +1,5 @@
 import { HALF_LINK } from "./constants.js";
+import { computeSkidPatches } from "./math.js";
 import type {
   FinderInputs,
   ValidCog,
@@ -76,12 +77,16 @@ export function findValidCogs(
     if (chainstayWeared < inputs.csMin || chainstayWeared > inputs.csMax)
       continue;
 
+    const skidPatches = computeSkidPatches(chainring, cog);
+
     validCogs.push({
       chainring,
       cog,
       ratio,
       chainstay,
       chainstayWeared,
+      skidPatchesSingleLegged: skidPatches[0],
+      skidPatchesAmbidextrous: skidPatches[1],
     });
   }
 
@@ -91,8 +96,15 @@ export function findValidCogs(
   return validCogs;
 }
 
+// Scoring weights
+const COVERAGE_WEIGHT = 0.4;
+const COUNT_WEIGHT = 0.35;
+const EVENNESS_WEIGHT = 0.25;
+const MAX_EXPECTED_RATIOS = 15;
+
 /**
  * Calculate score for a chainring/chain combo
+ * Score = coverage * (coverageWeight + countWeight * countScore + evennessWeight * evennessScore)
  */
 export function calculateScore(
   chainLinks: number,
@@ -100,8 +112,10 @@ export function calculateScore(
   inputs: FinderInputs
 ): ChainringsCombo {
   const validCogs = chainringComboList.flatMap((c) => c.validCogs);
-  // Calculate ratio range coverage
-  if (validCogs.length === 0) {
+  const n = validCogs.length;
+
+  // Edge case: no ratios
+  if (n === 0) {
     return {
       chainLinks,
       chainrings: [],
@@ -110,24 +124,74 @@ export function calculateScore(
       ratioCount: 0,
       ratioCoverage: 0,
       validCogs,
+      coverageScore: 0,
+      countScore: 0,
+      evennessScore: 0,
     };
   }
+
+  // Sort ratios ascending
   validCogs.sort((a, b) => a.ratio - b.ratio);
   const ratios = validCogs.map((c) => c.ratio);
+
+  const minRatio = ratios[0];
+  const maxRatio = ratios[n - 1];
+  const achievedRange = maxRatio - minRatio;
+  const targetRange = inputs.ratioMax - inputs.ratioMin;
+
+  // Calculate gaps and maxGap
+  const gaps: number[] = [];
   let maxGap = 0;
-  for (let i = 1; i < ratios.length; i++) {
+  for (let i = 1; i < n; i++) {
     const gap = ratios[i] - ratios[i - 1];
+    gaps.push(gap);
     if (gap > maxGap) {
       maxGap = gap;
     }
   }
-  const minRatio = Math.min(...ratios);
-  const maxRatio = Math.max(...ratios);
-  const targetRange = inputs.ratioMax - inputs.ratioMin;
-  const achievedRange = maxRatio - minRatio;
-  const ratioCoverage = targetRange > 0 ? achievedRange / targetRange : 1;
 
-  const score = ratioCoverage;
+  // === COVERAGE SCORE ===
+  let coverageScore: number;
+  if (n === 1) {
+    coverageScore = 0; // Single ratio cannot cover a range
+  } else if (targetRange <= 0) {
+    coverageScore = 1; // Trivially satisfied
+  } else {
+    coverageScore = Math.min(achievedRange / targetRange, 1.0);
+  }
+
+  // === COUNT SCORE (logarithmic with diminishing returns) ===
+  const countScore = Math.min(
+    Math.log(n + 1) / Math.log(MAX_EXPECTED_RATIOS + 1),
+    1.0
+  );
+
+  // === EVENNESS SCORE (normalized RMSE from ideal gap) ===
+  let evennessScore: number;
+  if (n <= 2) {
+    evennessScore = 1.0; // Trivially even (0 or 1 gap)
+  } else {
+    const idealGap = achievedRange / (n - 1);
+
+    if (idealGap <= 0) {
+      evennessScore = 1.0; // All ratios identical
+    } else {
+      let sumSquaredDev = 0;
+      for (const gap of gaps) {
+        sumSquaredDev += Math.pow(gap - idealGap, 2);
+      }
+      const rmse = Math.sqrt(sumSquaredDev / gaps.length);
+      const normalizedRmse = rmse / idealGap;
+      evennessScore = 1 / (1 + normalizedRmse);
+    }
+  }
+
+  // === FINAL SCORE ===
+  const score =
+    coverageScore *
+    (COVERAGE_WEIGHT +
+      COUNT_WEIGHT * countScore +
+      EVENNESS_WEIGHT * evennessScore);
 
   return {
     chainLinks,
@@ -135,10 +199,13 @@ export function calculateScore(
       (chainringCombo) => chainringCombo.chainring
     ),
     score,
-    ratioCount: ratios.length,
-    ratioCoverage,
+    ratioCount: n,
+    ratioCoverage: coverageScore,
     maxGap,
     validCogs,
+    coverageScore,
+    countScore,
+    evennessScore,
   };
 }
 

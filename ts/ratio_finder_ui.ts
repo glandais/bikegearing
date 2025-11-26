@@ -1,6 +1,11 @@
 import { findChainringCombos } from "./ratio_finder.js";
 import BikeGearingState from "./state.js";
-import type { FinderInputs, RangeInputConfig, Point, ChainringsCombo } from "./types.js";
+import type {
+  FinderInputs,
+  RangeInputConfig,
+  Point,
+  ChainringsCombo,
+} from "./types.js";
 
 // Forward reference for BikeGearingMain to avoid circular dependency
 interface MainInterface {
@@ -77,8 +82,8 @@ export default class RatioFinderUi {
         min: 1.5,
         max: 5.0,
         step: 0.1,
-        defaultMin: 2.6,
-        defaultMax: 3.4,
+        defaultMin: 2.5,
+        defaultMax: 3.8,
       },
       {
         id: "cogRange",
@@ -87,13 +92,13 @@ export default class RatioFinderUi {
         max: 25,
         step: 1,
         defaultMin: 13,
-        defaultMax: 19,
+        defaultMax: 21,
       },
       {
         id: "chainringRange",
         label: "Chainring Teeth",
         min: 32,
-        max: 60,
+        max: 70,
         step: 1,
         defaultMin: 42,
         defaultMax: 55,
@@ -213,8 +218,8 @@ export default class RatioFinderUi {
         <label>Chainring Count:</label>
         <div class="range-inputs">
           <select id="chainringCountInput">
-            <option value="1" selected>1</option>
-            <option value="2">2</option>
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
             <option value="3">3</option>
           </select>
         </div>
@@ -449,7 +454,9 @@ export default class RatioFinderUi {
     // Validate inputs
     const errors = this.validateInputs(inputs);
     if (errors.length > 0 && this.resultsContainer) {
-      this.resultsContainer.innerHTML = `<p class="no-results">Invalid inputs:<br>${errors.join("<br>")}</p>`;
+      this.resultsContainer.innerHTML = `<p class="no-results">Invalid inputs:<br>${errors.join(
+        "<br>"
+      )}</p>`;
       return;
     }
 
@@ -478,6 +485,9 @@ export default class RatioFinderUi {
             <th>Links</th>
             <th>Ratios</th>
             <th>Score</th>
+            <th title="Coverage: how much of target ratio range is achieved">Cov</th>
+            <th title="Count: number of available ratios (log scale)">Cnt</th>
+            <th title="Evenness: how evenly spaced the ratios are">Even</th>
             <th>Max gap</th>
           </tr>
         </thead>
@@ -510,7 +520,10 @@ export default class RatioFinderUi {
           <td>${combo.chainrings.join(",")}T</td>
           <td>${combo.chainLinks}</td>
           <td>${ratiosDisplay}</td>
-          <td>${combo.score.toFixed(1)}</td>
+          <td>${(combo.score * 100).toFixed(0)}%</td>
+          <td>${(combo.coverageScore * 100).toFixed(0)}%</td>
+          <td>${(combo.countScore * 100).toFixed(0)}%</td>
+          <td>${(combo.evennessScore * 100).toFixed(0)}%</td>
           <td>${combo.maxGap.toFixed(2)}</td>
         </tr>
       `;
@@ -525,8 +538,14 @@ export default class RatioFinderUi {
               data-cog="${cog.cog}"
               data-chainstay="${cog.chainstay.toFixed(2)}"
               data-chainstayWeared="${cog.chainstayWeared.toFixed(2)}">
-            <td colspan="6">
-              ${cog.chainring}x${cog.cog}T: ratio ${cog.ratio.toFixed(2)} (cs: ${cog.chainstay.toFixed(1)}mm \u2192 ${cog.chainstayWeared.toFixed(1)}mm (weared))
+            <td colspan="9">
+              ${cog.chainring}x${cog.cog}:
+              ratio ${cog.ratio.toFixed(2)}
+              —
+              cs: ${cog.chainstay.toFixed(1)}mm
+              \u2192 ${cog.chainstayWeared.toFixed(1)}mm (weared)
+              —
+              sp : ${cog.skidPatchesSingleLegged} / ${cog.skidPatchesAmbidextrous}
             </td>
           </tr>
         `;
