@@ -1,46 +1,66 @@
-import {
-  findChainringCombos,
-} from "./ratio_finder.js";
+import { findChainringCombos } from "./ratio_finder.js";
 import BikeGearingState from "./state.js";
-import BikeGearingMain from "./main.js";
+import type { FinderInputs, RangeInputConfig, ChainringCombo, Point } from "./types.js";
 
-/**
- * @typedef {Object} RangeInputConfig
- * @property {string} id
- * @property {string} label
- * @property {number} min
- * @property {number} max
- * @property {number} step
- * @property {number} defaultMin
- * @property {number} defaultMax
- */
+// Forward reference for BikeGearingMain to avoid circular dependency
+interface MainInterface {
+  resetComputer(): void;
+}
 
-class RatioFinderUi {
-  /**
-   * @param {BikeGearingState} state
-   * @param {BikeGearingMain} main
-   * @param {Function} onUiUpdate - callback to update main UI
-   */
-  constructor(state, main, onUiUpdate) {
+interface RatioFinderInputRefs {
+  csRangeMin: HTMLInputElement;
+  csRangeMax: HTMLInputElement;
+  ratioRangeMin: HTMLInputElement;
+  ratioRangeMax: HTMLInputElement;
+  cogRangeMin: HTMLInputElement;
+  cogRangeMax: HTMLInputElement;
+  chainringRangeMin: HTMLInputElement;
+  chainringRangeMax: HTMLInputElement;
+  chainLinksRangeMin: HTMLInputElement;
+  chainLinksRangeMax: HTMLInputElement;
+  allowHalfLink: HTMLInputElement;
+  maxChainWearInput: HTMLInputElement;
+  chainringCountInput: HTMLSelectElement;
+  [key: string]: HTMLInputElement | HTMLSelectElement;
+}
+
+export default class RatioFinderUi {
+  state: BikeGearingState;
+  main: MainInterface;
+  onUiUpdate: () => void;
+
+  modal: HTMLElement | null = null;
+  overlay: HTMLElement | null = null;
+  resultsContainer: HTMLElement | null = null;
+
+  inputConfigs: RangeInputConfig[];
+  inputs: Partial<RatioFinderInputRefs> = {};
+  lastInputs: FinderInputs | null = null;
+  expandedRows: Set<string> = new Set();
+  dragStart: Point | null = null;
+
+  // Bounds for dragging
+  modalMinLeft: number = 0;
+  modalMaxLeft: number = 0;
+  modalMinTop: number = 0;
+  modalMaxTop: number = 0;
+
+  // Bound event handlers for cleanup
+  boundMouseMove: ((e: MouseEvent | TouchEvent) => void) | null = null;
+  boundMouseUp: ((e: MouseEvent | TouchEvent) => void) | null = null;
+
+  constructor(
+    state: BikeGearingState,
+    main: MainInterface,
+    onUiUpdate: () => void
+  ) {
     this.state = state;
     this.main = main;
     this.onUiUpdate = onUiUpdate;
-
-    /** @type {HTMLElement} */
-    this.modal = null;
-    /** @type {HTMLElement} */
-    this.overlay = null;
-    /** @type {HTMLElement} */
-    this.resultsContainer = null;
-
     this.inputConfigs = this.getInputConfigs();
-    this.inputs = {};
-    this.lastInputs = null;
-    this.expandedRows = new Set();
-    this.dragStart = null;
   }
 
-  getInputConfigs() {
+  getInputConfigs(): RangeInputConfig[] {
     return [
       {
         id: "csRange",
@@ -90,13 +110,13 @@ class RatioFinderUi {
     ];
   }
 
-  init() {
+  init(): void {
     this.createModal();
     this.createOpenButton();
     this.bindEvents();
   }
 
-  createModal() {
+  createModal(): void {
     // Create overlay
     this.overlay = document.createElement("div");
     this.overlay.id = "ratio-finder-overlay";
@@ -148,7 +168,7 @@ class RatioFinderUi {
     this.storeInputReferences();
   }
 
-  createInputsHtml() {
+  createInputsHtml(): string {
     let html = '<div class="ratio-finder-input-grid">';
 
     for (const config of this.inputConfigs) {
@@ -205,22 +225,30 @@ class RatioFinderUi {
     return html;
   }
 
-  storeInputReferences() {
+  storeInputReferences(): void {
     for (const config of this.inputConfigs) {
       this.inputs[config.id + "Min"] = document.getElementById(
         config.id + "Min"
-      );
+      ) as HTMLInputElement;
       this.inputs[config.id + "Max"] = document.getElementById(
         config.id + "Max"
-      );
+      ) as HTMLInputElement;
     }
-    this.inputs.allowHalfLink = document.getElementById("allowHalfLink");
-    this.inputs.maxChainWearInput = document.getElementById("maxChainWearInput");
-    this.inputs.chainringCountInput = document.getElementById("chainringCountInput");
+    this.inputs.allowHalfLink = document.getElementById(
+      "allowHalfLink"
+    ) as HTMLInputElement;
+    this.inputs.maxChainWearInput = document.getElementById(
+      "maxChainWearInput"
+    ) as HTMLInputElement;
+    this.inputs.chainringCountInput = document.getElementById(
+      "chainringCountInput"
+    ) as HTMLSelectElement;
   }
 
-  createOpenButton() {
+  createOpenButton(): void {
     const sidebar = document.getElementById("sidebar-content");
+    if (!sidebar) return;
+
     const container = document.createElement("div");
     container.style.padding = "5px";
     const button = document.createElement("button");
@@ -231,30 +259,44 @@ class RatioFinderUi {
     sidebar.appendChild(container);
   }
 
-  bindEvents() {
+  bindEvents(): void {
     // Open button
-    document
-      .getElementById("openRatioFinder")
-      .addEventListener("click", () => this.open());
+    const openBtn = document.getElementById("openRatioFinder");
+    if (openBtn) {
+      openBtn.addEventListener("click", () => this.open());
+    }
+
+    if (!this.modal || !this.overlay) return;
 
     // Close buttons
-    this.modal
-      .querySelector(".ratio-finder-close")
-      .addEventListener("click", () => this.close());
+    const closeBtn = this.modal.querySelector(".ratio-finder-close");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", () => this.close());
+    }
 
     // Drag header
     const header = this.modal.querySelector(".ratio-finder-header");
-    header.addEventListener("mousedown", (e) => this.onHeaderDown(e));
-    header.addEventListener("touchstart", (e) => this.onHeaderDown(e));
-    document
-      .getElementById("ratio-finder-cancel")
-      .addEventListener("click", () => this.close());
+    if (header) {
+      header.addEventListener("mousedown", (e) =>
+        this.onHeaderDown(e as MouseEvent)
+      );
+      header.addEventListener("touchstart", (e) =>
+        this.onHeaderDown(e as TouchEvent)
+      );
+    }
+
+    const cancelBtn = document.getElementById("ratio-finder-cancel");
+    if (cancelBtn) {
+      cancelBtn.addEventListener("click", () => this.close());
+    }
+
     this.overlay.addEventListener("click", () => this.close());
 
     // Search button
-    document
-      .getElementById("ratio-finder-search")
-      .addEventListener("click", () => this.search());
+    const searchBtn = document.getElementById("ratio-finder-search");
+    if (searchBtn) {
+      searchBtn.addEventListener("click", () => this.search());
+    }
 
     // ESC key to close
     document.addEventListener("keydown", (e) => {
@@ -265,63 +307,66 @@ class RatioFinderUi {
 
     // Enter key to search
     this.modal.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && e.target.tagName === "INPUT") {
+      if (e.key === "Enter" && (e.target as HTMLElement).tagName === "INPUT") {
         this.search();
       }
     });
   }
 
-  open() {
-    this.overlay.classList.add("visible");
-    this.modal.classList.add("visible");
+  open(): void {
+    if (this.overlay) this.overlay.classList.add("visible");
+    if (this.modal) this.modal.classList.add("visible");
   }
 
-  close() {
-    this.overlay.classList.remove("visible");
-    this.modal.classList.remove("visible");
+  close(): void {
+    if (this.overlay) this.overlay.classList.remove("visible");
+    if (this.modal) this.modal.classList.remove("visible");
   }
 
-  isOpen() {
-    return this.modal.classList.contains("visible");
+  isOpen(): boolean {
+    return this.modal?.classList.contains("visible") ?? false;
   }
 
-  getEventLocation(e) {
-    if (e.touches && e.touches.length == 1) {
+  getEventLocation(e: MouseEvent | TouchEvent): Point | undefined {
+    if ("touches" in e && e.touches && e.touches.length === 1) {
       return {
         x: e.touches[0].clientX,
         y: e.touches[0].clientY,
       };
-    } else if (e.clientX && e.clientY) {
+    } else if ("clientX" in e && e.clientX && e.clientY) {
       return {
         x: e.clientX,
         y: e.clientY,
       };
     }
+    return undefined;
   }
 
-  computeModalBounds() {
-    let bodyRect = document.body.getBoundingClientRect();
-    let modalRect = this.modal.getBoundingClientRect();
+  computeModalBounds(): void {
+    if (!this.modal) return;
+    const bodyRect = document.body.getBoundingClientRect();
+    const modalRect = this.modal.getBoundingClientRect();
     this.modalMinLeft = bodyRect.x;
     this.modalMaxLeft = bodyRect.x + bodyRect.width - modalRect.width;
     this.modalMinTop = bodyRect.y;
     this.modalMaxTop = bodyRect.y + bodyRect.height - modalRect.height;
   }
 
-  onHeaderDown(e) {
+  onHeaderDown(e: MouseEvent | TouchEvent): void {
     e.preventDefault();
-    this.dragStart = this.getEventLocation(e);
+    this.dragStart = this.getEventLocation(e) ?? null;
     this.computeModalBounds();
-    if (this.dragStart) {
+    if (this.dragStart && this.modal) {
       // Switch from centered transform to absolute positioning
-      let modalRect = this.modal.getBoundingClientRect();
+      const modalRect = this.modal.getBoundingClientRect();
       this.modal.style.transform = "none";
       this.modal.style.left = modalRect.left + "px";
       this.modal.style.top = modalRect.top + "px";
 
       // Bind handlers for cleanup
-      this.boundMouseMove = (e) => this.onWindowMouseMove(e);
-      this.boundMouseUp = (e) => this.onWindowMouseUp(e);
+      this.boundMouseMove = (e: MouseEvent | TouchEvent) =>
+        this.onWindowMouseMove(e);
+      this.boundMouseUp = () => this.onWindowMouseUp();
 
       document.addEventListener("mouseup", this.boundMouseUp);
       document.addEventListener("touchend", this.boundMouseUp);
@@ -332,10 +377,10 @@ class RatioFinderUi {
     }
   }
 
-  onWindowMouseMove(e) {
+  onWindowMouseMove(e: MouseEvent | TouchEvent): void {
     e.preventDefault();
-    let dragEnd = this.getEventLocation(e);
-    if (dragEnd) {
+    const dragEnd = this.getEventLocation(e);
+    if (dragEnd && this.dragStart && this.modal) {
       let left = this.modal.offsetLeft + dragEnd.x - this.dragStart.x;
       let top = this.modal.offsetTop + dragEnd.y - this.dragStart.y;
       left = Math.max(this.modalMinLeft, Math.min(this.modalMaxLeft, left));
@@ -346,59 +391,64 @@ class RatioFinderUi {
     }
   }
 
-  onWindowMouseUp() {
-    document.removeEventListener("mouseup", this.boundMouseUp);
-    document.removeEventListener("touchend", this.boundMouseUp);
-    document.removeEventListener("mousemove", this.boundMouseMove);
-    document.removeEventListener("touchmove", this.boundMouseMove);
+  onWindowMouseUp(): void {
+    if (this.boundMouseUp) {
+      document.removeEventListener("mouseup", this.boundMouseUp);
+      document.removeEventListener("touchend", this.boundMouseUp);
+    }
+    if (this.boundMouseMove) {
+      document.removeEventListener("mousemove", this.boundMouseMove);
+      document.removeEventListener("touchmove", this.boundMouseMove);
+    }
   }
 
-  getInputValues() {
+  getInputValues(): FinderInputs {
+    const inputs = this.inputs as RatioFinderInputRefs;
     return {
-      csMin: parseFloat(this.inputs.csRangeMin.value),
-      csMax: parseFloat(this.inputs.csRangeMax.value),
-      ratioMin: parseFloat(this.inputs.ratioRangeMin.value),
-      ratioMax: parseFloat(this.inputs.ratioRangeMax.value),
-      cogMin: parseInt(this.inputs.cogRangeMin.value),
-      cogMax: parseInt(this.inputs.cogRangeMax.value),
-      chainringMin: parseInt(this.inputs.chainringRangeMin.value),
-      chainringMax: parseInt(this.inputs.chainringRangeMax.value),
-      chainLinksMin: parseInt(this.inputs.chainLinksRangeMin.value),
-      chainLinksMax: parseInt(this.inputs.chainLinksRangeMax.value),
-      allowHalfLink: this.inputs.allowHalfLink.checked,
-      maxChainWear: parseFloat(this.inputs.maxChainWearInput.value) / 100,
-      chainringCount: parseInt(this.inputs.chainringCountInput.value),
+      csMin: parseFloat(inputs.csRangeMin.value),
+      csMax: parseFloat(inputs.csRangeMax.value),
+      ratioMin: parseFloat(inputs.ratioRangeMin.value),
+      ratioMax: parseFloat(inputs.ratioRangeMax.value),
+      cogMin: parseInt(inputs.cogRangeMin.value),
+      cogMax: parseInt(inputs.cogRangeMax.value),
+      chainringMin: parseInt(inputs.chainringRangeMin.value),
+      chainringMax: parseInt(inputs.chainringRangeMax.value),
+      chainLinksMin: parseInt(inputs.chainLinksRangeMin.value),
+      chainLinksMax: parseInt(inputs.chainLinksRangeMax.value),
+      allowHalfLink: inputs.allowHalfLink.checked,
+      maxChainWear: parseFloat(inputs.maxChainWearInput.value) / 100,
+      chainringCount: parseInt(inputs.chainringCountInput.value),
     };
   }
 
-  validateInputs(inputs) {
-    const errors = [];
+  validateInputs(inputs: FinderInputs): string[] {
+    const errors: string[] = [];
 
     if (inputs.csMin > inputs.csMax) {
-      errors.push("Chainstay min must be ≤ max");
+      errors.push("Chainstay min must be \u2264 max");
     }
     if (inputs.ratioMin > inputs.ratioMax) {
-      errors.push("Ratio min must be ≤ max");
+      errors.push("Ratio min must be \u2264 max");
     }
     if (inputs.cogMin > inputs.cogMax) {
-      errors.push("Cog min must be ≤ max");
+      errors.push("Cog min must be \u2264 max");
     }
     if (inputs.chainringMin > inputs.chainringMax) {
-      errors.push("Chainring min must be ≤ max");
+      errors.push("Chainring min must be \u2264 max");
     }
     if (inputs.chainLinksMin > inputs.chainLinksMax) {
-      errors.push("Chain links min must be ≤ max");
+      errors.push("Chain links min must be \u2264 max");
     }
 
     return errors;
   }
 
-  search() {
+  search(): void {
     const inputs = this.getInputValues();
 
     // Validate inputs
     const errors = this.validateInputs(inputs);
-    if (errors.length > 0) {
+    if (errors.length > 0 && this.resultsContainer) {
       this.resultsContainer.innerHTML = `<p class="no-results">Invalid inputs:<br>${errors.join("<br>")}</p>`;
       return;
     }
@@ -410,7 +460,9 @@ class RatioFinderUi {
     this.renderResults(results);
   }
 
-  renderResults(results) {
+  renderResults(results: ChainringCombo[]): void {
+    if (!this.resultsContainer) return;
+
     if (results.length === 0) {
       this.resultsContainer.innerHTML =
         '<p class="no-results">No valid combinations found. Try expanding your ranges.</p>';
@@ -445,7 +497,7 @@ class RatioFinderUi {
         const ratios = validCogs.map((c) => c.ratio);
         const minRatio = Math.min(...ratios).toFixed(2);
         const maxRatio = Math.max(...ratios).toFixed(2);
-        ratiosDisplay = `${combo.ratioCount} (${minRatio} → ${maxRatio})`;
+        ratiosDisplay = `${combo.ratioCount} (${minRatio} \u2192 ${maxRatio})`;
       }
 
       html += `
@@ -453,7 +505,7 @@ class RatioFinderUi {
             data-chainring="${combo.chainring}"
             data-chainlinks="${combo.chainLinks}"
             data-index="${i}">
-          <td><span class="expand-icon">▶</span></td>
+          <td><span class="expand-icon">\u25B6</span></td>
           <td>${combo.chainring}T</td>
           <td>${combo.chainLinks}</td>
           <td>${ratiosDisplay}</td>
@@ -472,7 +524,7 @@ class RatioFinderUi {
               data-chainstay="${cog.chainstay.toFixed(2)}"
               data-chainstayWeared="${cog.chainstayWeared.toFixed(2)}">
             <td colspan="5">
-              ${cog.cog}T: ratio ${cog.ratio.toFixed(2)} (cs: ${cog.chainstay.toFixed(1)}mm → ${cog.chainstayWeared.toFixed(1)}mm (weared))              
+              ${cog.cog}T: ratio ${cog.ratio.toFixed(2)} (cs: ${cog.chainstay.toFixed(1)}mm \u2192 ${cog.chainstayWeared.toFixed(1)}mm (weared))
             </td>
           </tr>
         `;
@@ -489,20 +541,24 @@ class RatioFinderUi {
 
     // Add click handlers to result rows (expand/collapse)
     this.resultsContainer.querySelectorAll(".result-row").forEach((row) => {
-      row.addEventListener("click", (e) => this.toggleRow(row, e));
+      row.addEventListener("click", (e) =>
+        this.toggleRow(row as HTMLElement, e)
+      );
     });
 
     // Add click handlers to cog detail rows (apply configuration)
     this.resultsContainer.querySelectorAll(".cog-detail-row").forEach((row) => {
       row.addEventListener("click", (e) => {
         e.stopPropagation();
-        this.applyFromCogRow(row);
+        this.applyFromCogRow(row as HTMLElement);
       });
     });
   }
 
-  toggleRow(row, event) {
+  toggleRow(row: HTMLElement, _event: Event): void {
     const rowId = row.dataset.rowId;
+    if (!rowId || !this.resultsContainer) return;
+
     const isExpanded = row.classList.contains("expanded");
 
     if (isExpanded) {
@@ -526,16 +582,21 @@ class RatioFinderUi {
     }
   }
 
-  applyFromCogRow(row) {
-    const chainring = parseInt(row.dataset.chainring);
-    const chainLinks = parseInt(row.dataset.chainlinks);
-    const cog = parseInt(row.dataset.cog);
-    const chainstay = parseFloat(row.dataset.chainstay);
+  applyFromCogRow(row: HTMLElement): void {
+    const chainring = parseInt(row.dataset.chainring ?? "0");
+    const chainLinks = parseInt(row.dataset.chainlinks ?? "0");
+    const cog = parseInt(row.dataset.cog ?? "0");
+    const chainstay = parseFloat(row.dataset.chainstay ?? "0");
 
     this.applyConfiguration(chainring, chainLinks, cog, chainstay);
   }
 
-  applyConfiguration(chainring, chainLinks, cog, chainstay) {
+  applyConfiguration(
+    chainring: number,
+    chainLinks: number,
+    cog: number,
+    chainstay: number
+  ): void {
     // Apply to main simulation state
     this.state.f = chainring;
     this.state.r = cog;
@@ -547,5 +608,3 @@ class RatioFinderUi {
     this.onUiUpdate();
   }
 }
-
-export default RatioFinderUi;

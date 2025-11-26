@@ -1,48 +1,38 @@
 import { TWO_PI } from "./constants.js";
+import type { CircleIntersectionResult } from "./types.js";
 
-class BikeGearingPoint {
-  /**
-   * @param {Number} x
-   * @param {Number} y
-   */
-  constructor(x, y) {
+export class BikeGearingPoint {
+  static ZERO: BikeGearingPoint = new BikeGearingPoint(0, 0);
+
+  x: number;
+  y: number;
+
+  constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
   }
 
-  /**
-   * @param {Number} r radius
-   * @param {Number} a angle
-   */
-  static getArcEnd(r, a) {
+  static getArcEnd(r: number, a: number): BikeGearingPoint {
     return new BikeGearingPoint(r * Math.cos(a), r * Math.sin(a));
   }
 
-  /**
-   * @param {BikeGearingPoint} p other point
-   */
-  dist(p) {
+  dist(p: BikeGearingPoint): number {
     return Math.hypot(this.x - p.x, this.y - p.y);
   }
 
   /**
    * Return point between this and p at ratio
-   * @param {BikeGearingPoint} p other point
-   * @param {Number} r ratio [0, 1]
    */
-  ratio(p, r) {
+  ratio(p: BikeGearingPoint, r: number): BikeGearingPoint {
     return new BikeGearingPoint(
       this.x + r * (p.x - this.x),
-      this.y + r * (p.y - this.y),
+      this.y + r * (p.y - this.y)
     );
   }
 
-  /**
-   * @param {BikeGearingPoint} p other point
-   */
-  getAngle(p) {
-    let dx = p.x - this.x;
-    let dy = p.y - this.y;
+  getAngle(p: BikeGearingPoint): number {
+    const dx = p.x - this.x;
+    const dy = p.y - this.y;
     let a = 0;
     if (Math.abs(dx) < 0.00001) {
       if (dy > 0) {
@@ -59,15 +49,13 @@ class BikeGearingPoint {
     return a;
   }
 }
-BikeGearingPoint.ZERO = new BikeGearingPoint(0, 0);
 
-class BikeGearingCircle {
-  /**
-   * @param {Number} x center x
-   * @param {Number} y center y
-   * @param {Number} r radius
-   */
-  constructor(x, y, r) {
+export class BikeGearingCircle {
+  x: number;
+  y: number;
+  r: number;
+
+  constructor(x: number, y: number, r: number) {
     this.x = x;
     this.y = y;
     this.r = r;
@@ -75,11 +63,10 @@ class BikeGearingCircle {
 
   /**
    * https://stackoverflow.com/a/68092269
-   * @param {BikeGearingCircle} c other circle
    */
-  intersection(c) {
+  intersection(c: BikeGearingCircle): CircleIntersectionResult {
     // Start constructing the response object.
-    let result = {
+    const result: CircleIntersectionResult = {
       intersectCount: 0,
       intersectOccurs: true,
       oneIsInOther: false,
@@ -89,11 +76,11 @@ class BikeGearingCircle {
     };
 
     // Get vertical and horizontal distances between circles.
-    let dx = c.x - this.x;
-    let dy = c.y - this.y;
+    const dx = c.x - this.x;
+    const dy = c.y - this.y;
 
     // Calculate the distance between the circle centers as a straight line.
-    let dist = Math.hypot(dy, dx);
+    const dist = Math.hypot(dy, dx);
 
     // Check if circles intersect.
     if (dist > this.r + c.r) {
@@ -109,32 +96,31 @@ class BikeGearingCircle {
     // Check if circles are the same.
     if (this.x === c.x && this.y === c.y && this.r === c.r) {
       result.areEqual = true;
-      result.areEqual = true;
     }
 
     // Find the intersection points
     if (result.intersectOccurs) {
       // Centroid is the pt where two lines cross. A line between the circle centers
       // and a line between the intersection points.
-      let centroid = (this.r * this.r - c.r * c.r + dist * dist) / (2.0 * dist);
+      const centroid = (this.r * this.r - c.r * c.r + dist * dist) / (2.0 * dist);
 
       // Get the coordinates of centroid.
-      let x2 = this.x + (dx * centroid) / dist;
-      let y2 = this.y + (dy * centroid) / dist;
+      const x2 = this.x + (dx * centroid) / dist;
+      const y2 = this.y + (dy * centroid) / dist;
 
       // Get the distance from centroid to the intersection points.
-      let h = Math.sqrt(this.r * this.r - centroid * centroid);
+      const h = Math.sqrt(this.r * this.r - centroid * centroid);
 
       // Get the x and y dist of the intersection points from centroid.
-      let rx = -dy * (h / dist);
-      let ry = dx * (h / dist);
+      const rx = -dy * (h / dist);
+      const ry = dx * (h / dist);
 
       // Get the intersection points.
-      result.p1.x = Number((x2 + rx).toFixed(15));
-      result.p1.y = Number((y2 + ry).toFixed(15));
+      result.p1.x = x2 + rx;
+      result.p1.y = y2 + ry;
 
-      result.p2.x = Number((x2 - rx).toFixed(15));
-      result.p2.y = Number((y2 - ry).toFixed(15));
+      result.p2.x = x2 - rx;
+      result.p2.y = y2 - ry;
 
       // Add intersection count to results
       if (result.areEqual) {
@@ -149,32 +135,21 @@ class BikeGearingCircle {
   }
 }
 
-/**
- * @param {Number} v value
- * @param {Number} d decimals count
- */
-function roundHuman(v, d) {
+export function roundHuman(v: number, d: number): number {
   return Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
 }
 
-/**
- * @param {Number} a angle (rad)
- */
-function toDegreesHuman(a) {
+export function toDegreesHuman(a: number): number {
   return roundHuman((180.0 * a) / Math.PI, 1);
 }
 
-/**
- * @param {Number} a1
- * @param {Number} a2
- */
-function comparableAngle(a1, a2) {
+export function comparableAngle(a1: number, a2: number): number {
   let a = a2;
-  let minA = a1 - Math.PI / 2 - 0.01;
+  const minA = a1 - Math.PI / 2 - 0.01;
   while (a < minA) {
     a = a + TWO_PI;
   }
-  let maxA = a1 + Math.PI / 2 + 0.01;
+  const maxA = a1 + Math.PI / 2 + 0.01;
   while (a > maxA) {
     a = a - TWO_PI;
   }
@@ -183,19 +158,10 @@ function comparableAngle(a1, a2) {
 
 // https://stackoverflow.com/a/4652513
 // Reduce a fraction by finding the Greatest Common Divisor and dividing by it.
-function reduce(numerator, denominator) {
-  var gcd = function gcd(a, b) {
-    return b ? gcd(b, a % b) : a;
+export function reduce(numerator: number, denominator: number): [number, number] {
+  const gcdFn = (a: number, b: number): number => {
+    return b ? gcdFn(b, a % b) : a;
   };
-  gcd = gcd(numerator, denominator);
+  const gcd = gcdFn(numerator, denominator);
   return [numerator / gcd, denominator / gcd];
 }
-
-export {
-  BikeGearingPoint,
-  BikeGearingCircle,
-  roundHuman,
-  toDegreesHuman,
-  comparableAngle,
-  reduce,
-};

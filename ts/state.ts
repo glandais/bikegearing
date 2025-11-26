@@ -1,15 +1,71 @@
 import { HALF_LINK } from "./constants.js";
 import { reduce } from "./math.js";
 
-class BikeGearingState {
+export default class BikeGearingState {
+  private internalf: number = 51;
+  private internalr: number = 15;
+
+  // Teeth counts and derived properties
+  fda: number = 0;
+  fradius: number = 0;
+  rda: number = 0;
+  rradius: number = 0;
+
+  // Chainstay length (mm)
+  cs: number = 406;
+
+  // Chain length in rivets
+  cl: number = 98;
+
+  // Front angles and cog indices
+  fa: number = 0;
+  fcu: number = 0;
+  fru: number = 0;
+  fcb: number = 0;
+  frb: number = 0;
+
+  // Rear angles and cog indices
+  ra: number = 0;
+  rcu: number = 0;
+  rru: number = 0;
+  rcb: number = 0;
+  rrb: number = 0;
+
+  // Skid patches
+  skidPatchesSingleLegged: number = 0;
+  skidPatchesAmbidextrous: number = 0;
+
+  // State tracking
+  modified: string = "";
+
+  // Debug and simulation
+  debug: boolean = false;
+  debugCompute: boolean = false;
+  simulationSpeed: number = 1.0;
+  rotationSpeed: number = 80.0;
+  paused: boolean = false;
+
+  followRivet: boolean = false;
+
+  doDrawWheel: boolean = true;
+
+  halfLinkChain: number = HALF_LINK;
+
+  // Performance metrics
+  fps: number = 0.0;
+  t: number = 0.0;
+  speedkmh: number = 0;
+  rpm: number = 0;
+  computeLog: string = "";
+  drawDuration: number = 0;
+
   constructor() {
-    this.internalf = 51;
-    this.internalr = 15;
     this.f = 51;
     this.r = 15;
     this.reset();
   }
-  reset() {
+
+  reset(): void {
     /** teeth front */
     this.f = 51;
     /** teeth rear */
@@ -58,12 +114,14 @@ class BikeGearingState {
     this.fps = 0.0;
     this.t = 0.0;
   }
+
   /** Number of cogs front */
-  get f() {
+  get f(): number {
     return this.internalf;
   }
+
   /** Number of cogs front */
-  set f(value) {
+  set f(value: number) {
     this.internalf = value;
     /** angle between two cogs - front */
     this.fda = (2.0 * Math.PI) / this.internalf;
@@ -71,12 +129,14 @@ class BikeGearingState {
     this.fradius = HALF_LINK / 2 / Math.sin(this.fda / 2.0);
     this.computeSkidPatches();
   }
+
   /** Number of teeth cogs rear */
-  get r() {
+  get r(): number {
     return this.internalr;
   }
+
   /** Number of teeth cogs rear */
-  set r(value) {
+  set r(value: number) {
     this.internalr = value;
     /** angle between two cogs - rear */
     this.rda = (2.0 * Math.PI) / this.internalr;
@@ -84,25 +144,22 @@ class BikeGearingState {
     this.rradius = HALF_LINK / 2 / Math.sin(this.rda / 2.0);
     this.computeSkidPatches();
   }
-  computeSkidPatches() {
+
+  computeSkidPatches(): void {
     // https://www.icebike.org/skid-patch-calculator/
-    let reduced = reduce(this.f, this.r);
+    const reduced = reduce(this.f, this.r);
     this.skidPatchesSingleLegged = reduced[1];
-    if (reduced[0] % 2 == 0) {
+    if (reduced[0] % 2 === 0) {
       this.skidPatchesAmbidextrous = reduced[1];
     } else {
       this.skidPatchesAmbidextrous = reduced[1] * 2;
     }
   }
-  /**
-   * @param {Number} i
-   */
-  getRivetIndex(i) {
+
+  getRivetIndex(i: number): number {
     while (i < 0) {
       i = i + this.cl;
     }
     return i % this.cl;
   }
 }
-
-export default BikeGearingState;

@@ -6,16 +6,25 @@ import { TWO_PI } from "./constants.js";
 import BikeGearingState from "./state.js";
 import BikeGearingRivetsCalculator from "./rivet_calculator.js";
 import BikeGearingInteractive from "./interactive.js";
+import type { Ctx2D } from "./types.js";
 
-class BikeGearingDrawer {
-  /**
-   * @param {HTMLCanvasElement} ctx
-   * @param {CanvasRenderingContext2D} ctx
-   * @param {BikeGearingState} state
-   * @param {BikeGearingRivetsCalculator} rivetsCalculator
-   * @param {BikeGearingInteractive} interactive
-   */
-  constructor(canvas, ctx, state, rivetsCalculator, interactive) {
+export default class BikeGearingDrawer {
+  canvas: HTMLCanvasElement;
+  ctx: Ctx2D;
+  state: BikeGearingState;
+  rivetsCalculator: BikeGearingRivetsCalculator;
+  interactive: BikeGearingInteractive;
+  cogsDrawer: BikeGearingCogsDrawer;
+  rivetsDrawer: BikeGearingRivetsDrawer;
+  wheelDrawer: BikeGearingWheelDrawer;
+
+  constructor(
+    canvas: HTMLCanvasElement,
+    ctx: Ctx2D,
+    state: BikeGearingState,
+    rivetsCalculator: BikeGearingRivetsCalculator,
+    interactive: BikeGearingInteractive
+  ) {
     this.canvas = canvas;
     this.ctx = ctx;
     this.state = state;
@@ -26,15 +35,9 @@ class BikeGearingDrawer {
     this.wheelDrawer = new BikeGearingWheelDrawer(ctx, state, this);
   }
 
-  /**
-   * @param {Number} x
-   * @param {Number} y
-   * @param {Number} r
-   * @param {boolean} fill
-   */
-  drawCircle(x, y, r, fill = false) {
-    let ctx = this.ctx;
-    let debug = this.state.debug;
+  drawCircle(x: number, y: number, r: number, fill: boolean = false): void {
+    const ctx = this.ctx;
+    const debug = this.state.debug;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, TWO_PI);
     if (fill && !debug) {
@@ -44,8 +47,8 @@ class BikeGearingDrawer {
     ctx.closePath();
   }
 
-  printStateValues(values) {
-    let ctx = this.ctx;
+  printStateValues(values: string[]): void {
+    const ctx = this.ctx;
 
     ctx.save();
     ctx.font = "16px serif";
@@ -54,7 +57,7 @@ class BikeGearingDrawer {
     for (let i = 0; i < values.length; i++) {
       maxWidth = Math.max(maxWidth, ctx.measureText(values[i]).width);
     }
-    let x = this.canvas.width - maxWidth - 10;
+    const x = this.canvas.width - maxWidth - 10;
     ctx.fillRect(x, 4, maxWidth, 17 * values.length);
     ctx.fillStyle = "#000";
     for (let i = 0; i < values.length; i++) {
@@ -63,8 +66,8 @@ class BikeGearingDrawer {
     ctx.restore();
   }
 
-  getCommonValues() {
-    let state = this.state;
+  getCommonValues(): string[] {
+    const state = this.state;
     return [
       "Single-legged skid patches: " + state.skidPatchesSingleLegged,
       "Ambidextrous skid patches: " + state.skidPatchesAmbidextrous,
@@ -75,18 +78,18 @@ class BikeGearingDrawer {
     ];
   }
 
-  getDebugValues() {
-    let values = this.getCommonValues();
-    let state = this.state;
-    let debugValues = [
+  getDebugValues(): string[] {
+    const values = this.getCommonValues();
+    const state = this.state;
+    const debugValues = [
       "",
       "t: " + roundHuman(state.t, 5),
-      "fa: " + toDegreesHuman(state.fa) + "°",
+      "fa: " + toDegreesHuman(state.fa) + "\u00B0",
       "fcu: " + state.fcu,
       "fru: " + state.fru,
       "fcb: " + state.fcb,
       "frb: " + state.frb,
-      "ra: " + toDegreesHuman(state.ra) + "°",
+      "ra: " + toDegreesHuman(state.ra) + "\u00B0",
       "rcu: " + state.rcu,
       "rru: " + state.rru,
       "rcb: " + state.rcb,
@@ -102,13 +105,13 @@ class BikeGearingDrawer {
     return values;
   }
 
-  draw() {
-    let ctx = this.ctx;
-    let state = this.state;
-    let debug = state.debug;
-    let paused = state.paused;
+  draw(): void {
+    const ctx = this.ctx;
+    const state = this.state;
+    const debug = state.debug;
+    const paused = state.paused;
 
-    let start = performance.now();
+    const start = performance.now();
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     if (debug || paused) {
@@ -128,26 +131,26 @@ class BikeGearingDrawer {
 
     ctx.translate(
       this.interactive.cameraOffset.x,
-      this.interactive.cameraOffset.y,
+      this.interactive.cameraOffset.y
     );
     ctx.scale(this.interactive.cameraZoom, this.interactive.cameraZoom);
 
-    let rivets = this.rivetsCalculator.getRivets();
+    const rivets = this.rivetsCalculator.getRivets();
     let r1, r2;
     if (state.followRivet) {
       r1 = this.rivetsCalculator.getRivet(rivets, 0);
       r2 = this.rivetsCalculator.getRivet(rivets, 1);
       if (r1 && r2) {
-        let rivetAngle = r1.getAngle(r2);
+        const rivetAngle = r1.getAngle(r2);
         ctx.rotate(Math.PI - rivetAngle);
         ctx.translate(-r1.x, -r1.y);
       }
     }
 
     if (state.doDrawWheel) {
-      this.wheelDrawer.drawWheel(state);
+      this.wheelDrawer.drawWheel();
     }
-    this.cogsDrawer.drawCogs(state);
+    this.cogsDrawer.drawCogs();
     this.rivetsDrawer.drawLinks(rivets);
 
     if (state.followRivet) {
@@ -175,5 +178,3 @@ class BikeGearingDrawer {
     state.drawDuration = performance.now() - start;
   }
 }
-
-export default BikeGearingDrawer;

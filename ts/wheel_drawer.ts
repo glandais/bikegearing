@@ -1,15 +1,20 @@
 import { TWO_PI } from "./constants.js";
-import BikeGearingDrawer from "./drawer.js";
 import { BikeGearingPoint } from "./math.js";
 import BikeGearingState from "./state.js";
+import type { Ctx2D, WheelDimensions } from "./types.js";
 
-class BikeGearingWheelDrawer {
-  /**
-   * @param {CanvasRenderingContext2D} ctx
-   * @param {BikeGearingState} state
-   * @param {BikeGearingDrawer} drawer
-   */
-  constructor(ctx, state, drawer) {
+// Forward reference for BikeGearingDrawer to avoid circular dependency
+interface DrawerInterface {
+  drawCircle(x: number, y: number, r: number, fill?: boolean): void;
+}
+
+export default class BikeGearingWheelDrawer {
+  ctx: Ctx2D;
+  state: BikeGearingState;
+  drawer: DrawerInterface;
+  wheel: WheelDimensions;
+
+  constructor(ctx: Ctx2D, state: BikeGearingState, drawer: DrawerInterface) {
     this.ctx = ctx;
     this.state = state;
     this.drawer = drawer;
@@ -23,8 +28,8 @@ class BikeGearingWheelDrawer {
     };
   }
 
-  drawWheelCircle(d, c) {
-    let ctx = this.ctx;
+  drawWheelCircle(d: number, c: string): void {
+    const ctx = this.ctx;
     ctx.save();
     ctx.fillStyle = c;
     ctx.strokeStyle = "#000";
@@ -32,9 +37,9 @@ class BikeGearingWheelDrawer {
     ctx.restore();
   }
 
-  drawValveRect(w, h, dx) {
-    let debug = this.state.debug;
-    let ctx = this.ctx;
+  drawValveRect(w: number, h: number, dx: number): void {
+    const debug = this.state.debug;
+    const ctx = this.ctx;
     ctx.beginPath();
     ctx.moveTo(dx, h / 2);
     ctx.lineTo(dx + w, h / 2);
@@ -48,9 +53,9 @@ class BikeGearingWheelDrawer {
     ctx.closePath();
   }
 
-  drawValve() {
-    let ctx = this.ctx;
-    let wheel = this.wheel;
+  drawValve(): void {
+    const ctx = this.ctx;
+    const wheel = this.wheel;
     ctx.save();
 
     ctx.translate(wheel.rim - wheel.rimHeight, 0);
@@ -70,8 +75,13 @@ class BikeGearingWheelDrawer {
     ctx.restore();
   }
 
-  drawLogo(textRadius, color, text, rotation) {
-    let ctx = this.ctx;
+  drawLogo(
+    textRadius: number,
+    color: string,
+    text: string,
+    rotation: number
+  ): void {
+    const ctx = this.ctx;
     ctx.save();
 
     ctx.textBaseline = "bottom";
@@ -81,14 +91,14 @@ class BikeGearingWheelDrawer {
     ctx.fillStyle = color;
     ctx.font = "bold 12px serif";
     let currentString = "";
-    let totd = ctx.measureText(text).width;
-    let baseAngle = -totd / 2 / textRadius;
+    const totd = ctx.measureText(text).width;
+    const baseAngle = -totd / 2 / textRadius;
     for (let i = 0; i < text.length; i++) {
-      let char = text.charAt(i);
+      const char = text.charAt(i);
 
       ctx.save();
 
-      let d = ctx.measureText(currentString).width;
+      const d = ctx.measureText(currentString).width;
 
       ctx.rotate(baseAngle + d / textRadius);
       ctx.translate(textRadius, 0);
@@ -103,9 +113,9 @@ class BikeGearingWheelDrawer {
     ctx.restore();
   }
 
-  drawNipples() {
-    let ctx = this.ctx;
-    let wheel = this.wheel;
+  drawNipples(): void {
+    const ctx = this.ctx;
+    const wheel = this.wheel;
     ctx.save();
     ctx.rotate(TWO_PI / (24 * 2));
     ctx.strokeStyle = "#000";
@@ -121,11 +131,11 @@ class BikeGearingWheelDrawer {
     ctx.restore();
   }
 
-  drawSpokes(behindHub) {
-    let ctx = this.ctx;
-    let wheel = this.wheel;
+  drawSpokes(behindHub: boolean): void {
+    const ctx = this.ctx;
+    const wheel = this.wheel;
     for (let i = 0; i < 24; i++) {
-      if (!behindHub && i % 4 == 2) {
+      if (!behindHub && i % 4 === 2) {
         ctx.save();
         ctx.lineWidth = 0.1;
         ctx.strokeStyle = "#000";
@@ -134,7 +144,7 @@ class BikeGearingWheelDrawer {
         this.drawer.drawCircle(wheel.hubSpoke, 0, 2, true);
         ctx.restore();
       }
-      if (!behindHub && i % 4 == 0) {
+      if (!behindHub && i % 4 === 0) {
         ctx.save();
         ctx.lineWidth = 0.1;
         ctx.strokeStyle = "#000";
@@ -143,7 +153,7 @@ class BikeGearingWheelDrawer {
         this.drawer.drawCircle(wheel.hubSpoke, 0, 1.5, true);
         ctx.restore();
       }
-      if ((behindHub && i % 4 != 0) || (!behindHub && i % 4 == 0)) {
+      if ((behindHub && i % 4 !== 0) || (!behindHub && i % 4 === 0)) {
         ctx.save();
 
         ctx.lineCap = "round";
@@ -151,8 +161,8 @@ class BikeGearingWheelDrawer {
         ctx.lineWidth = 2;
 
         ctx.rotate((i * TWO_PI) / 24);
-        let a;
-        if (i % 2 == 0) {
+        let a: number;
+        if (i % 2 === 0) {
           a = (3.5 * TWO_PI) / 24;
         } else {
           a = (-2.5 * TWO_PI) / 24;
@@ -160,7 +170,7 @@ class BikeGearingWheelDrawer {
 
         ctx.beginPath();
         ctx.moveTo(wheel.hubSpoke, 0);
-        let e = BikeGearingPoint.getArcEnd(wheel.rim - wheel.rimHeight - 9, a);
+        const e = BikeGearingPoint.getArcEnd(wheel.rim - wheel.rimHeight - 9, a);
         ctx.lineTo(e.x, e.y);
 
         ctx.stroke();
@@ -171,9 +181,9 @@ class BikeGearingWheelDrawer {
     }
   }
 
-  drawWheel() {
-    let ctx = this.ctx;
-    let wheel = this.wheel;
+  drawWheel(): void {
+    const ctx = this.ctx;
+    const wheel = this.wheel;
 
     ctx.save();
     ctx.rotate(this.state.ra);
@@ -194,24 +204,22 @@ class BikeGearingWheelDrawer {
       wheel.rim + 4,
       "#fff",
       "My drinking team has a cycling problem",
-      Math.PI,
+      Math.PI
     );
 
     this.drawLogo(
       wheel.rim - wheel.rimHeight + 2,
       "#000",
       "Fonderies",
-      Math.PI / 2,
+      Math.PI / 2
     );
     this.drawLogo(
       wheel.rim - wheel.rimHeight + 2,
       "#000",
       "Mercredi 20h30",
-      -Math.PI / 2,
+      -Math.PI / 2
     );
 
     ctx.restore();
   }
 }
-
-export default BikeGearingWheelDrawer;

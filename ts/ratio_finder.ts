@@ -1,15 +1,16 @@
 import { HALF_LINK } from "./constants.js";
+import type { FinderInputs, ValidCog, ChainringCombo, ScoreResult } from "./types.js";
 
 /**
  * Calculate required chainstay length for given chainring, cog, and chain length
  * Uses quadratic formula to solve for optimal chainstay distance
- * @param {number} f - chainring teeth
- * @param {number} r - cog teeth
- * @param {number} cl - chain links
- * @param {number} chainWear - chain wear factor (0-1, as percentage/100)
- * @returns {number|null} required chainstay in mm, or null if invalid
  */
-function calculateChainstay(f, r, cl, chainWear) {
+export function calculateChainstay(
+  f: number,
+  r: number,
+  cl: number,
+  chainWear: number
+): number | null {
   const effectiveHalfLink = HALF_LINK * (1 + chainWear);
 
   // Total chain length
@@ -41,48 +42,14 @@ function calculateChainstay(f, r, cl, chainWear) {
 }
 
 /**
- * @typedef {Object} FinderInputs
- * @property {number} csMin - minimum chainstay (mm)
- * @property {number} csMax - maximum chainstay (mm)
- * @property {number} ratioMin - minimum target ratio
- * @property {number} ratioMax - maximum target ratio
- * @property {number} cogMin - minimum cog teeth
- * @property {number} cogMax - maximum cog teeth
- * @property {number} chainringMin - minimum chainring teeth
- * @property {number} chainringMax - maximum chainring teeth
- * @property {number} chainLinksMin - minimum chain links
- * @property {number} chainLinksMax - maximum chain links
- * @property {boolean} allowHalfLink - allow odd chain link counts
- * @property {number} maxChainWear - chain wear (0-0.01)
- */
-
-/**
- * @typedef {Object} ValidCog
- * @property {number} cog - cog teeth
- * @property {number} ratio - gear ratio
- * @property {number} chainstay - required chainstay (mm)
- * @property {number} chainstayWeared - required chainstay (weared) (mm)
- */
-
-/**
- * @typedef {Object} ChainringCombo
- * @property {number} chainring - chainring teeth
- * @property {number} chainLinks - chain link count
- * @property {ValidCog[]} validCogs - list of valid cog configurations
- * @property {number} score - composite score
- * @property {number} ratioCount - count of ratios in target range
- * @property {number} ratioCoverage - percentage of target range covered
- */
-
-/**
  * Find all valid cogs for a given chainring and chain length
- * @param {number} chainring
- * @param {number} chainLinks
- * @param {FinderInputs} inputs
- * @returns {ValidCog[]}
  */
-function findValidCogs(chainring, chainLinks, inputs) {
-  const validCogs = [];
+export function findValidCogs(
+  chainring: number,
+  chainLinks: number,
+  inputs: FinderInputs
+): ValidCog[] {
+  const validCogs: ValidCog[] = [];
 
   for (let cog = inputs.cogMin; cog <= inputs.cogMax; cog++) {
     const ratio = chainring / cog;
@@ -120,11 +87,11 @@ function findValidCogs(chainring, chainLinks, inputs) {
 
 /**
  * Calculate score for a chainring/chain combo
- * @param {ValidCog[]} validCogs
- * @param {FinderInputs} inputs
- * @returns {{score: number, ratioCount: number}}
  */
-function calculateScore(validCogs, inputs) {
+export function calculateScore(
+  validCogs: ValidCog[],
+  inputs: FinderInputs
+): ScoreResult {
   const ratioCount = validCogs.length;
 
   if (ratioCount === 0) {
@@ -139,23 +106,21 @@ function calculateScore(validCogs, inputs) {
   const achievedRange = maxRatio - minRatio;
   const ratioCoverage = targetRange > 0 ? achievedRange / targetRange : 1;
 
-  return { score: ratioCoverage, ratioCount };
+  return { score: ratioCoverage, ratioCount, ratioCoverage };
 }
 
 /**
  * Main finder function - find all chainring/chain combinations
- * @param {FinderInputs} inputs
- * @returns {ChainringCombo[]}
  */
-function findChainringCombos(inputs) {
-  const results = [];
+export function findChainringCombos(inputs: FinderInputs): ChainringCombo[] {
+  const results: ChainringCombo[] = [];
 
   // Determine chain link iteration based on half-link option
   const startLinks = inputs.allowHalfLink
     ? inputs.chainLinksMin
     : inputs.chainLinksMin % 2 === 0
-    ? inputs.chainLinksMin
-    : inputs.chainLinksMin + 1;
+      ? inputs.chainLinksMin
+      : inputs.chainLinksMin + 1;
 
   const linkStep = inputs.allowHalfLink ? 1 : 2;
 
@@ -197,5 +162,3 @@ function findChainringCombos(inputs) {
 
   return results;
 }
-
-export { findChainringCombos };

@@ -1,16 +1,14 @@
 import { BikeGearingPoint } from "./math.js";
 import { PHYSICS_CONSTANTS } from "./constants.js";
 
-class BikeGearingCatenary {
-  /**
-   * @param {BikeGearingPoint} p1
-   * @param {BikeGearingPoint} p2
-   * @param {Number} l
-   * @return {BikeGearingPoint[]} l
-   */
-  static getCatenaryPoints(p1, p2, l) {
+export default class BikeGearingCatenary {
+  static getCatenaryPoints(
+    p1: BikeGearingPoint,
+    p2: BikeGearingPoint,
+    l: number
+  ): BikeGearingPoint[] {
     // https://math.stackexchange.com/a/3557768
-    let x1, y1, x2, y2, inverted;
+    let x1: number, y1: number, x2: number, y2: number, inverted: boolean;
     if (p1.x < p2.x) {
       x1 = p1.x;
       y1 = -p1.y;
@@ -24,20 +22,20 @@ class BikeGearingCatenary {
       y2 = -p1.y;
       inverted = true;
     }
-    let dx = x2 - x1;
-    let dy = y2 - y1;
+    const dx = x2 - x1;
+    const dy = y2 - y1;
     if (Math.sqrt(l * l) < Math.hypot(dx, dy) + 0.00001) {
       return [p1, p2];
     }
 
-    let ax = (x2 + x1) / 2;
-    let ay = (y2 + y1) / 2;
+    const ax = (x2 + x1) / 2;
+    const ay = (y2 + y1) / 2;
 
     // l² <= dx² + dy²
     // dx != 0
-    let r = Math.sqrt(l * l - dy * dy) / dx;
+    const r = Math.sqrt(l * l - dy * dy) / dx;
     // r = sinh(A)/A
-    let A;
+    let A: number;
     if (r < 3) {
       A = Math.sqrt(6 * (r - 1));
     } else {
@@ -49,15 +47,15 @@ class BikeGearingCatenary {
       diff = Math.abs(r - Math.sinh(A) / A);
     } while (diff > PHYSICS_CONSTANTS.CATENARY_TOLERANCE);
 
-    let a = dx / (2 * A);
-    let b = ax - a * Math.atanh(dy / l);
-    let c = ay - l / (2 * Math.tanh(A));
+    const a = dx / (2 * A);
+    const b = ax - a * Math.atanh(dy / l);
+    const c = ay - l / (2 * Math.tanh(A));
 
-    let nPoints = PHYSICS_CONSTANTS.CATENARY_POINTS;
-    let points = [];
+    const nPoints = PHYSICS_CONSTANTS.CATENARY_POINTS;
+    const points: BikeGearingPoint[] = [];
     for (let i = 0; i <= nPoints; i++) {
-      let x = x1 + (i * (x2 - x1)) / nPoints;
-      let y = -(c + a * Math.cosh((x - b) / a));
+      const x = x1 + (i * (x2 - x1)) / nPoints;
+      const y = -(c + a * Math.cosh((x - b) / a));
       points.push(new BikeGearingPoint(x, y));
     }
     if (inverted) {
@@ -66,37 +64,36 @@ class BikeGearingCatenary {
     return points;
   }
 
-  /**
-   * @param {BikeGearingPoint} p1
-   * @param {BikeGearingPoint} p2
-   * @param {Number} l
-   * @param {Number} n
-   */
-  static getCatenaryIntervals(p1, p2, l, n) {
-    let points = BikeGearingCatenary.getCatenaryPoints(p1, p2, l);
+  static getCatenaryIntervals(
+    p1: BikeGearingPoint,
+    p2: BikeGearingPoint,
+    l: number,
+    n: number
+  ): BikeGearingPoint[] {
+    const points = BikeGearingCatenary.getCatenaryPoints(p1, p2, l);
 
-    let dseg = [];
+    const dseg: number[] = [];
     let dtot = 0;
     for (let i = 0; i < points.length - 1; i++) {
-      let d = points[i].dist(points[i + 1]);
+      const d = points[i].dist(points[i + 1]);
       dtot = dtot + d;
       dseg.push(d);
     }
 
-    let result = [];
+    const result: BikeGearingPoint[] = [];
 
     let d = 0;
     let iseg = 0;
-    let dl = dtot / n;
+    const dl = dtot / n;
 
     for (let i = 0; i < dseg.length; i++) {
-      let nd = d + dseg[i];
+      const nd = d + dseg[i];
 
       let added = false;
       do {
         if (d - 0.001 <= iseg * dl && iseg * dl <= nd + 0.001) {
-          let r = (iseg * dl - d) / (nd - d);
-          let p = points[i].ratio(points[i + 1], r);
+          const r = (iseg * dl - d) / (nd - d);
+          const p = points[i].ratio(points[i + 1], r);
           result.push(p);
           iseg++;
           added = true;
@@ -110,5 +107,3 @@ class BikeGearingCatenary {
     return result;
   }
 }
-
-export default BikeGearingCatenary;

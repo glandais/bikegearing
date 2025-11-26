@@ -3,23 +3,27 @@ import BikeGearingRivetsCalculator from "./rivet_calculator.js";
 import BikeGearingComputer from "./computer.js";
 import BikeGearingDrawer from "./drawer.js";
 import BikeGearingState from "./state.js";
+import type { Ctx2D } from "./types.js";
 
-class BikeGearingMain {
-  /**
-   * @param {BikeGearingState} state
-   * @param {string} canvasId
-   * @param {Function} onReset
-   */
-  constructor(state, canvasId, onReset) {
-    /** @type {HTMLCanvasElement} */
-    this.canvas = document.getElementById(canvasId);
-    if (!this.canvas) {
+export default class BikeGearingMain {
+  canvas: HTMLCanvasElement;
+  interactive: BikeGearingInteractive;
+  state: BikeGearingState;
+  computer: BikeGearingComputer;
+  drawer: BikeGearingDrawer;
+  onReset: () => void;
+  previousChrono: number = 0;
+
+  constructor(state: BikeGearingState, canvasId: string, onReset: () => void) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
       throw new Error(`Canvas element with id '${canvasId}' not found`);
     }
-    /** @type {CanvasRenderingContext2D} */
-    let ctx = this.canvas.getContext("2d");
+    this.canvas = canvas;
+
+    const ctx = this.canvas.getContext("2d") as Ctx2D | null;
     if (!ctx) {
-      throw new Error('Failed to get 2D rendering context');
+      throw new Error("Failed to get 2D rendering context");
     }
 
     this.interactive = new BikeGearingInteractive(this.canvas, this);
@@ -27,7 +31,7 @@ class BikeGearingMain {
 
     this.state = state;
 
-    let rivetsCalculator = new BikeGearingRivetsCalculator(this.state);
+    const rivetsCalculator = new BikeGearingRivetsCalculator(this.state);
 
     this.computer = new BikeGearingComputer(this.state, rivetsCalculator);
     this.drawer = new BikeGearingDrawer(
@@ -35,20 +39,19 @@ class BikeGearingMain {
       ctx,
       this.state,
       rivetsCalculator,
-      this.interactive,
+      this.interactive
     );
 
-    /** @type {Function} */
     this.onReset = onReset;
   }
 
-  start() {
+  start(): void {
     this.previousChrono = 0;
     this.resetState();
     requestAnimationFrame((chrono) => this.frame(chrono));
   }
 
-  frame(chrono) {
+  frame(chrono: number): void {
     if (this.previousChrono === undefined) {
       this.previousChrono = chrono;
     }
@@ -61,7 +64,7 @@ class BikeGearingMain {
       try {
         this.computer.compute(dchrono);
       } catch (e) {
-        console.error('Physics computation error:', e);
+        console.error("Physics computation error:", e);
         this.computer.reset();
         this.state.paused = true;
       }
@@ -73,33 +76,31 @@ class BikeGearingMain {
     requestAnimationFrame((chrono) => this.frame(chrono));
   }
 
-  resetState() {
+  resetState(): void {
     this.state.reset();
     this.reset();
   }
 
-  resetComputer() {
+  resetComputer(): void {
     this.computer.reset();
     this.computer.compute(0);
   }
 
-  reset() {
+  reset(): void {
     this.resetComputer();
     this.onReset();
     this.interactive.reset();
   }
 
-  drawIfPaused() {
+  drawIfPaused(): void {
     if (this.state.paused) {
       this.drawer.draw();
     }
   }
 
-  compute0() {
+  compute0(): void {
     this.computer.moduloState();
     this.computer.compute(0);
     this.drawer.draw();
   }
 }
-
-export default BikeGearingMain;
