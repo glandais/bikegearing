@@ -18,9 +18,9 @@ An interactive web-based bicycle drivetrain simulator that accurately models cha
 - **Pan & Zoom**: Mouse drag to pan, scroll wheel to zoom (touch gestures supported)
 - **Adjustable Parameters**:
   - Chainring teeth: 32-60 teeth
-  - Sprocket teeth: 10-20 teeth  
+  - Sprocket teeth: 10-25 teeth
   - Chainstay length: 380-430mm (with 1/100mm fine adjustment)
-  - Chain links: 86-110 links
+  - Chain links: 80-130 links (half-link chains supported)
   - Simulation speed: 0-200% speed multiplier
   - Chain wear: 0-2% elongation
 
@@ -30,6 +30,65 @@ An interactive web-based bicycle drivetrain simulator that accurately models cha
 - **Optional Wheel Rendering**: Toggle rear wheel with spokes visualization
 - **Chain Status Indicators**: Red coloring when chain is too short/long
 - **Real-time Metrics**: Speed (km/h), cadence (RPM), FPS counter
+
+### Chainring Finder
+
+An advanced tool for finding optimal chainring, chain, and cog combinations for fixed-gear setups.
+
+**Access**: Click the "Chainring Finder" button in the sidebar to open the modal dialog.
+
+#### Input Parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| Chainstay min/max | 381-396mm | Target frame chainstay distance range |
+| Ratio min/max | 2.6-3.4 | Target gear ratio range (chainring ÷ cog) |
+| Cog min/max | 13-19 teeth | Sprocket teeth range to search |
+| Chainring min/max | 42-55 teeth | Front gear teeth range to search |
+| Chain links min/max | 80-130 links | Chain length range to consider |
+| Half-link chain | Off | Enable to include odd link counts |
+| Max wear | 0.75% | Maximum chain wear tolerance |
+
+#### Algorithm
+
+The finder uses the following approach:
+
+1. **Chainstay Calculation**: For each chainring/cog/chain combination, calculates the required chainstay distance using a quadratic formula:
+   ```
+   aD² + bD + c = 0
+   ```
+   Where D is chainstay distance, and coefficients depend on gear radii and chain length.
+
+2. **Filtering**: Combinations are filtered by:
+   - Chainstay within specified range (including worst-case worn chain)
+   - Ratio within target range
+
+3. **Scoring**: Each valid combination is scored:
+   ```
+   score = (ratios_in_range × 10) + (coverage × 5)
+   ```
+   - `ratios_in_range`: Number of cog options falling within target ratio
+   - `coverage`: Ratio range coverage percentage
+
+4. **Results**: Top 50 combinations returned, sorted by score descending.
+
+#### Output
+
+Results are displayed in an expandable table:
+
+- **Main rows**: Show chainring teeth + chain link count + score
+- **Expanded rows**: Show all valid cog options for that combo
+  - Green highlight: Ratio within target range
+  - Gray: Outside target range but valid
+  - Displays: cog teeth, gear ratio, required chainstay, max chainstay at worn chain
+
+#### Usage
+
+1. Set your frame's chainstay range and desired gear ratio
+2. Adjust component ranges based on available parts
+3. Click "Search" (or press Enter)
+4. Expand rows to see cog options
+5. Click any cog row to apply that configuration to the main simulation
 
 ## Technical Implementation
 
@@ -78,6 +137,12 @@ The application uses vanilla JavaScript with ES6 modules and HTML5 Canvas for re
    - Pan/zoom camera controls
    - Touch gesture support (pinch zoom, drag)
    - Coordinate transformation (world ↔ screen space)
+
+8. **Chainring Finder** (`ratio_finder.js`, `ratio_finder_ui.js`)
+   - Algorithm for finding optimal gear combinations
+   - Quadratic solver for chainstay distance calculation
+   - Modal UI with expandable results table
+   - Direct integration with main simulation state
 
 ### Mathematical Models
 
@@ -164,6 +229,8 @@ bikegearing/
 │   ├── interactive.js  # Mouse/touch interactions
 │   ├── ui.js           # UI control management
 │   ├── ui_input.js     # Input element handlers
+│   ├── ratio_finder.js # Chainring/cog combination finder algorithm
+│   ├── ratio_finder_ui.js  # Finder modal UI
 │   ├── math.js         # Geometry utilities
 │   └── constants.js    # Physical constants
 └── drawings/           # Reference images (unused in app)
@@ -216,6 +283,7 @@ bikegearing/
 - VR/AR visualization modes
 - Multi-speed internal hub gears
 - Belt drive simulation
+- Chainring Finder presets for common frame geometries
 
 ## Credits
 
