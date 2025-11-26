@@ -41,16 +41,6 @@ function calculateChainstay(f, r, cl, chainWear) {
 }
 
 /**
- * Calculate gear ratio
- * @param {number} f - chainring teeth
- * @param {number} r - cog teeth
- * @returns {number} gear ratio
- */
-function calculateRatio(f, r) {
-  return f / r;
-}
-
-/**
  * @typedef {Object} FinderInputs
  * @property {number} csMin - minimum chainstay (mm)
  * @property {number} csMax - maximum chainstay (mm)
@@ -72,7 +62,6 @@ function calculateRatio(f, r) {
  * @property {number} ratio - gear ratio
  * @property {number} chainstay - required chainstay (mm)
  * @property {number} chainstayWeared - required chainstay (weared) (mm)
- * @property {boolean} inTargetRange - ratio within target range
  */
 
 /**
@@ -96,12 +85,10 @@ function findValidCogs(chainring, chainLinks, inputs) {
   const validCogs = [];
 
   for (let cog = inputs.cogMin; cog <= inputs.cogMax; cog++) {
-    const chainstay = calculateChainstay(
-      chainring,
-      cog,
-      chainLinks,
-      0
-    );
+    const ratio = chainring / cog;
+    if (ratio < inputs.ratioMin || ratio > inputs.ratioMax) continue;
+
+    const chainstay = calculateChainstay(chainring, cog, chainLinks, 0);
 
     if (chainstay === null) continue;
     if (chainstay < inputs.csMin || chainstay > inputs.csMax) continue;
@@ -114,17 +101,14 @@ function findValidCogs(chainring, chainLinks, inputs) {
     );
 
     if (chainstayWeared === null) continue;
-    if (chainstayWeared < inputs.csMin || chainstayWeared > inputs.csMax) continue;
-
-    const ratio = calculateRatio(chainring, cog);
-    const inTargetRange = ratio >= inputs.ratioMin && ratio <= inputs.ratioMax;
+    if (chainstayWeared < inputs.csMin || chainstayWeared > inputs.csMax)
+      continue;
 
     validCogs.push({
       cog,
       ratio,
       chainstay,
       chainstayWeared,
-      inTargetRange,
     });
   }
 
@@ -138,55 +122,24 @@ function findValidCogs(chainring, chainLinks, inputs) {
  * Calculate score for a chainring/chain combo
  * @param {ValidCog[]} validCogs
  * @param {FinderInputs} inputs
- * @returns {{score: number, ratioCount: number, ratioCoverage: number}}
+ * @returns {{score: number, ratioCount: number}}
  */
 function calculateScore(validCogs, inputs) {
-  const inRangeCogs = validCogs.filter((c) => c.inTargetRange);
-  const ratioCount = inRangeCogs.length;
+  const ratioCount = validCogs.length;
 
   if (ratioCount === 0) {
     return { score: 0, ratioCount: 0, ratioCoverage: 0 };
   }
 
   // Calculate ratio range coverage
-  const ratios = inRangeCogs.map((c) => c.ratio);
+  const ratios = validCogs.map((c) => c.ratio);
   const minRatio = Math.min(...ratios);
   const maxRatio = Math.max(...ratios);
   const targetRange = inputs.ratioMax - inputs.ratioMin;
   const achievedRange = maxRatio - minRatio;
   const ratioCoverage = targetRange > 0 ? achievedRange / targetRange : 1;
 
-  // Composite score: weight count more heavily, coverage as bonus
-  const score = ratioCount * 10 + ratioCoverage * 5;
-
-  return { score, ratioCount, ratioCoverage };
-}
-
-/**
- * Find the cog closest to the middle of the target ratio range
- * @param {ValidCog[]} validCogs
- * @param {FinderInputs} inputs
- * @returns {ValidCog|null}
- */
-function findMiddleCog(validCogs, inputs) {
-  const inRangeCogs = validCogs.filter((c) => c.inTargetRange);
-  if (inRangeCogs.length === 0) {
-    return validCogs.length > 0 ? validCogs[0] : null;
-  }
-
-  const middleRatio = (inputs.ratioMin + inputs.ratioMax) / 2;
-  let closest = inRangeCogs[0];
-  let minDiff = Math.abs(closest.ratio - middleRatio);
-
-  for (const cog of inRangeCogs) {
-    const diff = Math.abs(cog.ratio - middleRatio);
-    if (diff < minDiff) {
-      minDiff = diff;
-      closest = cog;
-    }
-  }
-
-  return closest;
+  return { score: ratioCoverage, ratioCount };
 }
 
 /**
@@ -197,24 +150,24 @@ function findMiddleCog(validCogs, inputs) {
 function findChainringCombos(inputs) {
   const results = [];
 
+  // Determine chain link iteration based on half-link option
+  const startLinks = inputs.allowHalfLink
+    ? inputs.chainLinksMin
+    : inputs.chainLinksMin % 2 === 0
+    ? inputs.chainLinksMin
+    : inputs.chainLinksMin + 1;
+
+  const linkStep = inputs.allowHalfLink ? 1 : 2;
+
   for (
-    let chainring = inputs.chainringMin;
-    chainring <= inputs.chainringMax;
-    chainring++
+    let chainLinks = startLinks;
+    chainLinks <= inputs.chainLinksMax;
+    chainLinks += linkStep
   ) {
-    // Determine chain link iteration based on half-link option
-    const startLinks = inputs.allowHalfLink
-      ? inputs.chainLinksMin
-      : inputs.chainLinksMin % 2 === 0
-        ? inputs.chainLinksMin
-        : inputs.chainLinksMin + 1;
-
-    const linkStep = inputs.allowHalfLink ? 1 : 2;
-
     for (
-      let chainLinks = startLinks;
-      chainLinks <= inputs.chainLinksMax;
-      chainLinks += linkStep
+      let chainring = inputs.chainringMin;
+      chainring <= inputs.chainringMax;
+      chainring++
     ) {
       const validCogs = findValidCogs(chainring, chainLinks, inputs);
 
@@ -245,11 +198,4 @@ function findChainringCombos(inputs) {
   return results;
 }
 
-export {
-  calculateChainstay,
-  calculateRatio,
-  findChainringCombos,
-  findValidCogs,
-  calculateScore,
-  findMiddleCog,
-};
+export { findChainringCombos };

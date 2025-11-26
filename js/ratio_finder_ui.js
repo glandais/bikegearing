@@ -1,7 +1,5 @@
 import {
   findChainringCombos,
-  findMiddleCog,
-  calculateChainstay,
 } from "./ratio_finder.js";
 import BikeGearingState from "./state.js";
 import BikeGearingMain from "./main.js";
@@ -189,6 +187,20 @@ class RatioFinderUi {
       </div>
     `;
 
+    // Chainring count
+    html += `
+      <div class="ratio-finder-input-row">
+        <label>Chainring Count:</label>
+        <div class="range-inputs">
+          <select id="chainringCountInput">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        </div>
+      </div>
+    `;
+
     html += "</div>";
     return html;
   }
@@ -204,6 +216,7 @@ class RatioFinderUi {
     }
     this.inputs.allowHalfLink = document.getElementById("allowHalfLink");
     this.inputs.maxChainWearInput = document.getElementById("maxChainWearInput");
+    this.inputs.chainringCountInput = document.getElementById("chainringCountInput");
   }
 
   createOpenButton() {
@@ -354,6 +367,7 @@ class RatioFinderUi {
       chainLinksMax: parseInt(this.inputs.chainLinksRangeMax.value),
       allowHalfLink: this.inputs.allowHalfLink.checked,
       maxChainWear: parseFloat(this.inputs.maxChainWearInput.value) / 100,
+      chainringCount: parseInt(this.inputs.chainringCountInput.value),
     };
   }
 
@@ -393,10 +407,10 @@ class RatioFinderUi {
     this.expandedRows.clear();
 
     const results = findChainringCombos(inputs);
-    this.renderResults(results, inputs);
+    this.renderResults(results);
   }
 
-  renderResults(results, inputs) {
+  renderResults(results) {
     if (results.length === 0) {
       this.resultsContainer.innerHTML =
         '<p class="no-results">No valid combinations found. Try expanding your ranges.</p>';
@@ -423,12 +437,12 @@ class RatioFinderUi {
     for (let i = 0; i < displayResults.length; i++) {
       const combo = displayResults[i];
       const rowId = `combo-${i}`;
-      const inRangeCogs = combo.validCogs.filter((c) => c.inTargetRange);
+      const validCogs = combo.validCogs;
 
       // Calculate min/max ratios for display
       let ratiosDisplay = "0";
-      if (inRangeCogs.length > 0) {
-        const ratios = inRangeCogs.map((c) => c.ratio);
+      if (validCogs.length > 0) {
+        const ratios = validCogs.map((c) => c.ratio);
         const minRatio = Math.min(...ratios).toFixed(2);
         const maxRatio = Math.max(...ratios).toFixed(2);
         ratiosDisplay = `${combo.ratioCount} (${minRatio} → ${maxRatio})`;
@@ -449,9 +463,8 @@ class RatioFinderUi {
 
       // Add expandable cog details rows
       for (const cog of combo.validCogs) {
-        const inRange = cog.inTargetRange;
         html += `
-          <tr class="cog-details cog-detail-row ${inRange ? "" : "out-of-range"}"
+          <tr class="cog-details cog-detail-row"
               data-parent="${rowId}"
               data-chainring="${combo.chainring}"
               data-chainlinks="${combo.chainLinks}"
@@ -459,8 +472,7 @@ class RatioFinderUi {
               data-chainstay="${cog.chainstay.toFixed(2)}"
               data-chainstayWeared="${cog.chainstayWeared.toFixed(2)}">
             <td colspan="5">
-              ${cog.cog}T: ratio ${cog.ratio.toFixed(2)} (cs: ${cog.chainstay.toFixed(1)}mm → ${cog.chainstayWeared.toFixed(1)}mm (weared))
-              ${inRange ? "" : " - outside target"}
+              ${cog.cog}T: ratio ${cog.ratio.toFixed(2)} (cs: ${cog.chainstay.toFixed(1)}mm → ${cog.chainstayWeared.toFixed(1)}mm (weared))              
             </td>
           </tr>
         `;
