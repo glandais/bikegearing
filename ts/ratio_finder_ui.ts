@@ -495,8 +495,10 @@ export default class RatioFinderUi {
         <tbody>
     `;
 
-    // Show top 100 results
-    const displayResults = results.slice(0, 100);
+    const maxResults = 100;
+
+    // Show top maxResults results
+    const displayResults = results.slice(0, maxResults);
 
     for (let i = 0; i < displayResults.length; i++) {
       const combo = displayResults[i];
@@ -556,8 +558,8 @@ export default class RatioFinderUi {
 
     html += "</tbody></table>";
 
-    if (results.length > 50) {
-      html += `<p class="more-results">Showing top 50 of ${results.length} combinations</p>`;
+    if (results.length > maxResults) {
+      html += `<p class="more-results">Showing top ${maxResults} of ${results.length} combinations</p>`;
     }
 
     this.resultsContainer.innerHTML = html;

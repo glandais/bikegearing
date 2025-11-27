@@ -204,10 +204,7 @@ export function calculateScore(
     if (maxReuse <= 0) {
       reusabilityScore = 0;
     } else {
-      reusabilityScore = Math.min(
-        (totalUsages - uniqueCogs) / maxReuse,
-        1.0
-      );
+      reusabilityScore = Math.min((totalUsages - uniqueCogs) / maxReuse, 1.0);
     }
   }
 
@@ -237,6 +234,14 @@ export function calculateScore(
 }
 
 function combinations<T>(arr: T[], n: number): T[][] {
+  let result: T[][] = [];
+  for (let i = 1; i <= n; i++) {
+    result = result.concat(combinationsStrict(arr, i));
+  }
+  return result;
+}
+
+function combinationsStrict<T>(arr: T[], n: number): T[][] {
   if (n === 0) return [[]];
   if (n > arr.length) return [];
 
