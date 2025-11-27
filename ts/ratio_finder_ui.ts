@@ -503,7 +503,9 @@ export default class RatioFinderUi {
     for (let i = 0; i < displayResults.length; i++) {
       const combo = displayResults[i];
       const rowId = `combo-${i}`;
-      const validCogs = combo.validCogs;
+      const allCogs = combo.allCogs;
+      const validCogs = combo.allCogs
+          .filter((c) => c.ratioValid);
 
       // Calculate min/max ratios for display
       let ratiosDisplay = "0";
@@ -533,9 +535,10 @@ export default class RatioFinderUi {
       `;
 
       // Add expandable cog details rows
-      for (const cog of combo.validCogs) {
+      for (const cog of allCogs) {
+        const invalidClass = cog.ratioValid ? "" : " cog-invalid";
         html += `
-          <tr class="cog-details cog-detail-row"
+          <tr class="cog-details cog-detail-row${invalidClass}"
               data-parent="${rowId}"
               data-chainring="${cog.chainring}"
               data-chainlinks="${combo.chainLinks}"

@@ -59,6 +59,7 @@ export interface ValidCog {
   chainring: number;
   cog: number;
   ratio: number;
+  ratioValid: boolean;
   chainstay: number;
   chainstayWeared: number;
   skidPatchesSingleLegged: number;
@@ -67,13 +68,13 @@ export interface ValidCog {
 
 export interface ChainringCombo {
   chainring: number;
-  validCogs: ValidCog[];
+  allCogs: ValidCog[];
 }
 
 export interface ChainringsCombo {
   chainrings: number[];
   chainLinks: number;
-  validCogs: ValidCog[];
+  allCogs: ValidCog[];
   score: number;
   ratioCount: number;
   ratioCoverage: number;

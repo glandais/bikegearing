@@ -50,7 +50,7 @@ export function calculateChainstay(
 /**
  * Find all valid cogs for a given chainring and chain length
  */
-export function findValidCogs(
+export function findAllCogs(
   chainring: number,
   chainLinks: number,
   inputs: FinderInputs
@@ -59,7 +59,7 @@ export function findValidCogs(
 
   for (let cog = inputs.cogMin; cog <= inputs.cogMax; cog++) {
     const ratio = chainring / cog;
-    if (ratio < inputs.ratioMin || ratio > inputs.ratioMax) continue;
+    const ratioValid = ratio >= inputs.ratioMin && ratio <= inputs.ratioMax;
 
     const chainstay = calculateChainstay(chainring, cog, chainLinks, 0);
 
@@ -83,6 +83,7 @@ export function findValidCogs(
       chainring,
       cog,
       ratio,
+      ratioValid,
       chainstay,
       chainstayWeared,
       skidPatchesSingleLegged: skidPatches[0],
@@ -112,20 +113,25 @@ export function calculateScore(
   chainringComboList: ChainringCombo[],
   inputs: FinderInputs
 ): ChainringsCombo {
-  const validCogs = chainringComboList.flatMap((c) => c.validCogs);
+  const allCogs = chainringComboList.flatMap((c) => c.allCogs);
+  allCogs.sort((a, b) => a.ratio - b.ratio);
+  const validCogs = allCogs.filter((c) => c.ratioValid);
   const n = validCogs.length;
   const chainringCount = chainringComboList.length;
+  const chainrings = chainringComboList.map(
+    (chainringCombo) => chainringCombo.chainring
+  );
 
   // Edge case: no ratios
   if (n === 0) {
     return {
       chainLinks,
-      chainrings: [],
+      chainrings,
       score: 0,
       maxGap: 0,
       ratioCount: 0,
       ratioCoverage: 0,
-      validCogs,
+      allCogs,
       coverageScore: 0,
       countScore: 0,
       evennessScore: 0,
@@ -218,14 +224,12 @@ export function calculateScore(
 
   return {
     chainLinks,
-    chainrings: chainringComboList.map(
-      (chainringCombo) => chainringCombo.chainring
-    ),
+    chainrings,
     score,
     ratioCount: n,
     ratioCoverage: coverageScore,
     maxGap,
-    validCogs,
+    allCogs,
     coverageScore,
     countScore,
     evennessScore,
@@ -291,14 +295,14 @@ export function findChainringCombos(inputs: FinderInputs): ChainringsCombo[] {
       chainring <= inputs.chainringMax;
       chainring++
     ) {
-      const validCogs = findValidCogs(chainring, chainLinks, inputs);
+      const allCogs = findAllCogs(chainring, chainLinks, inputs);
 
-      if (validCogs.length === 0) continue;
+      if (allCogs.filter((c) => c.ratioValid).length === 0) continue;
 
       // Only include if at least one ratio is in target range
       chainrings.push({
         chainring,
-        validCogs,
+        allCogs,
       });
     }
 
