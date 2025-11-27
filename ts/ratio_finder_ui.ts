@@ -140,10 +140,23 @@ export default class RatioFinderUi {
       <button class="ratio-finder-close">&times;</button>
     `;
 
-    // Modal content (inputs)
+    // Modal content (inputs) - collapsible
     const inputsSection = document.createElement("div");
     inputsSection.className = "ratio-finder-inputs";
-    inputsSection.innerHTML = this.createInputsHtml();
+
+    const inputsHeader = document.createElement("div");
+    inputsHeader.className = "ratio-finder-inputs-header";
+    inputsHeader.innerHTML = `
+      <span class="collapse-icon">▼</span>
+      <span>Search Parameters</span>
+    `;
+
+    const inputsContent = document.createElement("div");
+    inputsContent.className = "ratio-finder-inputs-content";
+    inputsContent.innerHTML = this.createInputsHtml();
+
+    inputsSection.appendChild(inputsHeader);
+    inputsSection.appendChild(inputsContent);
 
     // Results section
     this.resultsContainer = document.createElement("div");
@@ -297,6 +310,12 @@ export default class RatioFinderUi {
 
     this.overlay.addEventListener("click", () => this.close());
 
+    // Collapsible inputs toggle
+    const inputsHeader = this.modal.querySelector(".ratio-finder-inputs-header");
+    if (inputsHeader) {
+      inputsHeader.addEventListener("click", () => this.toggleInputs());
+    }
+
     // Search button
     const searchBtn = document.getElementById("ratio-finder-search");
     if (searchBtn) {
@@ -330,6 +349,14 @@ export default class RatioFinderUi {
 
   isOpen(): boolean {
     return this.modal?.classList.contains("visible") ?? false;
+  }
+
+  toggleInputs(): void {
+    if (!this.modal) return;
+    const inputsSection = this.modal.querySelector(".ratio-finder-inputs");
+    if (inputsSection) {
+      inputsSection.classList.toggle("collapsed");
+    }
   }
 
   getEventLocation(e: MouseEvent | TouchEvent): Point | undefined {

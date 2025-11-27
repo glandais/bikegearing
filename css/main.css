@@ -137,9 +137,44 @@ body {
 }
 
 .ratio-finder-inputs {
-  padding: 16px;
   border-bottom: 1px solid #ddd;
   background-color: #f9f9f9;
+}
+
+.ratio-finder-inputs-header {
+  padding: 12px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  user-select: none;
+}
+
+.ratio-finder-inputs-header:hover {
+  background-color: #eee;
+}
+
+.ratio-finder-inputs-header .collapse-icon {
+  transition: transform 0.2s ease;
+  font-size: 0.8em;
+}
+
+.ratio-finder-inputs.collapsed .collapse-icon {
+  transform: rotate(-90deg);
+}
+
+.ratio-finder-inputs-content {
+  padding: 0 16px 16px 16px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  max-height: 500px;
+}
+
+.ratio-finder-inputs.collapsed .ratio-finder-inputs-content {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .ratio-finder-input-grid {
