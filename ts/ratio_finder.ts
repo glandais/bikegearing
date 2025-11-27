@@ -97,14 +97,15 @@ export function findValidCogs(
 }
 
 // Scoring weights
-const COVERAGE_WEIGHT = 0.4;
-const COUNT_WEIGHT = 0.35;
-const EVENNESS_WEIGHT = 0.25;
+const COVERAGE_WEIGHT = 0.35;
+const COUNT_WEIGHT = 0.3;
+const EVENNESS_WEIGHT = 0.2;
+const REUSABILITY_WEIGHT = 0.15;
 const MAX_EXPECTED_RATIOS = 15;
 
 /**
  * Calculate score for a chainring/chain combo
- * Score = coverage * (coverageWeight + countWeight * countScore + evennessWeight * evennessScore)
+ * Score = coverage * (coverageWeight + countWeight * countScore + evennessWeight * evennessScore + reusabilityWeight * reusabilityScore)
  */
 export function calculateScore(
   chainLinks: number,
@@ -113,6 +114,7 @@ export function calculateScore(
 ): ChainringsCombo {
   const validCogs = chainringComboList.flatMap((c) => c.validCogs);
   const n = validCogs.length;
+  const chainringCount = chainringComboList.length;
 
   // Edge case: no ratios
   if (n === 0) {
@@ -127,6 +129,7 @@ export function calculateScore(
       coverageScore: 0,
       countScore: 0,
       evennessScore: 0,
+      reusabilityScore: 0,
     };
   }
 
@@ -186,12 +189,35 @@ export function calculateScore(
     }
   }
 
+  // === REUSABILITY SCORE (cog reuse across chainrings) ===
+  let reusabilityScore: number;
+  if (chainringCount <= 1) {
+    reusabilityScore = 0; // No reusability possible with single chainring
+  } else {
+    // Count unique cogs
+    const uniqueCogs = new Set(validCogs.map((c) => c.cog)).size;
+    const totalUsages = n;
+
+    // reusabilityScore = (totalUsages - uniqueCogs) / (uniqueCogs * (chainringCount - 1))
+    // This ranges from 0 (no reuse) to 1 (perfect reuse: every cog works with every chainring)
+    const maxReuse = uniqueCogs * (chainringCount - 1);
+    if (maxReuse <= 0) {
+      reusabilityScore = 0;
+    } else {
+      reusabilityScore = Math.min(
+        (totalUsages - uniqueCogs) / maxReuse,
+        1.0
+      );
+    }
+  }
+
   // === FINAL SCORE ===
   const score =
     coverageScore *
     (COVERAGE_WEIGHT +
       COUNT_WEIGHT * countScore +
-      EVENNESS_WEIGHT * evennessScore);
+      EVENNESS_WEIGHT * evennessScore +
+      REUSABILITY_WEIGHT * reusabilityScore);
 
   return {
     chainLinks,
@@ -206,6 +232,7 @@ export function calculateScore(
     coverageScore,
     countScore,
     evennessScore,
+    reusabilityScore,
   };
 }
 

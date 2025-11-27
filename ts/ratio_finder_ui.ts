@@ -82,13 +82,13 @@ export default class RatioFinderUi {
         min: 1.5,
         max: 5.0,
         step: 0.1,
-        defaultMin: 2.5,
-        defaultMax: 3.8,
+        defaultMin: 2.6,
+        defaultMax: 3.4,
       },
       {
         id: "cogRange",
         label: "Cog Teeth",
-        min: 10,
+        min: 11,
         max: 25,
         step: 1,
         defaultMin: 13,
@@ -97,10 +97,10 @@ export default class RatioFinderUi {
       {
         id: "chainringRange",
         label: "Chainring Teeth",
-        min: 32,
+        min: 28,
         max: 70,
         step: 1,
-        defaultMin: 42,
+        defaultMin: 46,
         defaultMax: 55,
       },
       {
@@ -488,14 +488,15 @@ export default class RatioFinderUi {
             <th title="Coverage: how much of target ratio range is achieved">Cov</th>
             <th title="Count: number of available ratios (log scale)">Cnt</th>
             <th title="Evenness: how evenly spaced the ratios are">Even</th>
+            <th title="Reusability: cogs shared across chainrings">Reuse</th>
             <th>Max gap</th>
           </tr>
         </thead>
         <tbody>
     `;
 
-    // Show top 50 results
-    const displayResults = results.slice(0, 50);
+    // Show top 100 results
+    const displayResults = results.slice(0, 100);
 
     for (let i = 0; i < displayResults.length; i++) {
       const combo = displayResults[i];
@@ -524,6 +525,7 @@ export default class RatioFinderUi {
           <td>${(combo.coverageScore * 100).toFixed(0)}%</td>
           <td>${(combo.countScore * 100).toFixed(0)}%</td>
           <td>${(combo.evennessScore * 100).toFixed(0)}%</td>
+          <td>${(combo.reusabilityScore * 100).toFixed(0)}%</td>
           <td>${combo.maxGap.toFixed(2)}</td>
         </tr>
       `;
@@ -538,7 +540,7 @@ export default class RatioFinderUi {
               data-cog="${cog.cog}"
               data-chainstay="${cog.chainstay.toFixed(2)}"
               data-chainstayWeared="${cog.chainstayWeared.toFixed(2)}">
-            <td colspan="9">
+            <td colspan="10">
               ${cog.chainring}x${cog.cog}:
               ratio ${cog.ratio.toFixed(2)}
               —

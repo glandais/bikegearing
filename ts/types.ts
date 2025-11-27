@@ -82,6 +82,7 @@ export interface ChainringsCombo {
   coverageScore: number;
   countScore: number;
   evennessScore: number;
+  reusabilityScore: number;
 }
 
 // Range input configuration for ratio finder UI
