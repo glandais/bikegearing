@@ -28,7 +28,7 @@ An interactive web-based bicycle drivetrain simulator that accurately models cha
 - **Debug Mode**: Shows internal calculations, rivet numbers, and performance metrics
 - **Follow Rivet Mode**: Camera tracks rivet #0 through its journey
 - **Optional Wheel Rendering**: Toggle rear wheel with spokes visualization
-- **Chain Status Indicators**: Red coloring when chain is too short/long
+- **Chain Status Indicators**: Color-coded tension visualization (green=normal, red/yellow=over/under)
 - **Real-time Metrics**: Speed (km/h), cadence (RPM), FPS counter
 
 ### Chainring Finder
@@ -48,6 +48,7 @@ An advanced tool for finding optimal chainring, chain, and cog combinations for 
 | Chain links min/max | 80-130 links | Chain length range to consider |
 | Half-link chain | Off | Enable to include odd link counts |
 | Max wear | 0.75% | Maximum chain wear tolerance |
+| Chainring count | 1-3 | Number of chainrings to combine |
 
 #### Algorithm
 
@@ -63,53 +64,66 @@ The finder uses the following approach:
    - Chainstay within specified range (including worst-case worn chain)
    - Ratio within target range
 
-3. **Scoring**: Each valid combination is scored:
+3. **Scoring**: Each valid combination uses a weighted multi-factor score:
    ```
-   score = (ratios_in_range × 10) + (coverage × 5)
+   score = coverage × (0.35 + 0.30 × countScore + 0.20 × evennessScore + 0.15 × reusabilityScore)
    ```
-   - `ratios_in_range`: Number of cog options falling within target ratio
-   - `coverage`: Ratio range coverage percentage
 
-4. **Results**: Top 50 combinations returned, sorted by score descending.
+   | Factor | Weight | Description |
+   |--------|--------|-------------|
+   | Coverage | 35% | How much of target ratio range is achieved |
+   | Count | 30% | Number of available ratios (logarithmic, max ~15) |
+   | Evenness | 20% | How uniformly spaced ratios are (RMSE-based) |
+   | Reusability | 15% | Cog sharing across multiple chainrings |
+
+4. **Results**: Top 100 combinations returned, sorted by score descending.
 
 #### Output
 
 Results are displayed in an expandable table:
 
-- **Main rows**: Show chainring teeth + chain link count + score
+- **Main rows**: Show chainring teeth + chain link count + score breakdown
 - **Expanded rows**: Show all valid cog options for that combo
   - Green highlight: Ratio within target range
-  - Gray: Outside target range but valid
-  - Displays: cog teeth, gear ratio, required chainstay, max chainstay at worn chain
+  - Gray: Outside target range but valid chainstay
+  - Displays: cog teeth, gear ratio, required chainstay, max chainstay at worn chain, skid patches
 
 #### Usage
 
 1. Set your frame's chainstay range and desired gear ratio
 2. Adjust component ranges based on available parts
-3. Click "Search" (or press Enter)
-4. Expand rows to see cog options
-5. Click any cog row to apply that configuration to the main simulation
+3. Select chainring count (1-3 for multi-chainring setups)
+4. Click "Search" (or press Enter)
+5. Expand rows to see cog options
+6. Click any cog row to apply that configuration to the main simulation
 
 ## Technical Implementation
 
 ### Architecture Overview
 
-The application uses vanilla JavaScript with ES6 modules and HTML5 Canvas for rendering. No external dependencies or frameworks are required.
+The application uses TypeScript with ES6 modules and HTML5 Canvas for rendering. Built with Vite for development and bundling.
 
 #### Core Modules
 
-1. **State Management** (`state.js`)
+1. **State Management** (`ts/state.ts`)
    - Central state container for all simulation parameters
    - Tracks gear angles, rivet positions, chain engagement points
    - Manages derived values (radius, tooth angles, chain tension)
+   - Automatic skid patch recalculation on gear changes
 
-2. **Physics Engine** (`computer.js`)
-   - Main computation loop running at 60 FPS
+2. **Type Definitions** (`ts/types.ts`)
+   - TypeScript interfaces for all data structures
+   - FinderInputs, ValidCog, ChainringCombo, ChainringsCombo
+   - Ensures type safety across the application
+
+3. **Physics Engine** (`ts/computer.ts`)
+   - Iterative constraint satisfaction algorithm (max 50 iterations)
    - Incremental angle updates with collision detection
    - Chain tension algorithms for upper and lower spans
    - Automatic rivet-to-cog engagement correction
+   - Four constraints per iteration: tension up/down, front/rear rivet positioning
 
-3. **Rivet Calculator** (`rivet_calculator.js`)
+4. **Rivet Calculator** (`ts/rivet_calculator.ts`)
    - Calculates positions for all chain rivets
    - Manages four chain sections:
      - Front gear engaged rivets
@@ -117,30 +131,32 @@ The application uses vanilla JavaScript with ES6 modules and HTML5 Canvas for re
      - Rear gear engaged rivets
      - Lower chain span (catenary)
 
-4. **Catenary Mathematics** (`catenary.js`)
-   - Implements exact catenary curve equation
+5. **Catenary Mathematics** (`ts/catenary.ts`)
+   - Implements exact catenary curve equation: `y = a * cosh((x - b) / a) + c`
    - Based on [mathematical solution](https://math.stackexchange.com/a/3557768)
    - Newton-Raphson method for parameter solving
    - Adaptive point distribution for smooth curves
 
-5. **Rendering System** (`drawer.js` + specialized drawers)
-   - **CogsDrawer**: Renders gear teeth with accurate involute profiles
-   - **RivetsDrawer**: Individual rivet rendering with chain links
+6. **Rendering System** (`ts/drawer.ts` + specialized drawers)
+   - **CogsDrawer**: Renders gear teeth with Bézier curve profiles
+   - **RivetsDrawer**: Individual rivet rendering with color-coded tension
    - **WheelDrawer**: Rear wheel with realistic spoke patterns
 
-6. **User Interface** (`ui.js`, `ui_input.js`)
+7. **User Interface** (`ts/ui.ts`, `ts/ui_input.ts`)
    - Draggable sidebar with collapsible controls
    - Real-time parameter updates without simulation restart
+   - Value converters for user-friendly display (%, mm, RPM)
    - Responsive layout with mobile support
 
-7. **Interaction Handler** (`interactive.js`)
+8. **Interaction Handler** (`ts/interactive.ts`)
    - Pan/zoom camera controls
    - Touch gesture support (pinch zoom, drag)
    - Coordinate transformation (world ↔ screen space)
 
-8. **Chainring Finder** (`ratio_finder.js`, `ratio_finder_ui.js`)
+9. **Chainring Finder** (`ts/ratio_finder.ts`, `ts/ratio_finder_ui.ts`)
    - Algorithm for finding optimal gear combinations
    - Quadratic solver for chainstay distance calculation
+   - Multi-factor weighted scoring system
    - Modal UI with expandable results table
    - Direct integration with main simulation state
 
@@ -173,6 +189,18 @@ Where parameters a, b, c are solved to satisfy:
    - Adjust rear gear angle to maintain tension
 3. Validate all rivets remain within gear tooth constraints
 
+### Physics Constants
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| HALF_LINK | 12.7mm | Standard chain pitch |
+| MAX_ITERATIONS | 50 | Constraint solver limit |
+| ANGLE_STEP | 0.01 rad | Per-iteration increment |
+| ANGLE_TOLERANCE | 1e-8 | Convergence threshold |
+| COLLISION_TOLERANCE | 0.001 | Teeth engagement tolerance |
+| CATENARY_POINTS | 100 | Slack chain resolution |
+| CATENARY_TOLERANCE | 1e-7 | Newton-Raphson convergence |
+
 ### Performance Optimizations
 
 - **Incremental Updates**: Small angle steps (0.01 rad) prevent instability
@@ -195,45 +223,58 @@ Where parameters a, b, c are solved to satisfy:
 git clone https://github.com/glandais/bikegearing.git
 cd bikegearing
 
-# Serve with any static server
-python3 -m http.server 8000
-# Or
-npx serve
+# Install dependencies
+npm install
 
-# Open http://localhost:8000
+# Start development server with hot reload
+npm run dev
+
+# Open http://localhost:5173
+```
+
+### Available Scripts
+```bash
+npm run dev        # Start Vite dev server
+npm run build      # Type check + production build
+npm run preview    # Preview production build
+npm run typecheck  # TypeScript type checking only
 ```
 
 ### Code Style
 - 2 spaces indentation (configured in `.prettierrc`)
-- JSDoc annotations for type hints
+- TypeScript with strict type checking
 - ES6 module imports/exports
-- No transpilation required
+- No runtime dependencies
 
 ### File Structure
 ```
 bikegearing/
 ├── index.html           # Main HTML with control panel
+├── package.json         # npm configuration
+├── tsconfig.json        # TypeScript configuration
+├── vite.config.ts       # Vite build configuration
 ├── css/
-│   └── main.css        # Sidebar and canvas styles
-├── js/
-│   ├── init.js         # Entry point and initialization
-│   ├── main.js         # Main application controller
-│   ├── state.js        # Central state management
-│   ├── computer.js     # Physics calculations
-│   ├── rivet_calculator.js  # Rivet position calculations
-│   ├── catenary.js     # Catenary curve mathematics
-│   ├── drawer.js       # Main rendering controller
-│   ├── cogs_drawer.js  # Gear teeth rendering
-│   ├── rivet_drawer.js # Chain rivet rendering
-│   ├── wheel_drawer.js # Wheel and spokes rendering
-│   ├── interactive.js  # Mouse/touch interactions
-│   ├── ui.js           # UI control management
-│   ├── ui_input.js     # Input element handlers
-│   ├── ratio_finder.js # Chainring/cog combination finder algorithm
-│   ├── ratio_finder_ui.js  # Finder modal UI
-│   ├── math.js         # Geometry utilities
-│   └── constants.js    # Physical constants
-└── drawings/           # Reference images (unused in app)
+│   └── main.css         # Sidebar and canvas styles
+├── ts/
+│   ├── init.ts          # Entry point and initialization
+│   ├── main.ts          # Main application controller
+│   ├── state.ts         # Central state management
+│   ├── types.ts         # TypeScript interfaces
+│   ├── computer.ts      # Physics calculations
+│   ├── rivet_calculator.ts  # Rivet position calculations
+│   ├── catenary.ts      # Catenary curve mathematics
+│   ├── drawer.ts        # Main rendering controller
+│   ├── cogs_drawer.ts   # Gear teeth rendering
+│   ├── rivet_drawer.ts  # Chain rivet rendering
+│   ├── wheel_drawer.ts  # Wheel and spokes rendering
+│   ├── interactive.ts   # Mouse/touch interactions
+│   ├── ui.ts            # UI control management
+│   ├── ui_input.ts      # Input element handlers
+│   ├── ratio_finder.ts  # Chainring/cog finder algorithm
+│   ├── ratio_finder_ui.ts  # Finder modal UI
+│   ├── math.ts          # Geometry utilities
+│   └── constants.ts     # Physical constants
+└── drawings/            # Reference images (unused in app)
 ```
 
 ## Physics Details
